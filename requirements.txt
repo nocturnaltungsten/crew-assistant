@@ -1,0 +1,15 @@
+# Core framework
+crewai>=0.18.0
+
+# LLM interface (OpenAI-style)
+openai  # Required for compatibility shim, even if we're not using OpenAI
+
+# Dev tools
+python-dotenv  # Optional, for env var handling if needed
+
+# LM Studio adapter (compat shim, no install needed if using OpenAI interface directly)
+requests
+
+# Markdown/doc tools (optional, for doc scraping/scripts)
+markdown
+beautifulsoup4
