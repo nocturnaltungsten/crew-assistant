@@ -1,137 +1,154 @@
-# Technical Stack & Framework Inventory
+🧠 Core Language & Runtime
 
-## Core Language & Runtime
+Python 3.10+ – Primary language
 
-* **Python 3.10+**: primary language
-* **Virtual Environment**: `venv` or `poetry`
-* **Shell**: Fish/Bash (Mac-native)
+Poetry – Dependency + env manager (pyproject.toml) (use venv only for quick prototyping)
 
-## Local LLM Engine
+Fish Shell – Default scripting (Bash-compatible)
 
-* **LM Studio**
+🧱 Base Architecture
 
-  * Models: Mistral, Dolphin, Codestral, etc.
-  * OpenAI-compatible API
-  * URL: `http://localhost:1234/v1/chat/completions`
+CrewAI – Lightweight multi-agent orchestration
 
-## Agent Framework
+Task/goal loops with role-specific agents
 
-* **CrewAI**
+Sequential or manager-delegation process types
 
-  * Multi-agent orchestration
-  * Planning, memory, and execution loops
-  * Human-in-the-loop support
+ModelContextProtocol (MCP) – For future: composable distributed agent modules
 
-## Optional Agentic Layer
+LangGraph (optional) – For flow-based multi-agent DAGs
 
-* **LangGraph** (for DAG-like agent workflows)
-* **ModelContextProtocol (MCP)** for modular/edge distributed systems
+🤖 LLM Inference Layer
 
-## Task Memory + RAG
+LM Studio (local default)
 
-* **LlamaIndex (modular)**
+OpenAI-compatible server: http://localhost:1234/v1
 
-  * `llama-index-core`
-  * `llama-index-readers-file`
-  * `llama-index-embeddings-huggingface`
-* **Chroma** (or lightweight JSON/SQLite fallback)
+Supports: Mistral, Dolphin, Codestral, DeepSeek, etc.
 
-## CLI + Orchestration
+Ollama (fallback) – Simple model runner for low-config local deployment
 
-* `make` or `Justfile` for task scripting
-* `dotenv` or native Mac keychain for secrets
+Supported APIs (optional)
 
-## Developer Tooling
+OpenAI
 
-* **VSCode**
+Claude (Anthropic)
 
-  * Extensions:
+Together.ai / Groq / DeepSeek
 
-    * Python
-    * Jupyter
-    * Black Formatter
-    * Privy (agent control panel)
-* **Terminal tools**:
+🧩 Embeddings + Retrieval (RAG)
 
-  * `starship`, `atuin`, `zoxide`
+LlamaIndex (modular setup)
 
-## Utilities
+llama-index-core
 
-* `jq`, `curl`, `httpie`, `fd`, `ripgrep`
-* `graphviz` for flowcharts/architecture diagrams
+llama-index-readers-file
 
-## Docs & Search Aggregation
+llama-index-embeddings-huggingface
 
-* GitHub README + `/docs` scraper
-* Optional: Embed for local semantic search
-* Output formats: `.md`, `.pdf`, `.json`, `.html`
+Lite Store Options
 
-## APIs & Endpoints
+JSON store (default)
 
-* OpenAI-style interface via LM Studio
-* Optional hooks for:
+SQLite (local memory prototype)
 
-  * Claude (Anthropic)
-  * Ollama local fallback
-  * File I/O (read/write/exec)
+Chroma (for future clustering/semantic ops)
 
+🛠 Developer Environment
 
+Editor: VS Code
 
-# Manual link dump
+Extensions:
 
-https://lmstudio.ai/docs/app/api/tools
+Python
 
-https://github.com/crewAIInc/crewAI
-https://github.com/Fosowl/agenticSeek
-Anthropic – Building Effective Agents blog: https://www.anthropic.com/engineering/building-effective-agents
+Jupyter
 
-Anthropic – Extended Thinking with Claude: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+Black Formatter
 
-Privy VSCode Extension – AI Agent Dev Tools: https://marketplace.visualstudio.com/items?itemName=privy.privy-vscode
+Privy (CrewAI GUI)
 
-Crew AI Crash Course (step‑by‑step): https://alejandro-ao.com/crew-ai-crash-course-step-by-step/
+Terminal Stack:
 
-CrewAI Examples Repository: https://github.com/crewAIInc/crewAI-examples/tree/main
+starship – Prompt
 
-Datastax – Local AI with Ollama + Agents: https://datastax.medium.com/unlocking-local-ai-using-ollama-with-agents-34604790e55b
+atuin – Shell history
 
-Datastax – LangFlow for Local AI Flow: https://www.datastax.com/products/langflow?utm_medium=byline&utm_campaign=local-ai-using-ollama-with-agents&utm_source=medium
+zoxide – Smart directory nav
 
-Ollama-and-Agents (premthomas): https://github.com/premthomas/Ollama-and-Agents
+📁 Project Utilities
 
-CrewAI for local agents with Ollama (tutorial): https://medium.com/@indradumnabanerjee/crewai-for-local-ai-agents-with-ollama-a-hands-on-tutorial-for-local-ai-agents-a59b6ba32fd1
+Orchestration Scripts
 
-Analytics Vidhya – Build Multi‑Agent System: https://www.analyticsvidhya.com/blog/2024/09/build-multi-agent-system/
+make or just – Command aliases
 
-Reddit – CrewAI “confused between MCP server and crewAI”: https://www.reddit.com/r/crewai/comments/1kp9w3d/confused_between_mcp_server_and_crewai_when_to/
+dotenv – Config loading
 
-LinkedIn – CrewAI, MCP & Distributed Intelligence: https://www.linkedin.com/pulse/crewai-mcp-new-era-distributed-intelligence-edge-rob-olson-fgxcc
+Toolchain
 
-Medium – Refactoring CrewAI App to MCP: https://medium.com/@manavg/refactoring-a-crewai-app-to-mcp-a-journey-to-modular-agentic-systems-4e0e6df47ea0
+jq, fd, ripgrep, httpie, graphviz
 
-ModelContextProtocol Quickstart (client/server + SDK):
+Snapshot System
 
-Client: https://modelcontextprotocol.io/quickstart/client#building-mcp-clients
+Modular ZIP snapshot + part splitter
 
-Server: https://modelcontextprotocol.io/quickstart/server
+Smoke-break initiated .zip logging
 
-Python SDK: https://github.com/modelcontextprotocol/python-sdk
+📚 Documentation / Scraper
 
-AG2.ai – Multi‑Agent Platform: https://ag2.ai/
+GitHub doc fetcher script:
 
-🔍 Additional High-Value References
-Ollama (local LLM host): https://ollama.ai/
+Crawls /docs, README.md, etc. from listed URLs
 
-LM Studio (local LLM GUI): https://lmstudio.ai/
+Outputs .md for local review, .html for browser dump
 
-CrewAI MCP Architecture Overview: (Add specific blog or repo link if found)
+Embed-ready output for RAG pipeline
 
-Anthropic Developer Docs: https://docs.anthropic.com/
+Export format: .md, .json, .html, .pdf
 
-ModelContextProtocol (official): https://modelcontextprotocol.io/
+🌐 API Adapters + Routing
 
+OpenAI-compatible (LM Studio)
 
+Future Expandable Hooks
 
----
+Internal voice-to-text
 
-This document should be saved as `TECH_STACK.md` in the root project directory and updated as new tools/modules are added. All docs aggregation scripts will reference this list to determine scrape targets.
+File I/O
+
+System commands (with agent permissions)
+
+🧪 Optional Components (R&D Phase)
+
+LangGraph (advanced agent DAG routing)
+
+CrewAI Flows (logic-based reactive loops)
+
+MCP Mesh (for edge/distributed extensions)
+
+Langchain-style tools (as standalone subprocesses)
+
+🔗 High-Value Links
+
+CrewAI GitHub
+
+CrewAI Examples
+
+ModelContextProtocol SDK
+
+LM Studio
+
+Ollama
+
+Anthropic – Effective Agents
+
+CrewAI Crash Course
+
+Datastax: Agents + Ollama
+
+LangFlow (Visual DAG Builder)
+
+Privy VS Code Tool
+
+AG2.ai
+
