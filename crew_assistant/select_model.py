@@ -1,7 +1,6 @@
 # === select_model.py ===
 import requests
 import os
-import json
 
 LM_API_BASE = os.getenv("OPENAI_API_BASE", "http://localhost:1234/v1")
 MODELS_ENDPOINT = f"{LM_API_BASE}/models"

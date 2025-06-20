@@ -13,4 +13,3 @@ AGENT_REGISTRY = {
 
 __all__ = ["commander", "planner", "dev", "AGENT_REGISTRY"]
 
-from .ux import ux

@@ -29,17 +29,16 @@ All interactions occur via a local LLM API, ensuring privacy and offline capabil
 
 ## 🚀 Quickstart
 
+Requires [UV](https://docs.astral.sh/uv/getting-started/installation/#creating-a-python-script)
+
 ```bash
 # Clone the repo
 git clone https://github.com/nocturnaltungsten/crew-assistant.git
 cd crew-assistant
 
-# Create a local venv (Python 3.13+ required)
-python3 -m venv .venv
-source .venv/bin/activate.fish  # for Fish shell
-
 # Install dependencies
-pip install -r requirements.txt
+uv sync
+. .venv/bin/activate.fish  # for Fish shell
 
 # Add your local LM Studio key
 cp .env.example .env

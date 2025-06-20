@@ -1,7 +1,6 @@
 # === FILE: core/agent_registry.py ===
 
 import importlib
-import os
 from pathlib import Path
 
 # Agents should be in 'agents/' dir and end with .py (excluding __init__.py)

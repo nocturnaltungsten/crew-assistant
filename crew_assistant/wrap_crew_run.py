@@ -1,8 +1,15 @@
 # === FILE: wrap_crew_run.py ===
 
-import os, sys, json, uuid, datetime, subprocess, argparse, requests
+import os
+import sys
+import json
+import uuid
+import datetime
+import subprocess
+import argparse
+import requests
 from crewai import Crew, Task
-from agents import ux, commander, planner, dev
+from agents import ux
 from core.context_engine.memory_store import MemoryStore
 from contextlib import redirect_stdout
 import io
@@ -28,12 +35,13 @@ def select_model():
         models = res.json().get("data", [])
         if not models:
             return DEFAULT_MODEL
-        for i, m in enumerate(models): print(f"{i+1}. {m['id']}")
+        for i, m in enumerate(models): 
+            print(f"{i+1}. {m['id']}")
         sel = input("\nSelect a model (or Enter for default): ").strip()
         selected = models[int(sel) - 1]["id"] if sel else DEFAULT_MODEL
         os.environ["OPENAI_API_MODEL"] = selected
         return selected
-    except:
+    except Exception:
         os.environ["OPENAI_API_MODEL"] = DEFAULT_MODEL
         return DEFAULT_MODEL
 
@@ -77,7 +85,7 @@ if args.ux:
         try:
             parsed = json.loads(getattr(ux_task.output, "content", str(ux_task.output)))
             reply = parsed.get("reply", str(parsed))
-        except:
+        except Exception:
             reply = getattr(ux_task.output, "content", str(ux_task.output))
 
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -95,7 +103,7 @@ if args.ux:
                 output_summary=reply,
                 task_id=str(ux_task.id),
             )
-        except: pass
+        except Exception: pass
 
         run_id = str(uuid.uuid4())
         utc_ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
