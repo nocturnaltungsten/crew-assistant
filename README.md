@@ -84,6 +84,6 @@ MIT. Built for learning, not production-grade use (yet). Contributions and forks
 
 ## 🙏 Acknowledgments
 
-Built by [@nocturnaltungsten](https://github.com/nocturnaltungsten), with guidance from ChatGPT, LM Studio, and the CrewAI community.
+Multi-shot vibe-coded by [@nocturnaltungsten](https://github.com/nocturnaltungsten), with near-zero dev skills or understanding. Guidance from ChatGPT.
 
-> This repo exists as a learning exercise and is entirely experimental. 
+> This repo exists as a learning exercise and is entirely experimental. Not recommended for use, quality not guaranteed

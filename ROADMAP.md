@@ -13,7 +13,6 @@
 
 ## ✅ Phase 0 – Smoke Check & Ground Rules
 
-- ☑ Clean environment (AutoGen nuked)
 - ☑ Platform selected: **CrewAI** (with optional LangGraph/MCP)
 - ☑ SOPs written: snapshot tools, `.gitignore`, modular file structure
 - ☑ Tech inventory documented (`TECH_STACK.md`)
