@@ -1,1 +1,4 @@
 \n# === LOCAL TOOLS (ignored) ===\nsnapshots/\nfetch_docs.py
+
+# Local utility scripts
+generate_git_diff_report.py
