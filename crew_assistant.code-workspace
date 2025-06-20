@@ -1,0 +1,83 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python.pythonPath": ".venv/bin/python",
+    "python.formatting.provider": "black",
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "editor.formatOnSave": true,
+    "terminal.integrated.defaultProfile.linux": "fish",
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      ".venv": true
+    },
+    "files.autoSave": "onWindowChange"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-azuretools.vscode-docker",
+      "donjayamanne.python-environment-manager",
+      "streetsidesoftware.code-spell-checker",
+      "github.copilot",
+      "dzhavat.bracket-pair-toggler",
+      "redhat.vscode-yaml",
+      "bierner.markdown-mermaid"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run Crew (wrap_crew_run.py)",
+        "type": "shell",
+        "command": "python wrap_crew_run.py",
+        "group": "build",
+        "presentation": {
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Test All",
+        "type": "shell",
+        "command": "pytest tests/ --maxfail=5 --disable-warnings -q",
+        "group": "test",
+        "presentation": {
+          "reveal": "always"
+        }
+      },
+      {
+        "label": "Lint",
+        "type": "shell",
+        "command": "black . && flake8 .",
+        "group": "build",
+        "presentation": {
+          "reveal": "always"
+        }
+      }
+    ]
+  },
+  "launch": {
+    "configurations": [
+      {
+        "name": "Debug Crew Run",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/wrap_crew_run.py",
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "Debug Inject Context",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/test_context.py",
+        "console": "integratedTerminal"
+      }
+    ]
+  }
+}

@@ -3,6 +3,7 @@
 \n# === LOCAL TOOLS (ignored) ===\nsnapshots/\nfetch_docs.py
 
 # Local utility scripts
+utilities/
 generate_git_diff_report.py
 
 # === PYTHON ===
@@ -25,6 +26,7 @@ memory/memory_store/
 memory/facts/
 
 # === SNAPSHOTS / LOCAL DATA ===
+snapshots/
 *.json
 !requirements.txt
 
