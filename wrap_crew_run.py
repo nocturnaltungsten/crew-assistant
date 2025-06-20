@@ -1,13 +1,4 @@
-"""
-wrap_crew_run.py
-
-A wrapper script for executing crew_agents.py with full observability and snapshotting.
-Captures all stdout, agent output, and timestamps into a structured JSON file
-for replay, debugging, or performance review. Now includes dynamic model selection.
-
-Location: root or /core/tools/
-Usage: python wrap_crew_run.py [--label optional_run_name]
-"""
+# === FILE: wrap_crew_run.py ===
 
 import os
 import sys
@@ -17,6 +8,7 @@ import datetime
 import subprocess
 import argparse
 import requests
+import re
 
 # === CONFIGURATION ===
 SNAPSHOT_DIR = "crew_runs"
@@ -69,6 +61,14 @@ label = args.label or ""
 timestamp = datetime.datetime.now().isoformat()
 snapshot_file = os.path.join(SNAPSHOT_DIR, f"{timestamp[:19].replace(':','-')}__{label or run_id}.json")
 
+# === IMPORT SummaryQueue ===
+try:
+    from summary_queue import SummaryQueue
+    summary_queue = SummaryQueue(flush_limit=5)
+except ImportError:
+    summary_queue = None
+    print("⚠️  summary_queue module not available. Summarization disabled.")
+
 # === EXECUTE CREW RUN ===
 print(f"\n🚀 Starting CrewAI Run: {label or run_id}\n")
 
@@ -80,6 +80,14 @@ process = subprocess.Popen(
 )
 
 output_lines = []
+current_agent = None
+current_task_id = None
+current_output = []
+
+agent_pattern = re.compile(r"# Agent:\s*\x1b\[.*?m(.*?)\x1b\[")
+task_pattern = re.compile(r"Task:\s*([0-9a-f\-]+)")
+final_answer_pattern = re.compile(r"# Final Answer:", re.IGNORECASE)
+
 while True:
     line = process.stdout.readline()
     if not line and process.poll() is not None:
@@ -87,6 +95,27 @@ while True:
     if line:
         print(line, end="")
         output_lines.append(line)
+
+        # Track agent and task info
+        agent_match = agent_pattern.search(line)
+        if agent_match:
+            if current_agent and current_output and summary_queue:
+                # Flush previous agent's output to summary
+                summary_queue.add(current_agent, current_task_id, "".join(current_output))
+                current_output = []
+
+            current_agent = agent_match.group(1).strip()
+            current_task_id = None  # reset on new agent
+
+        task_match = task_pattern.search(line)
+        if task_match:
+            current_task_id = task_match.group(1)
+
+        if current_agent:
+            current_output.append(line)
+
+if summary_queue and current_agent and current_output:
+    summary_queue.add(current_agent, current_task_id, "".join(current_output))
 
 returncode = process.poll()
 
