@@ -1,50 +1,41 @@
+# === memory_store.py ===
+import os
 import json
-from pathlib import Path
+import uuid
 from datetime import datetime
-from typing import Optional, List
+from typing import Dict, List, Optional
 
-from core.context_engine.context_types import ContextEntry
+MEMORY_DIR = "memory/memory_store"
+os.makedirs(MEMORY_DIR, exist_ok=True)
 
 
 class MemoryStore:
-    def __init__(self, storage_path: str = "memory/context_log.json"):
-        self.path = Path(storage_path)
+    def __init__(self):
+        self.store: List[Dict] = []
 
-        # Ensure parent directories exist
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+    def save(self, agent: str, input_summary: str, output_summary: str, task_id: Optional[str] = None):
+        """
+        Save a memory snapshot.
+        """
+        memory_entry = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.utcnow().isoformat(),
+            "agent": agent,
+            "task_id": str(task_id) if task_id else None,
+            "input_summary": input_summary,
+            "output_summary": output_summary,
+        }
+        self.store.append(memory_entry)
 
-        # Create empty JSON file if it doesn't exist
-        if not self.path.exists():
-            self.path.write_text("[]")
+        # Save individual file (timestamped for redundancy)
+        safe_ts = memory_entry['timestamp'].replace(":", "-")
+        filename = f"{safe_ts}__{agent}.json"
 
-    def save_entry(
-        self,
-        agent: str,
-        input_summary: str,
-        output_summary: str,
-        task_id: Optional[str] = None,
-    ):
-        entry = ContextEntry(
-            timestamp=datetime.now().isoformat(),
-            agent=agent,
-            input_summary=input_summary,
-            output_summary=output_summary,
-            task_id=task_id,
-        )
+        with open(os.path.join(MEMORY_DIR, filename), "w") as f:
+            json.dump(memory_entry, f, indent=2)
 
-        # Load existing entries
-        existing = self.load_entries()
-
-        # Add new one and write back
-        existing.append(entry.__dict__)
-        self.path.write_text(json.dumps(existing, indent=2))
-
-    def load_entries(self) -> List[dict]:
-        try:
-            return json.loads(self.path.read_text())
-        except Exception as e:
-            print(f"⚠️ Failed to load memory entries: {e}")
-            return []
-
-    def latest(self, count: int = 1) -> List[dict]:
-        return self.load_entries()[-count:]
+    def load_all(self) -> List[Dict]:
+        """
+        Load all stored memory entries.
+        """
+        return self.store

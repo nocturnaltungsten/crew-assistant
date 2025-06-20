@@ -4,7 +4,7 @@ from crewai import Crew, Task
 from agents import commander, planner, dev
 from core.context_engine.memory_store import MemoryStore
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import uuid
 import json
@@ -17,7 +17,7 @@ memory = MemoryStore()
 
 # === Create unique run ID and timestamp ===
 run_id = str(uuid.uuid4())
-run_timestamp = datetime.utcnow().isoformat()
+run_timestamp = datetime.now(timezone.utc).isoformat()
 
 # === Define Tasks ===
 task1 = Task(
@@ -38,47 +38,72 @@ task3 = Task(
     agent=commander
 )
 
-# === Create Crew ===
+# === Save initial memory context ===
+for task in [task1, task2, task3]:
+    memory.save(
+        agent=task.agent.__class__.__name__,
+        input_summary=task.description,
+        output_summary="(Task queued)",
+        task_id=str(task.id)
+    )
+
+# === Create and run Crew ===
 crew = Crew(
     agents=[commander, planner, dev],
     tasks=[task1, task2, task3],
     verbose=True,
 )
 
-# === Run Crew and collect results ===
 result = crew.kickoff()
 
-# === Save memory snapshots ===
+# === Save memory snapshots after run ===
 for task in crew.tasks:
-    memory.save(
-        agent=task.agent.__class__.__name__,
-        input_summary=task.description,
-        output_summary=task.output or "No output",
-        task_id=task.id
-    )
+    try:
+        output_summary = getattr(task.output, "content", None)
+        if not output_summary:
+            output_summary = str(task.output) if task.output else "No output"
+
+        memory.save(
+            agent=task.agent.__class__.__name__,
+            input_summary=task.description,
+            output_summary=output_summary,
+            task_id=str(task.id),
+        )
+    except Exception as e:
+        print(f"⚠️ Memory save failed for task {task.id}: {e}")
 
 # === Save full-cycle JSON log ===
 log_data = {
     "run_id": run_id,
     "timestamp": run_timestamp,
     "crew_name": crew.name,
-    "results": [
-        {
-            "task_id": task.id,
+    "results": []
+}
+
+for task in crew.tasks:
+    try:
+        log_data["results"].append({
+            "task_id": str(task.id),
             "agent": task.agent.__class__.__name__,
             "description": task.description,
-            "output": task.output
-        } for task in crew.tasks
-    ]
-}
+            "output": getattr(task.output, "content", str(task.output)) if task.output else "No output"
+        })
+    except Exception as e:
+        log_data["results"].append({
+            "task_id": str(task.id),
+            "agent": task.agent.__class__.__name__,
+            "description": task.description,
+            "output": f"[ERROR serializing output: {e}]"
+        })
 
 # Create output directory if needed
 os.makedirs("snapshots", exist_ok=True)
 
-with open(f"snapshots/{run_timestamp}__first_full_cycle.json", "w") as f:
+safe_ts = run_timestamp.replace(":", "-")
+with open(f"snapshots/{safe_ts}__first_full_cycle.json", "w") as f:
     json.dump(log_data, f, indent=2)
 
-# === Report final result to terminal ===
+# === Final output to terminal ===
 print("\n✅ Mission Complete:\n")
 print(result)
 
