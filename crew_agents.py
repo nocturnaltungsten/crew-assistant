@@ -111,7 +111,7 @@ print(result)
 def call_llm(prompt: str) -> str:
     import requests
 
-    url = os.getenv("OPENAI_API_BASE") + "/chat/completions"
+    url = os.environ["OPENAI_API_BASE"] + "/chat/completions"
     model = os.getenv("OPENAI_API_MODEL")
     headers = {"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"}
 

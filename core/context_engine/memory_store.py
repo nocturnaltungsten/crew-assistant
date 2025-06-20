@@ -3,21 +3,21 @@ import os
 import json
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 MEMORY_DIR = "memory/memory_store"
 os.makedirs(MEMORY_DIR, exist_ok=True)
 
 
 class MemoryStore:
-    def __init__(self):
-        self.store: List[Dict] = []
+    def __init__(self) -> None:
+        self.store: list[dict] = []
 
     def save(self, agent: str, input_summary: str, output_summary: str, task_id: Optional[str] = None):
         """
         Save a memory snapshot.
         """
-        memory_entry = {
+        memory_entry: dict[str, Any] = {
             "id": str(uuid.uuid4()),
             "timestamp": datetime.utcnow().isoformat(),
             "agent": agent,

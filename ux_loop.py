@@ -1,11 +1,9 @@
 # === FILE: ux_loop.py ===
 
 import os
-import sys
 import json
 import uuid
 import datetime
-import readline  # enables command history
 import re
 
 from agents import ux
@@ -57,12 +55,13 @@ while True:
         memory_dir = "memory/memory_store"
         memory_context = []
         if os.path.isdir(memory_dir):
-            for f in sorted(os.listdir(memory_dir))[-10:]:
+            for filename in sorted(os.listdir(memory_dir))[-10:]:
                 try:
-                    with open(os.path.join(memory_dir, f)) as mf:
+                    with open(os.path.join(memory_dir, filename)) as mf:
                         entry = json.load(mf)
                         memory_context.append(f"[{entry['agent']}] {entry['input_summary']}: {entry['output_summary']}")
-                except: continue
+                except Exception:
+                    continue
         memory_text = "\n".join(memory_context)
         fact_text = facts.as_text()
 
