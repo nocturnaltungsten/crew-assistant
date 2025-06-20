@@ -2,12 +2,9 @@
 
 from core.context_engine.memory_store import MemoryStore
 from core.context_engine.fact_store import FactStore
-from datetime import datetime, timedelta
 
 class ContextInjector:
     def __init__(self, memory=None, factstore=None):
-        from core.context_engine.memory_store import MemoryStore
-        from core.context_engine.fact_store import FactStore
 
         self.memory = memory or MemoryStore()
         self.facts = factstore or FactStore()
@@ -21,7 +18,6 @@ class ContextInjector:
         context_lines = ["Here is your latest memory:"]
 
         for item in recent:
-            ts = item.get("timestamp", "")[:19]
             input_summary = item.get("input_summary", "").strip()
             output_summary = item.get("output_summary", "").strip()
 
