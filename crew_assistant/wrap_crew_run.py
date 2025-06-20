@@ -35,12 +35,13 @@ def select_model():
         models = res.json().get("data", [])
         if not models:
             return DEFAULT_MODEL
-        for i, m in enumerate(models): print(f"{i+1}. {m['id']}")
+        for i, m in enumerate(models): 
+            print(f"{i+1}. {m['id']}")
         sel = input("\nSelect a model (or Enter for default): ").strip()
         selected = models[int(sel) - 1]["id"] if sel else DEFAULT_MODEL
         os.environ["OPENAI_API_MODEL"] = selected
         return selected
-    except:
+    except Exception:
         os.environ["OPENAI_API_MODEL"] = DEFAULT_MODEL
         return DEFAULT_MODEL
 
