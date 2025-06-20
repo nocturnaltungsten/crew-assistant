@@ -32,6 +32,7 @@ memory/facts/
 .DS_Store
 .ipynb_checkpoints/
 .vscode/
+.idea/
 
 # === PROJECT-SPECIFIC ===
 # Add other file exclusions here as needed

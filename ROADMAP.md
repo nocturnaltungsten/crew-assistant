@@ -100,15 +100,15 @@
 
 ## 📍Next Tasks
 
-| Task | Status |
-|------|--------|
-| `.gitignore` cleanup | ✅ |
-| Snapshot tooling | ✅ |
-| Modular memory store | ✅ MVP |
-| Prioritized inference manager | ⏳ |
-| Agent memory router | ⏳ |
-| Prompt config + override system | ⏳ |
-| Feed memory into agents | ⏳ |
+| Task                            | Status |
+|---------------------------------|--------|
+| `.gitignore` cleanup            | ✅      |
+| Snapshot tooling                | ✅      |
+| Modular memory store            | ✅MVP   |
+| Prioritized inference manager   | ⏳      |
+| Agent memory router             | ⏳      |
+| Prompt config + override system | ⏳      |
+| Feed memory into agents         | ⏳      |
 
 ---
 
