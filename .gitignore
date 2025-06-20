@@ -1,4 +1,37 @@
+# === .gitignore ===
+
 \n# === LOCAL TOOLS (ignored) ===\nsnapshots/\nfetch_docs.py
 
 # Local utility scripts
 generate_git_diff_report.py
+
+# === PYTHON ===
+__pycache__/
+*.py[cod]
+*.so
+
+# === ENV / API KEYS ===
+.env
+secrets.json
+
+# === LOGS ===
+*.log
+
+# === CREW OUTPUT ===
+crew_runs/
+
+# === MEMORY SYSTEM ===
+memory/memory_store/
+memory/facts/
+
+# === SNAPSHOTS / LOCAL DATA ===
+*.json
+!requirements.txt
+
+# === MISC ===
+.DS_Store
+.ipynb_checkpoints/
+.vscode/
+
+# === PROJECT-SPECIFIC ===
+# Add other file exclusions here as needed
