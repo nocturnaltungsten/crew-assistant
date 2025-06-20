@@ -8,7 +8,6 @@ from typing import Dict, List, Optional
 MEMORY_DIR = "memory/memory_store"
 os.makedirs(MEMORY_DIR, exist_ok=True)
 
-
 class MemoryStore:
     def __init__(self):
         self.store: List[Dict] = []
@@ -39,3 +38,21 @@ class MemoryStore:
         Load all stored memory entries.
         """
         return self.store
+
+    def recent(self, agent: Optional[str] = None, count: int = 5) -> List[Dict]:
+        """
+        Returns the N most recent memory entries, optionally filtered by agent.
+        """
+        entries = []
+        files = sorted(os.listdir(MEMORY_DIR), reverse=True)
+        for f in files:
+            try:
+                with open(os.path.join(MEMORY_DIR, f)) as file:
+                    entry = json.load(file)
+                    if agent is None or entry.get("agent") == agent:
+                        entries.append(entry)
+            except Exception:
+                continue
+            if len(entries) >= count:
+                break
+        return entries
