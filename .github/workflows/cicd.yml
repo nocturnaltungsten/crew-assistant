@@ -1,0 +1,34 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - '**'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+concurrency:
+  group: ${{ github.event.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
+      - name: Install packages
+        run: uv sync
+      - name: Lint, format check and test
+        run: |
+          source .venv/bin/activate
+          ruff check
+          mypy . --ignore-missing-imports
+          echo "No tests yet..."
