@@ -1,7 +1,6 @@
 # fetch_docs.py
 # Pulls documentation from GitHub repos listed in TECH_STACK.md
 
-import os
 import re
 import requests
 from pathlib import Path

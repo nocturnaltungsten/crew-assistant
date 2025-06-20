@@ -1,6 +1,13 @@
 # === FILE: wrap_crew_run.py ===
 
-import os, sys, json, uuid, datetime, subprocess, argparse, requests, re
+import os
+import sys
+import json
+import uuid
+import datetime
+import subprocess
+import argparse
+import requests
 from crewai import Crew, Task
 from agents import ux, commander, planner, dev
 from core.context_engine.memory_store import MemoryStore
@@ -27,7 +34,8 @@ def select_model():
             print("⚠️ No models found.")
             return DEFAULT_MODEL
         print("\n🧠 Available Models:")
-        for i, m in enumerate(models): print(f"{i+1}. {m['id']}")
+        for i, m in enumerate(models):
+            print(f"{i+1}. {m['id']}")
         sel = input("\nSelect a model (or Enter for default): ").strip()
         selected = models[int(sel) - 1]["id"] if sel else DEFAULT_MODEL
         os.environ["OPENAI_API_MODEL"] = selected
@@ -58,12 +66,13 @@ if args.ux:
         # === Get latest memory
         memory_lines = []
         if os.path.isdir(memdir):
-            for f in sorted(os.listdir(memdir))[-10:]:
+            for filename in sorted(os.listdir(memdir))[-10:]:
                 try:
-                    with open(os.path.join(memdir, f)) as mf:
+                    with open(os.path.join(memdir, filename)) as mf:
                         entry = json.load(mf)
                         memory_lines.append(f"[{entry['agent']}] {entry['input_summary']}: {entry['output_summary']}")
-                except: continue
+                except Exception:
+                    continue
         memory_context = "\n".join(memory_lines)
 
         # === Build UX Task
@@ -168,4 +177,7 @@ process = subprocess.Popen(
     stderr=subprocess.STDOUT,
     text=True
 )
-for line in process.stdout: print(line, end="")
+
+if process.stdout:
+    for line in process.stdout:
+        print(line, end="")
