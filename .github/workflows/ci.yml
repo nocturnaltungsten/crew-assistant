@@ -1,0 +1,12 @@
+name: Minimal Status Check
+
+on:
+  pull_request:
+
+jobs:
+  basic-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Success Ping
+        run: echo "This is a dummy check to enable branch protection."
