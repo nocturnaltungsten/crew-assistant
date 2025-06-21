@@ -19,3 +19,7 @@ dev = [
     "ruff>=0.12.0",
     "types-requests>=2.32.4.20250611",
 ]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

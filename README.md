@@ -46,6 +46,9 @@ cp .env.example .env
 
 # Run the main crew
 python crew_agents.py
+
+# Run unit tests
+pytest
 ```
 
 ---
@@ -54,15 +57,13 @@ python crew_agents.py
 
 ```
 crew-assistant/
-├── agents/
-│   ├── planner.py
-│   ├── dev.py
-│   └── commander.py
-├── tasks/
-│   └── curriculum_task.py
-├── crew_agents.py        # Entrypoint script
-├── .env                  # API config (excluded from repo)
-├── requirements.txt      # Python dependencies
+├── agents/                # Built-in CrewAI agents
+├── core/                  # Context engine modules
+├── crew_assistant/        # Package with entrypoints and tools
+│   └── entrypoint.py      # run_crew() implementation
+├── crew_agents.py         # Thin CLI wrapper
+├── tests/                 # Pytest suite
+└── docs/                  # Fetched reference docs
 ```
 
 ---

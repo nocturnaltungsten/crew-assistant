@@ -11,6 +11,7 @@ import requests
 from crewai import Crew, Task
 from agents import ux
 from core.context_engine.memory_store import MemoryStore
+from core.context_engine.summary_queue import SummaryQueue
 from contextlib import redirect_stdout
 import io
 
@@ -53,6 +54,7 @@ else:
 # === UX MODE ===
 if args.ux:
     memory = MemoryStore()
+    summary_queue = SummaryQueue()
     memdir = "memory/memory_store"
     print("\n🧠 System online. Type 'exit' to disengage.\n")
 
@@ -103,6 +105,7 @@ if args.ux:
                 output_summary=reply,
                 task_id=str(ux_task.id),
             )
+            summary_queue.add(content=reply, source="UX")
         except Exception: pass
 
         run_id = str(uuid.uuid4())
@@ -119,6 +122,7 @@ if args.ux:
                 "reply": reply,
                 "raw": str(result),
             }, f, indent=2)
+        summary_queue.flush()
 
     sys.exit(0)
 
