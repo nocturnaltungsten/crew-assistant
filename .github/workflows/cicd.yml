@@ -31,4 +31,4 @@ jobs:
           source .venv/bin/activate
           ruff check
           mypy . --ignore-missing-imports
-          echo "No tests yet..."
+          pytest -q

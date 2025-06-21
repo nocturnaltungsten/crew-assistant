@@ -18,8 +18,8 @@ class ContextInjector:
         context_lines = ["Here is your latest memory:"]
 
         for item in recent:
-            input_summary = item.get("input_summary", "").strip()
-            output_summary = item.get("output_summary", "").strip()
+            input_summary = item.input_summary.strip()
+            output_summary = item.output_summary.strip()
 
             line = f"[{agent}] {input_summary}: {output_summary}"
             context_lines.append(line)
