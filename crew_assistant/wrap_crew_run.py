@@ -76,11 +76,11 @@ if args.ux:
         )
 
         # === Silence CrewAI output ===
-        f = io.StringIO()
-        with redirect_stdout(f):
+        capture = io.StringIO()
+        with redirect_stdout(capture):
             crew = Crew(agents=[ux], tasks=[ux_task], verbose=False)
             result = crew.kickoff()
-        _ = f.getvalue()
+        _ = capture.getvalue()
 
         try:
             parsed = json.loads(getattr(ux_task.output, "content", str(ux_task.output)))
@@ -103,14 +103,16 @@ if args.ux:
                 output_summary=reply,
                 task_id=str(ux_task.id),
             )
-        except Exception: pass
+        except Exception:
+            # Best-effort memory logging. Continue on failure.
+            pass
 
         run_id = str(uuid.uuid4())
         utc_ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
         safe_ts = utc_ts[:19].replace(":", "-")
         snapshot_file = os.path.join(SNAPSHOT_DIR, f"{safe_ts}__ux__{run_id}.json")
 
-        with open(snapshot_file, "w") as f:
+        with open(snapshot_file, "w") as sf:
             json.dump({
                 "run_id": run_id,
                 "timestamp": utc_ts,
@@ -118,7 +120,7 @@ if args.ux:
                 "input": user_input,
                 "reply": reply,
                 "raw": str(result),
-            }, f, indent=2)
+            }, sf, indent=2)
 
     sys.exit(0)
 
@@ -128,7 +130,9 @@ process = subprocess.Popen(
     [sys.executable, "crew_agents.py"],
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT,
-    text=True
+    text=True,
 )
-for line in process.stdout:
-    print(line, end="")
+
+if process.stdout is not None:
+    for line in process.stdout:
+        print(line, end="")
