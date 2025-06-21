@@ -2,6 +2,7 @@
 
 import importlib
 from pathlib import Path
+from crewai import Agent
 
 # Agents should be in 'agents/' dir and end with .py (excluding __init__.py)
 AGENT_DIR = Path(__file__).parent.parent / "agents"
@@ -18,8 +19,7 @@ def discover_agents():
             module = importlib.import_module(mod_name)
             for attr in dir(module):
                 obj = getattr(module, attr)
-                # crude but effective — Agent() instances will have a 'run' method
-                if hasattr(obj, "run") and hasattr(obj, "role"):
+                if isinstance(obj, Agent) and hasattr(obj, "role"):
                     agents[obj.role] = obj
         except Exception as e:
             print(f"⚠️ Failed to import {mod_name}: {e}")
