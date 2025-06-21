@@ -10,7 +10,7 @@ import argparse
 import requests
 from crewai import Crew, Task
 from agents import ux
-from core.context_engine.memory_store import MemoryStore
+from crew_assistant.context.memory import MemoryStore
 from contextlib import redirect_stdout
 import io
 

@@ -1,4 +1,4 @@
-# === FILE: core/agent_registry.py ===
+# Discover agent modules dynamically
 
 import importlib
 from pathlib import Path

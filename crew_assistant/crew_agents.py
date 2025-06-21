@@ -1,7 +1,7 @@
 # === FILE: crew_agents.py ===
 
 from crewai import Crew, Task
-from core.agent_registry import discover_agents
+from crew_assistant.agent_registry import discover_agents
 
 # Dynamically discover agents
 agents = discover_agents()
