@@ -58,9 +58,10 @@ crew-assistant/
 │   ├── planner.py
 │   ├── dev.py
 │   └── commander.py
-├── tasks/
-│   └── curriculum_task.py
 ├── crew_agents.py        # Entrypoint script
+├── crew_assistant/
+│   ├── dynamic_crew.py   # Sample crew using dynamic agent discovery
+│   └── wrap_crew_run.py  # CLI wrapper with UX mode
 ├── .env                  # API config (excluded from repo)
 ├── requirements.txt      # Python dependencies
 ```

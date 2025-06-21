@@ -1,4 +1,4 @@
-# === FILE: crew_agents.py ===
+# === FILE: dynamic_crew.py ===
 
 from crewai import Crew, Task
 from core.agent_registry import discover_agents
