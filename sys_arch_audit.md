@@ -11,7 +11,7 @@
 - `summary_queue.py` (✅): Buffers task outputs, flushes to JSONL batches
 - `select_model.py` (✅): Allows dynamic switching of LLM backends
 - `wrap_crew_run.py` (⚠️ Partially wired): Orchestrates crew runs (needs summary queue hook)
-- `crew_agents.py` (✅): Agent instantiation + configuration
+- `run_crew.py` (✅): Agent instantiation + configuration
 - `fetch_docs.py` (✅): Optional reader for local content/doc scraping
 
 ### Logs + Metadata

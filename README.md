@@ -45,7 +45,15 @@ cp .env.example .env
 # (Edit .env to include your API key and base URL)
 
 # Run the main crew
-python crew_agents.py
+python run_crew.py
+```
+
+### Running Tests
+
+After installing dependencies, execute:
+
+```bash
+pytest -q
 ```
 
 ---
@@ -60,7 +68,7 @@ crew-assistant/
 │   └── commander.py
 ├── tasks/
 │   └── curriculum_task.py
-├── crew_agents.py        # Entrypoint script
+├── run_crew.py        # Entrypoint script
 ├── .env                  # API config (excluded from repo)
 ├── requirements.txt      # Python dependencies
 ```

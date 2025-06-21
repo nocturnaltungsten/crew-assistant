@@ -103,14 +103,15 @@ if args.ux:
                 output_summary=reply,
                 task_id=str(ux_task.id),
             )
-        except Exception: pass
+        except Exception:
+            pass
 
         run_id = str(uuid.uuid4())
         utc_ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
         safe_ts = utc_ts[:19].replace(":", "-")
         snapshot_file = os.path.join(SNAPSHOT_DIR, f"{safe_ts}__ux__{run_id}.json")
 
-        with open(snapshot_file, "w") as f:
+        with open(snapshot_file, "w") as fh:
             json.dump({
                 "run_id": run_id,
                 "timestamp": utc_ts,
@@ -118,17 +119,18 @@ if args.ux:
                 "input": user_input,
                 "reply": reply,
                 "raw": str(result),
-            }, f, indent=2)
+            }, fh, indent=2)
 
     sys.exit(0)
 
-# === FALLBACK: RUN crew_agents.py ===
+# === FALLBACK: RUN run_crew.py ===
 print(f"\n🚀 Starting CrewAI Run: {args.label or uuid.uuid4()}\n")
 process = subprocess.Popen(
-    [sys.executable, "crew_agents.py"],
+    [sys.executable, "run_crew.py"],
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT,
-    text=True
+    text=True,
 )
+assert process.stdout is not None
 for line in process.stdout:
     print(line, end="")
