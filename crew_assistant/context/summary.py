@@ -5,7 +5,7 @@ Efficient, pluggable queue for routing long-form content (e.g. agent outputs, lo
 to summarization modules or persistent memory systems. Buffers routed events,
 auto-flushes on limit, and supports hooks into external archiving systems.
 
-Location: core/context_engine/
+Part of crew_assistant.context
 """
 
 import os

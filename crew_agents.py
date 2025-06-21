@@ -2,7 +2,7 @@
 
 from crewai import Crew, Task
 from agents import commander, planner, dev
-from core.context_engine.memory_store import MemoryStore
+from crew_assistant.context.memory import MemoryStore
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 import os

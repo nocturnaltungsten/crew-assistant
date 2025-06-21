@@ -7,8 +7,8 @@ import datetime
 import re
 
 from agents import ux
-from core.context_engine.memory_store import MemoryStore
-from core.context_engine.fact_store import FactStore
+from crew_assistant.context.memory import MemoryStore
+from crew_assistant.context.facts import FactStore
 from crewai import Crew, Task
 
 # === SETUP ===

@@ -1,7 +1,7 @@
-# === FILE: core/context_engine/inject_context.py ===
+# Build per-agent context blocks
 
-from core.context_engine.memory_store import MemoryStore
-from core.context_engine.fact_store import FactStore
+from crew_assistant.context.memory import MemoryStore
+from crew_assistant.context.facts import FactStore
 
 class ContextInjector:
     def __init__(self, memory=None, factstore=None):

@@ -1,4 +1,4 @@
-# === FILE: core/context_engine/fact_store.py ===
+# Persistent fact storage
 
 import os
 import json

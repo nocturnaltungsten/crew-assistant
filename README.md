@@ -57,12 +57,20 @@ crew-assistant/
 ├── agents/
 │   ├── planner.py
 │   ├── dev.py
-│   └── commander.py
-├── tasks/
-│   └── curriculum_task.py
+│   ├── commander.py
+│   └── ux.py
+├── crew_assistant/
+│   ├── agent_registry.py
+│   ├── context/
+│   │   ├── memory.py
+│   │   ├── facts.py
+│   │   ├── summary.py
+│   │   └── inject.py
+│   ├── wrap_crew_run.py
+│   └── ux_loop.py
 ├── crew_agents.py        # Entrypoint script
 ├── .env                  # API config (excluded from repo)
-├── requirements.txt      # Python dependencies
+├── pyproject.toml        # Python dependencies
 ```
 
 ---
@@ -72,6 +80,19 @@ crew-assistant/
 * No cloud inference. All LLM calls happen through LM Studio on `localhost:1234`
 * `.env` is gitignored and required for clean API key management
 * No telemetry, no API calls beyond localhost
+
+---
+
+## 🧪 Testing
+
+Run the unit tests with:
+
+```bash
+uv sync
+pytest
+```
+
+---
 
 ---
 
