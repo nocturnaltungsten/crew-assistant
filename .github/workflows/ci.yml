@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  lint:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Install dependencies
+        run: uv sync --group dev
+      
+      - name: Run ruff format check
+        run: uv run ruff format --check .
+      
+      - name: Run ruff lint
+        run: uv run ruff check .
+      
+      - name: Run mypy
+        run: uv run mypy crew_assistant/ core/ utils/ agents/
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Install dependencies
+        run: uv sync --group dev
+      
+      - name: Run unit tests
+        run: uv run python -m pytest tests/unit/ -v --cov=crew_assistant --cov=core --cov=utils --cov-report=xml
+        env:
+          LM_TIMEOUT: "60"  # Override problematic env var
+      
+      - name: Run integration tests
+        run: uv run python -m pytest tests/integration/ -v -m "not slow"
+        env:
+          LM_TIMEOUT: "60"
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Install dependencies
+        run: uv sync --group dev
+      
+      - name: Run safety check
+        run: uv run safety check
+        continue-on-error: true  # Don't fail build on security warnings
+      
+      - name: Run bandit security scan
+        run: uv run bandit -r crew_assistant/ core/ utils/ -f json -o bandit-report.json
+        continue-on-error: true
+
+  system-test:
+    name: System Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Install dependencies
+        run: uv sync --group dev
+      
+      - name: Run system tests
+        run: uv run python -m pytest tests/system/ -v -m "not slow"
+        env:
+          LM_TIMEOUT: "60"

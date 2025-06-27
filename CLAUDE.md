@@ -9,10 +9,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Activate environment: `./activate.sh` (shell script for Fish compatibility)
 
 ### Running the Application
-- Main entry point: `python crew_agents.py`
-- UX shell mode: `python crew_agents.py --ux`
-- Interactive model selection: `python crew_agents.py --select-model`
-- Raw UX output: `python crew_agents.py --ux --raw`
+- **Default (UX shell)**: `python crew_agents.py`
+- **Full crew workflow**: `python crew_agents.py --crew`
+- **Model selection with compatibility**: `python crew_agents.py --select-model`
+- **UX with raw output**: `python crew_agents.py --ux --raw`
 
 ### Testing
 - Run all tests: `python -m unittest discover`

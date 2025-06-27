@@ -142,9 +142,30 @@ def call_llm(prompt: str) -> str:
     except (requests.RequestException, ValueError) as e:
         raise ValueError(f"Invalid response from LLM call: {e}")
 
+def check_model_compatibility() -> tuple[bool, str]:
+    """Check if the current model is compatible with CrewAI."""
+    from utils.model_selector import test_model_compatibility
+    
+    try:
+        is_compatible, message = test_model_compatibility()
+        return is_compatible, message
+    except Exception as e:
+        return False, f"Could not check model compatibility: {e}"
+
 def main():
     """Main entry point with argument parsing."""
-    parser = argparse.ArgumentParser(description="Crew AI Assistant")
+    parser = argparse.ArgumentParser(
+        description="Crew AI Assistant - Local AI orchestration platform",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                    # Start in UX shell mode (default)
+  %(prog)s --crew             # Run full crew workflow  
+  %(prog)s --select-model     # Select compatible model
+  %(prog)s --ux --raw         # UX mode with raw output
+        """
+    )
+    parser.add_argument("--crew", action="store_true", help="Run full crew workflow")
     parser.add_argument("--ux", action="store_true", help="Run in UX shell mode")
     parser.add_argument("--select-model", action="store_true", help="Interactively select model")
     parser.add_argument("--raw", action="store_true", help="Raw output mode (for UX)")
@@ -160,14 +181,29 @@ def main():
     # === Model selection ===
     if args.select_model:
         select_model()
-    
-    # === UX Shell mode ===
-    if args.ux:
-        run_ux_shell(raw_mode=args.raw)
         return
     
-    # === Default: Run crew ===
-    run_crew()
+    # === Check model compatibility for crew mode ===
+    if args.crew:
+        print("🔍 Checking model compatibility...")
+        is_compatible, message = check_model_compatibility()
+        
+        if not is_compatible:
+            print(f"⚠️  {message}")
+            print("💡 Try: python crew_agents.py --select-model")
+            print("💡 Or use UX mode: python crew_agents.py --ux")
+            return
+        
+        print(f"✅ {message}")
+        run_crew()
+        return
+    
+    # === Default to UX Shell mode (most reliable) ===
+    print("🧠 Starting UX Shell mode (default)")
+    print("💡 For full crew workflow, use: python crew_agents.py --crew")
+    print("💡 For model selection, use: python crew_agents.py --select-model")
+    print()
+    run_ux_shell(raw_mode=args.raw)
 
 if __name__ == "__main__":
     main()

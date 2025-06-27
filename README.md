@@ -44,14 +44,17 @@ uv sync
 cp .env.example .env
 # (Edit .env to include your API key and base URL)
 
-# Run the main crew
+# Default: Start UX shell mode (most reliable)
 python crew_agents.py
 
-# Optional: Interactive model selection
+# Interactive model selection with compatibility checking
 python crew_agents.py --select-model
 
-# Optional: UX shell mode
-python crew_agents.py --ux
+# Full crew workflow (requires compatible model)
+python crew_agents.py --crew
+
+# UX shell with raw output
+python crew_agents.py --ux --raw
 ```
 
 ---

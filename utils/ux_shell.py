@@ -58,7 +58,7 @@ Respond as a helpful assistant. Speak clearly and helpfully.
             f = io.StringIO()
             with redirect_stdout(f):
                 crew = Crew(agents=[ux], tasks=[ux_task], verbose=False)
-                result = crew.kickoff()
+                crew.kickoff()
 
             # Extract response
             try:
