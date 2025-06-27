@@ -38,7 +38,7 @@ cd crew-assistant
 
 # Install dependencies
 uv sync
-. .venv/bin/activate.fish  # for Fish shell
+./activate.sh  # Fish shell compatible activation
 
 # Add your local LM Studio key
 cp .env.example .env
@@ -46,6 +46,12 @@ cp .env.example .env
 
 # Run the main crew
 python crew_agents.py
+
+# Optional: Interactive model selection
+python crew_agents.py --select-model
+
+# Optional: UX shell mode
+python crew_agents.py --ux
 ```
 
 ---
@@ -54,15 +60,26 @@ python crew_agents.py
 
 ```
 crew-assistant/
-├── agents/
+├── agents/               # Agent definitions
 │   ├── planner.py
 │   ├── dev.py
-│   └── commander.py
-├── tasks/
-│   └── curriculum_task.py
-├── crew_agents.py        # Entrypoint script
-├── .env                  # API config (excluded from repo)
-├── requirements.txt      # Python dependencies
+│   ├── commander.py
+│   └── ux.py
+├── core/                 # Core engine
+│   ├── agent_registry.py
+│   └── context_engine/
+│       ├── memory_store.py
+│       ├── context_router.py
+│       └── fact_store.py
+├── utils/                # Utilities
+│   ├── model_selector.py
+│   ├── ux_shell.py
+│   └── fact_learning.py
+├── crew_agents.py        # Main entry point
+├── memory/               # Persistent memory
+│   ├── memory_store/
+│   └── archive/
+└── pyproject.toml        # Dependencies
 ```
 
 ---
