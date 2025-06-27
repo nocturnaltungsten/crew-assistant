@@ -9,9 +9,16 @@ from contextlib import redirect_stdout
 import io
 
 from crewai import Crew, Task
-from agents import ux
 from core.context_engine.memory_store import MemoryStore
 from utils.fact_learning import learn_fact_if_possible, build_memory_context
+
+# Import UX agent
+try:
+    from agents.ux import ux
+except ImportError as e:
+    print(f"❌ Could not import UX agent: {e}")
+    print("💡 Make sure agents/ux.py exists and defines 'ux' agent")
+    raise
 
 def run_ux_shell(raw_mode=False):
     """
@@ -61,11 +68,18 @@ Respond as a helpful assistant. Speak clearly and helpfully.
                 crew.kickoff()
 
             # Extract response
+            raw_output = getattr(ux_task.output, "content", str(ux_task.output))
+            
             try:
-                parsed = json.loads(getattr(ux_task.output, "content", str(ux_task.output)))
-                reply = parsed.get("reply", str(parsed))
-            except Exception:
-                reply = getattr(ux_task.output, "content", str(ux_task.output))
+                # Try to parse as JSON first
+                parsed = json.loads(raw_output)
+                if isinstance(parsed, dict):
+                    reply = parsed.get("reply", str(parsed))
+                else:
+                    reply = str(parsed)
+            except (json.JSONDecodeError, AttributeError):
+                # If not JSON, use raw output
+                reply = raw_output or "No response generated"
 
             # Display response
             if raw_mode:
@@ -101,7 +115,9 @@ Respond as a helpful assistant. Speak clearly and helpfully.
             print("\n🫡 UX Agent signing off.")
             break
         except Exception as e:
-            print(f"❌ Error: {e}")
+            print(f"❌ Error in UX shell: {e}")
+            import traceback
+            print(f"📍 Details: {traceback.format_exc()}")
 
     # Save session log
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
