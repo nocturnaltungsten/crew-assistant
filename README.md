@@ -44,7 +44,7 @@ uv sync
 cp .env.example .env
 # (Edit .env to include your API key and base URL)
 
-# Default: Start UX shell mode (most reliable)
+# Default: Simple chat mode (works with any model)
 python crew_agents.py
 
 # Interactive model selection with compatibility checking
@@ -53,8 +53,8 @@ python crew_agents.py --select-model
 # Full crew workflow (requires compatible model)
 python crew_agents.py --crew
 
-# UX shell with raw output
-python crew_agents.py --ux --raw
+# CrewAI UX shell mode
+python crew_agents.py --ux
 ```
 
 ---

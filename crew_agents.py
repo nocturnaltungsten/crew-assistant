@@ -159,10 +159,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s                    # Start in UX shell mode (default)
-  %(prog)s --crew             # Run full crew workflow  
-  %(prog)s --select-model     # Select compatible model
-  %(prog)s --ux --raw         # UX mode with raw output
+  %(prog)s                    # Simple chat mode (default, most compatible)
+  %(prog)s --crew             # Run full crew workflow (needs compatible model)
+  %(prog)s --ux               # CrewAI UX shell mode  
+  %(prog)s --select-model     # Select and test model compatibility
         """
     )
     parser.add_argument("--crew", action="store_true", help="Run full crew workflow")
@@ -198,12 +198,20 @@ Examples:
         run_crew()
         return
     
-    # === Default to UX Shell mode (most reliable) ===
-    print("🧠 Starting UX Shell mode (default)")
+    # === Default to Simple Chat mode (most compatible) ===
+    from utils.simple_chat import simple_chat_session, test_api_connection
+    
+    print("🤖 Starting Simple Chat mode (default)")
     print("💡 For full crew workflow, use: python crew_agents.py --crew")
+    print("💡 For CrewAI UX shell, use: python crew_agents.py --ux")
     print("💡 For model selection, use: python crew_agents.py --select-model")
     print()
-    run_ux_shell(raw_mode=args.raw)
+    
+    if test_api_connection():
+        simple_chat_session(raw_mode=args.raw)
+    else:
+        print("❌ Cannot connect to LM Studio")
+        print("💡 Make sure LM Studio is running with a model loaded")
 
 if __name__ == "__main__":
     main()
