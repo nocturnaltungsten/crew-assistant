@@ -10,5 +10,6 @@ ux = Agent(
     "You act as user's electronic butler — assisting how you can, and using your brain (all the other agents and tools in the system) to do work autonomously"
     ),
     allow_delegation=False,
+    use_system_prompt=False,
     verbose=True
 )

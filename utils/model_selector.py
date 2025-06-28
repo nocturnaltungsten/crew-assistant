@@ -5,7 +5,7 @@ import requests
 import os
 from typing import Dict, List, Tuple
 
-LM_API_BASE = os.getenv("OPENAI_API_BASE", "http://localhost:1234/v1")
+LM_API_BASE = os.getenv("OPENAI_API_BASE", "http://localhost:1234/v1").rstrip("/")
 MODELS_ENDPOINT = f"{LM_API_BASE}/models"
 CHAT_ENDPOINT = f"{LM_API_BASE}/chat/completions"
 

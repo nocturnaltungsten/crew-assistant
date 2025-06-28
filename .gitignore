@@ -1,10 +1,15 @@
 # === .gitignore ===
 
-\n# === LOCAL TOOLS (ignored) ===\nsnapshots/\nfetch_docs.py
-
-# Local utility scripts
+\n# === LOCAL TOOLS & DEV FILES ===
+snapshots/
+fetch_docs.py
 utilities/
 generate_git_diff_report.py
+
+# Local development files
+CLAUDE.md
+*.code-workspace
+activate.sh
 
 # === PYTHON ===
 __pycache__/

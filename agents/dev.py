@@ -5,6 +5,7 @@ dev = Agent(
     goal='Implement and test individual Python subtasks.',
     backstory='A passionate engineer who loves shipping working code.',
     allow_delegation=False,
+    use_system_prompt=False,
     verbose=True
 )
 

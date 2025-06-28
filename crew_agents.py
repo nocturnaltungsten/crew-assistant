@@ -15,108 +15,226 @@ from utils.model_selector import select_model
 from utils.ux_shell import run_ux_shell
 
 def run_crew():
-    """Run the main crew with task delegation."""
+    """Run interactive crew workflow with conversation loop."""
     # === Load environment variables ===
     load_dotenv()
     
     # === Initialize Context Store ===
     memory = MemoryStore()
-    
-    # === Create unique run ID and timestamp ===
-    run_id = str(uuid.uuid4())
-    run_timestamp = datetime.now(timezone.utc).isoformat()
+    session_id = str(uuid.uuid4())
+    chat_log = []
+    deliverables_dir = "deliverables"
+    os.makedirs(deliverables_dir, exist_ok=True)
     
     # === Set default model if not specified ===
     if not os.getenv("OPENAI_API_MODEL"):
         os.environ["OPENAI_API_MODEL"] = "microsoft/phi-4-mini-reasoning"
     
-    # === Define Tasks ===
-    task1 = Task(
-        description="Break down the goal 'Build an agent system to teach CS through a useful, engaging project' into 3–5 clearly defined development subtasks.",
-        expected_output="A numbered list of 3–5 clearly defined development subtasks.",
+    print("\n🚀 CrewAI Interactive Workflow")
+    print("💡 UX agent handles chat, delegates complex tasks to Planner → Dev → Commander")
+    print("💡 Type 'exit' to end session\n")
+    
+    while True:
+        try:
+            user_input = input("👤 > ").strip()
+            if user_input.lower() in ("exit", "quit", "q"):
+                print("🫡 Crew workflow session ended.")
+                break
+                
+            if not user_input:
+                continue
+            
+            # UX agent determines if this needs task delegation
+            response, needs_delegation = handle_user_input_with_ux(user_input, memory)
+            
+            # Display UX response
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"\n🤖 UX Agent │ {timestamp}")
+            print("─" * 60)
+            print(response)
+            print("─" * 60 + "\n")
+            
+            # If complex task, delegate to crew
+            deliverable = None
+            if needs_delegation:
+                print("🔄 Delegating to Planner for task breakdown...")
+                deliverable = execute_crew_delegation(user_input, memory, deliverables_dir)
+                if deliverable:
+                    print(f"📁 Deliverable saved: {deliverable}")
+            
+            # Log conversation
+            chat_log.append({
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "input": user_input,
+                "ux_response": response,
+                "delegation": needs_delegation,
+                "deliverable": deliverable
+            })
+            
+        except KeyboardInterrupt:
+            print("\n🫡 Crew workflow session ended.")
+            break
+        except Exception as e:
+            print(f"❌ Error in crew workflow: {e}")
+            import traceback
+            print(f"📍 Details: {traceback.format_exc()}")
+    
+    # Save session log
+    timestamp = datetime.now(timezone.utc).isoformat()
+    safe_ts = timestamp[:19].replace(":", "-")
+    session_file = f"deliverables/{safe_ts}__crew_session__{session_id}.json"
+    
+    with open(session_file, "w") as f:
+        json.dump({
+            "session_id": session_id,
+            "timestamp": timestamp,
+            "model": os.environ.get("OPENAI_API_MODEL", "unknown"),
+            "chat_log": chat_log
+        }, f, indent=2)
+    
+    print(f"💾 Session log saved: {session_file}")
+
+def handle_user_input_with_ux(user_input: str, memory: MemoryStore) -> tuple[str, bool]:
+    """
+    UX agent processes user input and determines if task delegation is needed.
+    Returns (response, needs_delegation)
+    """
+    from agents.ux import ux
+    from utils.fact_learning import build_memory_context
+    import io
+    from contextlib import redirect_stdout
+    
+    # Build context from memory
+    memory_context = build_memory_context()
+    
+    # Create task for UX agent to analyze user input
+    task_description = f"""
+The user said: '{user_input}'
+
+Recent memory context:
+{memory_context}
+
+Analyze this input and respond appropriately. If this is a complex task that requires:
+- Code development
+- Project planning  
+- Technical implementation
+- Multi-step processes
+
+Then indicate delegation is needed by starting your response with "DELEGATE:" 
+
+Otherwise, provide a helpful conversational response.
+"""
+    
+    ux_task = Task(
+        description=task_description,
+        expected_output="A response to the user, optionally starting with 'DELEGATE:' if task delegation is needed.",
+        agent=ux
+    )
+    
+    # Run UX agent with suppressed output
+    f = io.StringIO()
+    with redirect_stdout(f):
+        crew = Crew(agents=[ux], tasks=[ux_task], verbose=False)
+        crew.kickoff()
+    
+    # Extract response
+    raw_output = getattr(ux_task.output, "content", str(ux_task.output))
+    
+    # Check if delegation is needed
+    needs_delegation = raw_output.startswith("DELEGATE:")
+    if needs_delegation:
+        response = raw_output[9:].strip()  # Remove "DELEGATE:" prefix
+    else:
+        response = raw_output
+    
+    # Save to memory
+    try:
+        memory.save(
+            agent="UX",
+            input_summary=user_input,
+            output_summary=response,
+            task_id=str(ux_task.id),
+        )
+    except Exception:
+        pass
+    
+    return response, needs_delegation
+
+def execute_crew_delegation(user_input: str, memory: MemoryStore, deliverables_dir: str) -> str:
+    """
+    Execute full crew delegation: Planner → Dev → Commander
+    Returns path to saved deliverable file.
+    """
+    from agents import planner, dev, commander
+    
+    # Step 1: Planner breaks down the task
+    planner_task = Task(
+        description=f"Break down this user request into specific, actionable development tasks: '{user_input}'",
+        expected_output="A numbered list of specific development tasks with technical details.",
         agent=planner
     )
     
-    task2 = Task(
-        description="Implement the first subtask using Python, assuming LM Studio is running at http://localhost:1234/v1.",
-        expected_output="A complete Python function or script implementing the first subtask.",
+    # Step 2: Dev implements the plan
+    dev_task = Task(
+        description="Implement the planned tasks using appropriate technology. Provide complete, working code.",
+        expected_output="Complete implementation with code, documentation, and usage instructions.",
         agent=dev
     )
     
-    task3 = Task(
-        description="Evaluate the code and provide next steps for development.",
-        expected_output="A critique of the implementation and a proposed next subtask.",
+    # Step 3: Commander reviews and provides next steps
+    commander_task = Task(
+        description="Review the implementation and provide evaluation, improvements, and next steps.",
+        expected_output="Technical review with recommendations and suggested next actions.",
         agent=commander
     )
     
-    # === Save initial memory context ===
-    for task in [task1, task2, task3]:
-        memory.save(
-            agent=task.agent.__class__.__name__,
-            input_summary=task.description,
-            output_summary="(Task queued)",
-            task_id=str(task.id)
-        )
-    
-    # === Create and run Crew ===
+    # Execute crew workflow
     crew = Crew(
-        agents=[commander, planner, dev],
-        tasks=[task1, task2, task3],
-        verbose=True,
+        agents=[planner, dev, commander],
+        tasks=[planner_task, dev_task, commander_task],
+        verbose=True
     )
     
     result = crew.kickoff()
     
-    # === Save memory snapshots after run ===
-    for task in crew.tasks:
-        try:
-            output_summary = getattr(task.output, "content", None)
-            if not output_summary:
-                output_summary = str(task.output) if task.output else "No output"
+    # Save deliverable
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    deliverable_file = f"{deliverables_dir}/{timestamp}_crew_deliverable.md"
     
+    deliverable_content = f"""# Crew Deliverable - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+## User Request
+{user_input}
+
+## Planner Output
+{getattr(planner_task.output, 'content', str(planner_task.output))}
+
+## Dev Implementation  
+{getattr(dev_task.output, 'content', str(dev_task.output))}
+
+## Commander Review
+{getattr(commander_task.output, 'content', str(commander_task.output))}
+
+## Full Result
+{result}
+"""
+    
+    with open(deliverable_file, 'w') as f:
+        f.write(deliverable_content)
+    
+    # Save to memory
+    try:
+        for task in [planner_task, dev_task, commander_task]:
             memory.save(
                 agent=task.agent.__class__.__name__,
                 input_summary=task.description,
-                output_summary=output_summary,
-                task_id=str(task.id),
+                output_summary=getattr(task.output, 'content', str(task.output)),
+                task_id=str(task.id)
             )
-        except Exception as e:
-            print(f"⚠️ Memory save failed for task {task.id}: {e}")
+    except Exception as e:
+        print(f"⚠️ Memory save failed: {e}")
     
-    # === Save full-cycle JSON log ===
-    log_data = {
-        "run_id": run_id,
-        "timestamp": run_timestamp,
-        "crew_name": crew.name,
-        "results": []
-    }
-    
-    for task in crew.tasks:
-        try:
-            log_data["results"].append({
-                "task_id": str(task.id),
-                "agent": task.agent.__class__.__name__,
-                "description": task.description,
-                "output": getattr(task.output, "content", str(task.output)) if task.output else "No output"
-            })
-        except Exception as e:
-            log_data["results"].append({
-                "task_id": str(task.id),
-                "agent": task.agent.__class__.__name__,
-                "description": task.description,
-                "output": f"[ERROR serializing output: {e}]"
-            })
-    
-    # Create output directory if needed
-    os.makedirs("snapshots", exist_ok=True)
-    
-    safe_ts = run_timestamp.replace(":", "-")
-    with open(f"snapshots/{safe_ts}__full_cycle.json", "w") as f:
-        json.dump(log_data, f, indent=2)
-    
-    # === Final output to terminal ===
-    print("\n✅ Mission Complete:\n")
-    print(result)
+    return deliverable_file
 
 def call_llm(prompt: str) -> str:
     """Optional LLM fallback function for direct API calls."""
@@ -159,14 +277,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s                    # Simple chat mode (default, most compatible)
-  %(prog)s --crew             # Run full crew workflow (needs compatible model)
-  %(prog)s --ux               # CrewAI UX shell mode  
+  %(prog)s                    # CrewAI UX shell mode (default)
+  %(prog)s --crew             # Run full crew workflow
   %(prog)s --select-model     # Select and test model compatibility
         """
     )
     parser.add_argument("--crew", action="store_true", help="Run full crew workflow")
-    parser.add_argument("--ux", action="store_true", help="Run in UX shell mode")
     parser.add_argument("--select-model", action="store_true", help="Interactively select model")
     parser.add_argument("--raw", action="store_true", help="Raw output mode (for UX)")
     args = parser.parse_args()
@@ -191,27 +307,20 @@ Examples:
         if not is_compatible:
             print(f"⚠️  {message}")
             print("💡 Try: python crew_agents.py --select-model")
-            print("💡 Or use UX mode: python crew_agents.py --ux")
+            print("💡 Default mode is UX shell")
             return
         
         print(f"✅ {message}")
         run_crew()
         return
     
-    # === Default to Simple Chat mode (most compatible) ===
-    from utils.simple_chat import simple_chat_session, test_api_connection
-    
-    print("🤖 Starting Simple Chat mode (default)")
+    # === Default to UX mode ===
+    print("🧠 Starting CrewAI UX mode (default)")
     print("💡 For full crew workflow, use: python crew_agents.py --crew")
-    print("💡 For CrewAI UX shell, use: python crew_agents.py --ux")
     print("💡 For model selection, use: python crew_agents.py --select-model")
     print()
     
-    if test_api_connection():
-        simple_chat_session(raw_mode=args.raw)
-    else:
-        print("❌ Cannot connect to LM Studio")
-        print("💡 Make sure LM Studio is running with a model loaded")
+    run_ux_shell(raw_mode=args.raw)
 
 if __name__ == "__main__":
     main()

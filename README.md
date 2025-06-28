@@ -44,17 +44,14 @@ uv sync
 cp .env.example .env
 # (Edit .env to include your API key and base URL)
 
-# Default: Simple chat mode (works with any model)
+# Default: CrewAI UX shell mode
 python crew_agents.py
 
 # Interactive model selection with compatibility checking
 python crew_agents.py --select-model
 
-# Full crew workflow (requires compatible model)
+# Full crew workflow
 python crew_agents.py --crew
-
-# CrewAI UX shell mode
-python crew_agents.py --ux
 ```
 
 ---
@@ -64,10 +61,10 @@ python crew_agents.py --ux
 ```
 crew-assistant/
 ├── agents/               # Agent definitions
-│   ├── planner.py
-│   ├── dev.py
-│   ├── commander.py
-│   └── ux.py
+│   ├── planner.py       # Task breakdown and planning
+│   ├── dev.py           # Code implementation  
+│   ├── commander.py     # Review and evaluation
+│   └── ux.py            # User interaction and delegation
 ├── core/                 # Core engine
 │   ├── agent_registry.py
 │   └── context_engine/
@@ -79,11 +76,26 @@ crew-assistant/
 │   ├── ux_shell.py
 │   └── fact_learning.py
 ├── crew_agents.py        # Main entry point
+├── deliverables/         # Crew workflow outputs
+├── crew_runs/            # UX shell session logs
 ├── memory/               # Persistent memory
 │   ├── memory_store/
 │   └── archive/
 └── pyproject.toml        # Dependencies
 ```
+
+### Workflow Modes
+
+**UX Shell Mode** (default): Single UX agent for conversational interaction with memory and fact learning.
+
+**Crew Workflow Mode** (`--crew`): Interactive multi-agent workflow:
+1. **UX Agent** handles user chat and determines task complexity
+2. **Auto-delegation** to crew for complex tasks:
+   - **Planner** breaks down requirements
+   - **Dev** implements solutions  
+   - **Commander** reviews and provides next steps
+3. **Deliverables** saved to `deliverables/` directory
+4. **Session logging** with full conversation history
 
 ---
 
@@ -103,6 +115,6 @@ MIT. Built for learning, not production-grade use (yet). Contributions and forks
 
 ## 🙏 Acknowledgments
 
-Multi-shot vibe-coded by [@nocturnaltungsten](https://github.com/nocturnaltungsten), with near-zero dev skills or understanding. Guidance from ChatGPT.
+Multi-shot vibe-coded by [@nocturnaltungsten](https://github.com/nocturnaltungsten), with near-zero dev skills or understanding. Guidance from local model assistance.
 
 > This repo exists as a learning exercise and is entirely experimental. Not recommended for use, quality not guaranteed

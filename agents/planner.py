@@ -5,6 +5,7 @@ planner = Agent(
     goal='Break down high-level goals into manageable sub-tasks.',
     backstory='A strategic thinker who turns visions into roadmaps.',
     allow_delegation=False,
+    use_system_prompt=False,
     verbose=True
 )
 
