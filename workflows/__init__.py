@@ -1,7 +1,7 @@
 # Workflow Module
 # Orchestration engine for multi-agent workflows
 
-from .base import BaseWorkflow, ReviewDecision, WorkflowResult, WorkflowStatus, WorkflowStep
+from .base import BaseWorkflow, ReviewDecision, ValidationResult, WorkflowResult, WorkflowStatus, WorkflowStep
 from .sequential import SequentialWorkflow
 
 __all__ = [
@@ -10,5 +10,6 @@ __all__ = [
     "WorkflowResult",
     "WorkflowStatus",
     "ReviewDecision",
+    "ValidationResult",
     "SequentialWorkflow"
 ]

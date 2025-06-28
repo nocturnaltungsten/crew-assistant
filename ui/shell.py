@@ -85,9 +85,17 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
                 print(result.final_output)
                 print("─" * 80)
             else:
-                print(f"\n❌ Task failed: {result.error_message}")
-                if result.steps:
-                    print(f"📊 Completed {len([s for s in result.steps if s.result and s.result.success])}/{len(result.steps)} steps")
+                # Handle different failure types
+                if hasattr(result, 'status') and result.status.value == "needs_clarification":
+                    print("\n📋 Task specification needs clarification:")
+                    print("─" * 80)
+                    print(result.final_output)
+                    print("─" * 80)
+                    print("\n💡 Please provide a more detailed or specific request and try again.")
+                else:
+                    print(f"\n❌ Task failed: {result.error_message}")
+                    if result.steps:
+                        print(f"📊 Completed {len([s for s in result.steps if s.result and s.result.success])}/{len(result.steps)} steps")
 
             print()  # Add spacing
 

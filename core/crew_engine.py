@@ -11,6 +11,7 @@ from typing import Any
 from agents import create_crew
 from providers import get_provider, list_available_providers
 from workflows import SequentialWorkflow, WorkflowResult
+from workflows.base import ValidationResult
 
 from .context_engine.memory_store import MemoryStore
 
@@ -78,6 +79,28 @@ class CrewEngine:
                 if self.config.verbose:
                     print(f"⚠️ Memory context failed: {e}")
 
+        # Pre-workflow validation: Review task specification quality
+        validation_result = self._validate_task_specification(user_request)
+        if not validation_result.approved:
+            if self.config.verbose:
+                print(f"📋 Task specification needs refinement:")
+                print(f"   {validation_result.feedback}")
+            
+            # Return early with validation feedback
+            from workflows.base import WorkflowResult, WorkflowStatus
+            return WorkflowResult(
+                status=WorkflowStatus.NEEDS_CLARIFICATION,
+                success=False,
+                final_output=validation_result.feedback,
+                error_message="Task specification needs clarification",
+                steps=[],
+                iterations_count=0,
+                total_execution_time=0.0
+            )
+
+        if self.config.verbose:
+            print("✅ Task specification approved - proceeding with crew workflow")
+
         # Execute workflow
         result = self.workflow.execute(user_request)
 
@@ -123,6 +146,81 @@ class CrewEngine:
             }
         else:
             return {}
+
+    def _validate_task_specification(self, user_request: str):
+        """Validate task specification quality using Reviewer agent."""
+        from agents.base import TaskContext
+        
+        try:
+            # Create validation task for Reviewer agent
+            reviewer = self.crew.get("Reviewer")
+            if not reviewer:
+                # If no reviewer available, approve by default
+                return ValidationResult(
+                    approved=True,
+                    feedback="No reviewer available - proceeding with task"
+                )
+            
+            validation_context = TaskContext(
+                task_description=f"""TASK SPECIFICATION REVIEW
+                
+Evaluate this user request for clarity, completeness, and actionability:
+
+USER REQUEST: "{user_request}"
+
+Review criteria:
+1. CLARITY: Is the request clear and unambiguous?
+2. SCOPE: Is the scope well-defined and reasonable?
+3. ACTIONABILITY: Can this be effectively implemented by a development team?
+4. COMPLETENESS: Are there missing critical details?
+
+Respond with:
+- **DECISION: APPROVE** if the task is ready for crew execution
+- **DECISION: NEEDS_CLARIFICATION** if the task needs refinement
+
+If NEEDS_CLARIFICATION, provide specific guidance on what needs to be clarified or refined.""",
+                expected_output="Task specification validation with APPROVE or NEEDS_CLARIFICATION decision and specific feedback",
+                user_input=user_request
+            )
+            
+            # Execute validation
+            validation_result = reviewer.execute_task(validation_context)
+            
+            if validation_result.success:
+                response_content = validation_result.content
+                
+                # Check reviewer decision
+                if "**DECISION: APPROVE**" in response_content:
+                    return ValidationResult(
+                        approved=True,
+                        feedback="Task specification approved by reviewer"
+                    )
+                elif "**DECISION: NEEDS_CLARIFICATION**" in response_content:
+                    return ValidationResult(
+                        approved=False,
+                        feedback=response_content
+                    )
+                else:
+                    # Default to needing clarification if unclear
+                    return ValidationResult(
+                        approved=False,
+                        feedback=f"Reviewer feedback: {response_content}"
+                    )
+            else:
+                # If validation failed, approve by default to avoid blocking
+                return ValidationResult(
+                    approved=True,
+                    feedback="Validation failed - proceeding with task"
+                )
+                
+        except Exception as e:
+            if self.config.verbose:
+                print(f"⚠️ Validation error: {e}")
+            # If validation fails, approve by default
+            return ValidationResult(
+                approved=True,
+                feedback="Validation error - proceeding with task"
+            )
 
     def _build_memory_context(self, limit: int = 5) -> str:
         """Build context from recent memory entries."""
