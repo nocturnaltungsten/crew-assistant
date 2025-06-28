@@ -8,11 +8,11 @@ auto-flushes on limit, and supports hooks into external archiving systems.
 Location: core/context_engine/
 """
 
-import os
-import json
-import uuid
 import datetime
-from typing import List, Dict, Optional, Callable
+import json
+import os
+import uuid
+from collections.abc import Callable
 
 # === CONFIG ===
 SUMMARY_QUEUE_DIR = "memory/summary_queue"
@@ -20,7 +20,7 @@ os.makedirs(SUMMARY_QUEUE_DIR, exist_ok=True)
 
 
 class SummaryQueue:
-    def __init__(self, flush_limit: int = 5, on_flush: Optional[Callable[[List[Dict]], None]] = None):
+    def __init__(self, flush_limit: int = 5, on_flush: Callable[[list[dict]], None] | None = None):
         """
         Initialize a new summary queue.
 
@@ -28,11 +28,11 @@ class SummaryQueue:
             flush_limit (int): Number of entries before triggering flush.
             on_flush (callable): Optional callback for flushed data (e.g. to archive).
         """
-        self.queue: List[Dict] = []
+        self.queue: list[dict] = []
         self.flush_limit = flush_limit
         self.on_flush = on_flush
 
-    def add(self, content: str, source: str, metadata: Optional[Dict] = None):
+    def add(self, content: str, source: str, metadata: dict | None = None):
         """
         Add a content entry to the queue.
 

@@ -1,0 +1,91 @@
+# Enhanced Crew Assistant - Main Entry Point
+# Clean, modular multi-agent system
+
+import argparse
+import os
+import sys
+
+from core import create_crew_engine
+from ui import interactive_provider_setup, run_enhanced_ux_shell
+
+
+def main():
+    """Main entry point with argument parsing."""
+    parser = argparse.ArgumentParser(
+        description="Enhanced Crew Assistant - Modular AI orchestration platform",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                    # Enhanced UX shell mode (default)
+  %(prog)s --setup            # Interactive provider and model setup
+  %(prog)s --crew "task"      # Direct crew execution
+        """
+    )
+
+    parser.add_argument("--setup", action="store_true", help="Interactive provider and model setup")
+    parser.add_argument("--crew", metavar="TASK", help="Execute task directly with crew")
+    parser.add_argument("--provider", help="Override provider (ollama/lmstudio)")
+    parser.add_argument("--model", help="Override model")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+
+    args = parser.parse_args()
+
+    # Provider and model setup
+    if args.setup:
+        result = interactive_provider_setup()
+        if result:
+            model_id, provider, api_base = result
+            # Set environment variables for current session
+            os.environ['OPENAI_API_MODEL'] = model_id
+            os.environ['OPENAI_API_BASE'] = api_base
+            os.environ['AI_PROVIDER'] = provider
+            print("\n✅ Environment configured for this session!")
+            print("You can now run: python main.py")
+        return
+
+    # Direct crew execution
+    if args.crew:
+        provider = args.provider or os.getenv("AI_PROVIDER")
+        model = args.model or os.getenv("OPENAI_API_MODEL")
+
+        if not provider or not model:
+            print("❌ Provider and model must be configured.")
+            print("Run: python main.py --setup")
+            return
+
+        try:
+            engine = create_crew_engine(
+                provider=provider,
+                model=model,
+                verbose=args.verbose
+            )
+
+            print(f"🚀 Executing task with {provider}/{model}...")
+            result = engine.execute_task(args.crew)
+
+            if result.success:
+                print("\n✅ Task completed successfully!")
+                print(result.final_output)
+            else:
+                print(f"\n❌ Task failed: {result.error_message}")
+                sys.exit(1)
+
+        except Exception as e:
+            print(f"❌ Execution failed: {e}")
+            sys.exit(1)
+        return
+
+    # Default to enhanced UX shell
+    print("🧠 Starting Enhanced Crew Assistant")
+    print("💡 For setup, use: python main.py --setup")
+    print("💡 For direct execution, use: python main.py --crew 'your task'")
+    print()
+
+    run_enhanced_ux_shell(
+        provider=args.provider,
+        model=args.model
+    )
+
+
+if __name__ == "__main__":
+    main()

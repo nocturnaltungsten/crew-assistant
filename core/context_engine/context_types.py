@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+
 
 @dataclass
 class ContextEntry:
@@ -7,4 +7,4 @@ class ContextEntry:
     agent: str
     input_summary: str
     output_summary: str
-    task_id: Optional[str] = None
+    task_id: str | None = None

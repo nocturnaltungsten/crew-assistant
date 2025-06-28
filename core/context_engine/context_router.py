@@ -1,10 +1,11 @@
 # context_router.py
 # ✨ The Dispatcher Module of the Context Engine
 
+import hashlib
 from datetime import datetime
 from enum import Enum, auto
-from typing import Dict, Any
-import hashlib
+from typing import Any
+
 
 # === Action Types the router can take ===
 class RoutingAction(Enum):
@@ -15,7 +16,7 @@ class RoutingAction(Enum):
 
 
 # === Main Routing Logic ===
-def route_context_event(event: Dict[str, Any]) -> RoutingAction:
+def route_context_event(event: dict[str, Any]) -> RoutingAction:
     """
     Decide what to do with a given context event.
     Events can be text snippets, interactions, observations, etc.
@@ -53,7 +54,7 @@ def route_context_event(event: Dict[str, Any]) -> RoutingAction:
 
 
 # === Event Hashing ===
-def hash_event(event: Dict[str, Any]) -> str:
+def hash_event(event: dict[str, Any]) -> str:
     """
     Generate a stable hash for an event based on timestamp + content
     Used to deduplicate or track memory entries.

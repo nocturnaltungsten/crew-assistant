@@ -1,7 +1,8 @@
 # === FILE: core/context_engine/inject_context.py ===
 
-from core.context_engine.memory_store import MemoryStore
 from core.context_engine.fact_store import FactStore
+from core.context_engine.memory_store import MemoryStore
+
 
 class ContextInjector:
     def __init__(self, memory=None, factstore=None):

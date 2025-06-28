@@ -1,6 +1,24 @@
 # === agents/ux.py ===
 
-from crewai import Agent
+import os
+
+from crewai import LLM, Agent
+
+
+def get_llm():
+    """Get configured LLM instance."""
+    provider = os.getenv("AI_PROVIDER", "lm_studio")
+
+    if provider == "ollama":
+        return LLM(
+            model=os.getenv("OPENAI_API_MODEL", "tinyllama:latest"),
+            api_base=os.getenv("OPENAI_API_BASE", "http://localhost:11434/v1")
+        )
+    else:
+        return LLM(
+            model=os.getenv("OPENAI_API_MODEL", "microsoft/phi-4-mini-reasoning"),
+            api_base=os.getenv("OPENAI_API_BASE", "http://localhost:1234/v1")
+        )
 
 ux = Agent(
     role="Chat interface",
@@ -11,5 +29,6 @@ ux = Agent(
     ),
     allow_delegation=False,
     use_system_prompt=False,
+    llm=get_llm(),
     verbose=True
 )

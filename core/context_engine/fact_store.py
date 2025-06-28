@@ -1,8 +1,7 @@
 # === FILE: core/context_engine/fact_store.py ===
 
-import os
 import json
-from typing import Dict
+import os
 
 FACTS_DIR = "memory/facts"
 os.makedirs(FACTS_DIR, exist_ok=True)
@@ -16,7 +15,7 @@ class FactStore:
 
     def _load(self):
         if os.path.isfile(FACT_FILE):
-            with open(FACT_FILE, "r") as f:
+            with open(FACT_FILE) as f:
                 self.facts = json.load(f)
 
     def save(self):
@@ -35,5 +34,5 @@ class FactStore:
             return "(no known facts)"
         return "\n".join([f"- {k}: {v}" for k, v in self.facts.items()])
 
-    def all(self) -> Dict[str, str]:
+    def all(self) -> dict[str, str]:
         return self.facts

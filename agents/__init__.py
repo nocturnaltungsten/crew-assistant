@@ -1,15 +1,42 @@
-# agents/__init__.py
+# Agent Module
+# Enhanced crew agents with quality validation
 
-from .commander import commander
-from .planner import planner
-from .dev import dev
+from .base import (
+    AgentConfig,
+    AgentError,
+    AgentResult,
+    BaseAgent,
+    ConfigurationError,
+    TaskContext,
+    TaskExecutionError,
+)
+from .developer import DeveloperAgent
+from .planner import PlannerAgent
+from .registry import AgentRegistry, create_crew, list_available_agents
+from .researcher import ResearcherAgent
+from .reviewer import ReviewerAgent
 
-# Optional: registry for dynamic access
-AGENT_REGISTRY = {
-    "Commander": commander,
-    "Planner": planner,
-    "Dev": dev,
-}
+__all__ = [
+    # Base classes
+    "BaseAgent",
+    "AgentConfig",
+    "TaskContext",
+    "AgentResult",
 
-__all__ = ["commander", "planner", "dev", "AGENT_REGISTRY"]
+    # Exceptions
+    "AgentError",
+    "TaskExecutionError",
+    "ConfigurationError",
+
+    # Specialized agents
+    "PlannerAgent",
+    "ResearcherAgent",
+    "DeveloperAgent",
+    "ReviewerAgent",
+
+    # Registry
+    "AgentRegistry",
+    "create_crew",
+    "list_available_agents"
+]
 

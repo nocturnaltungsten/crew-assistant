@@ -1,7 +1,9 @@
 import unittest
-from agents.planner import planner
-from agents.dev import dev
+
 from agents.commander import commander
+from agents.dev import dev
+from agents.planner import planner
+
 
 class TestAgents(unittest.TestCase):
 

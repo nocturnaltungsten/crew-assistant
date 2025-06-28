@@ -1,13 +1,13 @@
 [project]
 name = "crew-assistant"
-version = "0.2.0"
-description = "Local-first AI orchestration platform with CrewAI"
+version = "0.3.0"
+description = "Modular AI orchestration platform with enhanced agent workflows"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
     {name = "Crew Assistant Team", email = "nocturnaltungsten@protonmail.com"},
 ]
-keywords = ["ai", "agents", "crewai", "local-llm", "automation"]
+keywords = ["ai", "agents", "multi-agent", "local-llm", "automation", "workflows"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -17,15 +17,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "beautifulsoup4>=4.13.4",
-    "crewai>=0.130.0",
-    "markdown>=3.8.2",
-    "openai>=1.88.0",
-    "python-dotenv>=1.1.0",
     "requests>=2.32.4",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
-    "loguru>=0.7.0",
 ]
 
 [dependency-groups]

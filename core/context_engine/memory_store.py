@@ -1,9 +1,9 @@
 # === memory_store.py ===
-import os
 import json
+import os
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Any
 
 MEMORY_DIR = "memory/memory_store"
 os.makedirs(MEMORY_DIR, exist_ok=True)
@@ -12,7 +12,7 @@ class MemoryStore:
     def __init__(self) -> None:
         self.store: list[dict] = []
 
-    def save(self, agent: str, input_summary: str, output_summary: str, task_id: Optional[str] = None):
+    def save(self, agent: str, input_summary: str, output_summary: str, task_id: str | None = None):
         """
         Save a memory snapshot.
         """
@@ -33,13 +33,13 @@ class MemoryStore:
         with open(os.path.join(MEMORY_DIR, filename), "w") as f:
             json.dump(memory_entry, f, indent=2)
 
-    def load_all(self) -> List[Dict]:
+    def load_all(self) -> list[dict]:
         """
         Load all stored memory entries.
         """
         return self.store
 
-    def recent(self, agent: Optional[str] = None, count: int = 5) -> List[Dict]:
+    def recent(self, agent: str | None = None, count: int = 5) -> list[dict]:
         """
         Returns the N most recent memory entries, optionally filtered by agent.
         """
