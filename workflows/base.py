@@ -18,6 +18,7 @@ class WorkflowStatus(Enum):
     FAILED = "failed"
     REJECTED = "rejected"
     NEEDS_REVISION = "needs_revision"
+    NEEDS_CLARIFICATION = "needs_clarification"
 
 
 class ReviewDecision(Enum):
@@ -36,6 +37,14 @@ class WorkflowStep:
     result: AgentResult | None = None
     iteration: int = 1
     max_iterations: int = 3
+
+
+@dataclass
+class ValidationResult:
+    """Result of task specification validation."""
+    approved: bool
+    feedback: str
+    suggestions: list[str] | None = None
 
 
 @dataclass
