@@ -5,10 +5,11 @@
 from providers import BaseProvider
 
 from .base import BaseAgent
-from .developer import DeveloperAgent
+from .commander import CommanderAgent
+from .dev import DeveloperAgent
 from .planner import PlannerAgent
-from .researcher import ResearcherAgent
 from .reviewer import ReviewerAgent
+from .ux import UXAgent
 
 
 class AgentRegistry:
@@ -65,10 +66,11 @@ class AgentRegistry:
 
 
 # Register built-in agents
-AgentRegistry.register("Researcher", ResearcherAgent)
+AgentRegistry.register("UX", UXAgent)
 AgentRegistry.register("Planner", PlannerAgent)
 AgentRegistry.register("Developer", DeveloperAgent)
 AgentRegistry.register("Reviewer", ReviewerAgent)
+AgentRegistry.register("Commander", CommanderAgent)
 
 
 def create_crew(provider: BaseProvider, model: str, **kwargs) -> dict[str, BaseAgent]:

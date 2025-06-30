@@ -8,11 +8,11 @@ from .base import BaseWorkflow, TaskContext, WorkflowStep
 
 
 class SequentialWorkflow(BaseWorkflow):
-    """Sequential workflow: Researcher → Planner → Developer → Reviewer with quality gates."""
+    """Sequential workflow: UX → Planner → Developer → Reviewer with quality gates."""
 
     def __init__(self, agents: dict[str, BaseAgent], **kwargs):
         """Initialize sequential workflow."""
-        required_agents = {"Researcher", "Planner", "Developer", "Reviewer"}
+        required_agents = {"UX", "Planner", "Developer", "Reviewer"}
         available_agents = set(agents.keys())
 
         if not required_agents.issubset(available_agents):
@@ -25,9 +25,9 @@ class SequentialWorkflow(BaseWorkflow):
         """Define the sequential workflow steps."""
         return [
             WorkflowStep(
-                agent_role="Researcher",
-                task_description=f"Research and analyze the requirements for: {user_request}",
-                expected_output="Comprehensive research report with technical requirements, best practices, and recommendations"
+                agent_role="UX",
+                task_description=f"Analyze user experience aspects of: {user_request}",
+                expected_output="User experience analysis with requirements, user needs, and interaction patterns"
             ),
             WorkflowStep(
                 agent_role="Planner",

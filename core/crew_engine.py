@@ -9,7 +9,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from agents import create_crew
-from providers import get_provider, list_available_providers
+from providers import get_provider, list_all_models
 from workflows import SequentialWorkflow, WorkflowResult
 from workflows.base import ValidationResult
 
@@ -36,8 +36,7 @@ class CrewEngine:
         self.session_id = str(uuid.uuid4())
 
         # Initialize provider
-        provider_config = self._get_provider_config()
-        self.provider = get_provider(config.provider, provider_config)
+        self.provider = get_provider(config.provider)
 
         # Initialize crew
         self.crew = create_crew(

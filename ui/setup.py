@@ -3,7 +3,7 @@
 
 import os
 
-from providers import get_provider, list_available_providers
+from providers import get_provider, list_all_models
 
 
 def interactive_provider_setup() -> tuple[str, str, str] | None:
@@ -42,19 +42,22 @@ def select_provider() -> str | None:
     print("\n🔧 Select AI Provider:")
     print("─" * 40)
 
-    providers = list_available_providers()
-    available_providers = [p for p in providers if p["status"] == "online"]
+    # Get available providers from registry
+    from providers.registry import get_registry
+    registry = get_registry()
+    providers = list(registry._provider_configs.keys())
+    available_providers = providers  # For now, assume all are available
 
     if not available_providers:
         print("❌ No providers are currently online.")
         print("Please start LM Studio or Ollama and try again.")
         return None
 
-    for i, provider in enumerate(available_providers):
-        status_emoji = "🟢" if provider["status"] == "online" else "🔴"
-        print(f"{i+1}. {status_emoji} {provider['display_name']}")
-        print(f"   📍 {provider['base_url']}")
-        print(f"   📝 {provider['description']}")
+    for i, provider_name in enumerate(available_providers):
+        config = registry._provider_configs[provider_name]
+        status_emoji = "🟢"  # Assume online for now
+        print(f"{i+1}. {status_emoji} {provider_name.title()}")
+        print(f"   📍 {config.config.get('base_url', 'N/A')}")
         print()
 
     while True:
@@ -75,9 +78,8 @@ def select_provider() -> str | None:
                 continue
 
             selected_provider = available_providers[provider_index]
-            provider_name = selected_provider["name"]
-            print(f"✅ Selected: {selected_provider['display_name']}")
-            return provider_name
+            print(f"✅ Selected: {selected_provider.title()}")
+            return selected_provider
 
         except (ValueError, IndexError):
             print(f"❌ Please enter a number between 1 and {len(available_providers)}")
@@ -89,8 +91,7 @@ def select_model_from_provider(provider_name: str) -> tuple[str, str] | None:
     print(f"\n🔍 Fetching available models from {provider_name.title()}...")
 
     # Get provider instance
-    provider_config = _get_provider_config(provider_name)
-    provider = get_provider(provider_name, provider_config)
+    provider = get_provider(provider_name)
 
     try:
         models = provider.list_models()

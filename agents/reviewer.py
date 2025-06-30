@@ -1,71 +1,127 @@
-# Reviewer Agent
-# Quality validation and feedback specialist
+# Reviewer Agent Implementation
+# Quality validation and deliverable review specialist
 
-from providers import BaseProvider
+from typing import Any, Dict
 
-from .base import AgentConfig, BaseAgent
+from providers.base import BaseProvider, ChatMessage, ChatResponse
+
+from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 
 
 class ReviewerAgent(BaseAgent):
-    """Reviewer agent for quality validation with accept/reject authority."""
+    """Reviewer agent responsible for quality validation and deliverable review."""
 
-    def __init__(self, provider: BaseProvider, model: str, **kwargs):
-        config = AgentConfig(
-            role="Reviewer",
-            goal="Validate deliverables against requirements and ensure quality standards",
-            backstory="A meticulous quality specialist who maintains high standards and provides actionable feedback for improvement",
-            **kwargs
-        )
+    def __init__(self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs):
+        """Initialize ReviewerAgent with default configuration."""
+        if config is None:
+            config = AgentConfig(
+                role="Reviewer",
+                goal="Validate deliverables for quality, completeness, and alignment with requirements",
+                backstory="A meticulous quality assurance specialist who ensures all work meets high standards and requirements.",
+                max_tokens=1500,
+                temperature=0.2,  # Lower temperature for consistent review standards
+                verbose=True
+            )
         super().__init__(provider, model, config)
 
     def get_system_prompt(self) -> str:
-        """Get system prompt for reviewer agent."""
-        return f"""You are a {self.config.role}.
+        """Get the system prompt for the Reviewer agent."""
+        return f"""You are the {self.config.role}, a senior quality assurance specialist in a multi-agent system.
 
-ROLE: {self.config.role}
-GOAL: {self.config.goal}
-BACKSTORY: {self.config.backstory}
+Role: {self.config.role}
+Goal: {self.config.goal}
+Backstory: {self.config.backstory}
 
 Your responsibilities:
-1. Validate deliverables against original requirements and specifications
-2. Evaluate quality across technical and functional dimensions
-3. Make ACCEPT/REJECT decisions with clear rationale
-4. Provide specific, actionable feedback for improvements
-5. Ensure solutions meet professional standards before completion
-6. Gate-keep quality to maintain team excellence
+1. Review deliverables from other agents (UX, Planner, Developer)
+2. Validate quality, completeness, and requirement alignment
+3. Provide detailed, constructive feedback
+4. Make accept/revision/reject decisions based on quality standards
+5. Ensure deliverables meet professional standards
 
-CRITICAL: You have REJECT authority. If work doesn't meet standards, you MUST reject it with specific improvement requirements.
-
-Evaluation Criteria:
-- Requirements Compliance: Does it fully address the original request?
-- Functionality: Does it work as intended with proper error handling?
-- Code Quality: Is it clean, readable, maintainable, and well-documented?
-- Security: Are there vulnerabilities or security concerns?
-- Performance: Is it efficient and appropriately optimized?
-- Completeness: Are all deliverables present (code, docs, examples)?
-- Best Practices: Does it follow industry standards and conventions?
+Review Criteria:
+- **Completeness**: Are all requirements addressed?
+- **Quality**: Does the work meet professional standards?
+- **Clarity**: Is the deliverable clear and well-documented?
+- **Feasibility**: Is the solution practical and implementable?
+- **Alignment**: Does it match the original user request?
 
 Decision Framework:
-ACCEPT: All criteria meet professional standards, minor issues only
-NEEDS_REVISION: Major issues requiring significant fixes
-REJECT: Fundamental problems, doesn't meet basic requirements
+- **ACCEPT**: Deliverable meets all criteria and is ready for delivery
+- **NEEDS_REVISION**: Good foundation but requires specific improvements
+- **REJECT**: Fundamental issues requiring complete rework
 
-Output Format:
+Structure your review response as:
+
+## Quality Assessment
+[Overall evaluation of the deliverable]
+
+## Detailed Review
+### Strengths
+- [What works well]
+
+### Areas for Improvement
+- [Specific issues and suggestions]
+
+## Requirements Alignment
+[How well the deliverable meets the original requirements]
+
+## Decision
 **DECISION: [ACCEPT/NEEDS_REVISION/REJECT]**
 
-**Executive Summary:**
-[Brief overall assessment]
+## Feedback Summary
+[Concise, actionable feedback for the team]
 
-**Detailed Evaluation:**
-✅ Strengths:
-- [List positive aspects]
+Be thorough but constructive. Focus on helping the team deliver exceptional results."""
 
-❌ Issues Found:
-- [List problems with severity level]
+    def execute_task(self, context: TaskContext) -> AgentResult:
+        """Execute a review task with quality validation."""
+        import time
+        start_time = time.time()
 
-🔧 Required Changes: (if NEEDS_REVISION or REJECT)
-- [Specific actionable improvements required]
+        try:
+            # Build the full prompt
+            system_prompt = self.get_system_prompt()
+            task_prompt = context.to_prompt()
 
-**Quality Rating:** [Excellent/Good/Needs Improvement/Poor]
+            full_prompt = f"{system_prompt}\n\n{task_prompt}"
 
-Be thorough but fair. Reject work that doesn't meet standards, but provide clear guidance for improvement. Your role is to ensure quality while helping the team succeed."""
+            # Create messages
+            messages = [ChatMessage(role="user", content=full_prompt)]
+
+            # Execute with provider
+            response = self.provider.chat_with_retry(
+                messages=messages,
+                model=self.model,
+                max_tokens=self.config.max_tokens,
+                temperature=self.config.temperature
+            )
+
+            execution_time = time.time() - start_time
+            self.execution_count += 1
+
+            return AgentResult(
+                content=response.content,
+                agent_role=self.config.role,
+                execution_time=execution_time,
+                tokens_used=response.tokens_used,
+                success=True
+            )
+
+        except Exception as e:
+            execution_time = time.time() - start_time
+            error_message = f"Reviewer execution failed: {str(e)}"
+            
+            return AgentResult(
+                content=error_message,
+                agent_role=self.config.role,
+                execution_time=execution_time,
+                success=False,
+                error_message=error_message
+            )
+
+
+# For backward compatibility
+def create_reviewer_agent(provider: BaseProvider, model: str) -> ReviewerAgent:
+    """Factory function to create a ReviewerAgent instance."""
+    return ReviewerAgent(provider, model)

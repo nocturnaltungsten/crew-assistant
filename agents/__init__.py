@@ -10,11 +10,12 @@ from .base import (
     TaskContext,
     TaskExecutionError,
 )
-from .developer import DeveloperAgent
+from .commander import CommanderAgent
+from .dev import DeveloperAgent
 from .planner import PlannerAgent
 from .registry import AgentRegistry, create_crew, list_available_agents
-from .researcher import ResearcherAgent
 from .reviewer import ReviewerAgent
+from .ux import UXAgent
 
 __all__ = [
     # Base classes
@@ -29,10 +30,11 @@ __all__ = [
     "ConfigurationError",
 
     # Specialized agents
-    "PlannerAgent",
-    "ResearcherAgent",
+    "CommanderAgent",
+    "PlannerAgent", 
     "DeveloperAgent",
     "ReviewerAgent",
+    "UXAgent",
 
     # Registry
     "AgentRegistry",

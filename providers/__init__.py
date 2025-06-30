@@ -12,7 +12,7 @@ from .base import (
 )
 from .lmstudio import LMStudioProvider
 from .ollama import OllamaProvider
-from .registry import ProviderRegistry, get_provider, list_available_providers
+from .registry import ProviderRegistry, get_provider, list_all_models
 
 __all__ = [
     # Base classes
@@ -33,5 +33,5 @@ __all__ = [
     # Registry
     "ProviderRegistry",
     "get_provider",
-    "list_available_providers"
+    "list_all_models"
 ]
