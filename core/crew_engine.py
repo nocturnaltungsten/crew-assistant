@@ -173,9 +173,16 @@ Review criteria:
 3. ACTIONABILITY: Can this be effectively implemented by a development team?
 4. COMPLETENESS: Are there missing critical details?
 
+Special Override Guidelines:
+- If user indicates they want to proceed with limited information (phrases like "JUST BUILD IT", "do the best you can", "work with what I've given you", "proceed anyway", etc.), then APPROVE the task
+- For simple, well-understood tasks (basic algorithms, simple utilities, common programming tasks), be more lenient and APPROVE if the core request is clear
+- Tasks like "create a sorting algorithm", "build a calculator", "write a password generator" are standard programming tasks that should generally be approved
+- In such cases, note that the UX Agent and Planner Agent are responsible for extrapolating the limited requirements into a clear execution plan
+- The development team is expected to make reasonable assumptions and fill gaps based on best practices
+
 Respond with:
-- **DECISION: APPROVE** if the task is ready for crew execution
-- **DECISION: NEEDS_CLARIFICATION** if the task needs refinement
+- **DECISION: APPROVE** if the task is ready for crew execution OR if user explicitly wants to proceed
+- **DECISION: NEEDS_CLARIFICATION** if the task needs refinement AND user hasn't indicated to proceed anyway
 
 If NEEDS_CLARIFICATION, provide specific guidance on what needs to be clarified or refined.""",
                 expected_output="Task specification validation with APPROVE or NEEDS_CLARIFICATION decision and specific feedback",
