@@ -8,6 +8,7 @@ os.makedirs(FACTS_DIR, exist_ok=True)
 
 FACT_FILE = os.path.join(FACTS_DIR, "user_facts.json")
 
+
 class FactStore:
     def __init__(self) -> None:
         self.facts: dict[str, str] = {}

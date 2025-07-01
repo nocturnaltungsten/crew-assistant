@@ -27,18 +27,11 @@ class OllamaAdapter:
             "model": model,
             "messages": messages,
             "stream": False,
-            "options": {
-                "num_predict": max_tokens,
-                "temperature": temperature
-            }
+            "options": {"num_predict": max_tokens, "temperature": temperature},
         }
 
         try:
-            response = requests.post(
-                f"{self.base_url}/api/chat",
-                json=ollama_payload,
-                timeout=30
-            )
+            response = requests.post(f"{self.base_url}/api/chat", json=ollama_payload, timeout=30)
             response.raise_for_status()
 
             ollama_response = response.json()
@@ -49,25 +42,28 @@ class OllamaAdapter:
                 "object": "chat.completion",
                 "created": int(response.headers.get("date", "0")),
                 "model": model,
-                "choices": [{
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": ollama_response.get("message", {}).get("content", "")
-                    },
-                    "finish_reason": "stop"
-                }],
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {
+                            "role": "assistant",
+                            "content": ollama_response.get("message", {}).get("content", ""),
+                        },
+                        "finish_reason": "stop",
+                    }
+                ],
                 "usage": {
                     "prompt_tokens": 0,  # Ollama doesn't provide token counts
                     "completion_tokens": 0,
-                    "total_tokens": 0
-                }
+                    "total_tokens": 0,
+                },
             }
 
             return openai_response
 
         except Exception as e:
             raise Exception(f"Ollama API error: {e}")
+
 
 def setup_ollama_for_crewai():
     """Set up environment to use Ollama with CrewAI."""
@@ -93,6 +89,7 @@ def setup_ollama_for_crewai():
 
     return False
 
+
 if __name__ == "__main__":
     # Test the adapter
     adapter = OllamaAdapter()
@@ -101,7 +98,7 @@ if __name__ == "__main__":
         response = adapter.chat_completion(
             model="tinyllama:latest",
             messages=[{"role": "user", "content": "Hello!"}],
-            max_tokens=10
+            max_tokens=10,
         )
 
         print("✅ Ollama adapter test successful!")

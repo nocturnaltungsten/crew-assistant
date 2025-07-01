@@ -21,7 +21,7 @@ class TestMemoryStore:
             agent="TestAgent",
             input_summary="Test input",
             output_summary="Test output",
-            task_id="test-task-123"
+            task_id="test-task-123",
         )
 
         assert len(memory_store.store) == 1
@@ -39,9 +39,7 @@ class TestMemoryStore:
         memory_store = MemoryStore()
 
         memory_store.save(
-            agent="TestAgent",
-            input_summary="Test input",
-            output_summary="Test output"
+            agent="TestAgent", input_summary="Test input", output_summary="Test output"
         )
 
         entry = memory_store.store[0]
@@ -52,9 +50,7 @@ class TestMemoryStore:
         memory_store = MemoryStore()
 
         memory_store.save(
-            agent="TestAgent",
-            input_summary="Test input",
-            output_summary="Test output"
+            agent="TestAgent", input_summary="Test input", output_summary="Test output"
         )
 
         # Check that a file was created

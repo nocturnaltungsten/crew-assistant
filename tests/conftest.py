@@ -36,10 +36,14 @@ def test_settings(temp_dir: Path) -> Generator[Settings, None, None]:
     reset_settings()  # Reset singleton
 
     # Override problematic env vars for testing
-    with patch.dict(os.environ, {
-        "LM_TIMEOUT": "5",
-        "OPENAI_API_MODEL": "test-model",
-    }, clear=False):
+    with patch.dict(
+        os.environ,
+        {
+            "LM_TIMEOUT": "5",
+            "OPENAI_API_MODEL": "test-model",
+        },
+        clear=False,
+    ):
         settings = Settings(
             base_dir=temp_dir,
             memory_dir=temp_dir / "memory" / "memory_store",
@@ -96,9 +100,11 @@ def mock_crewai():
     mock_crew.kickoff.return_value = "Test crew result"
     mock_crew.tasks = [mock_task]
 
-    with patch("crewai.Agent", return_value=mock_agent), \
-         patch("crewai.Task", return_value=mock_task), \
-         patch("crewai.Crew", return_value=mock_crew):
+    with (
+        patch("crewai.Agent", return_value=mock_agent),
+        patch("crewai.Task", return_value=mock_task),
+        patch("crewai.Crew", return_value=mock_crew),
+    ):
         yield {
             "agent": mock_agent,
             "task": mock_task,

@@ -6,7 +6,6 @@ from agents.planner import planner
 
 
 class TestAgents(unittest.TestCase):
-
     def test_planner_exists(self):
         self.assertIsNotNone(planner)
 
@@ -16,5 +15,6 @@ class TestAgents(unittest.TestCase):
     def test_commander_exists(self):
         self.assertIsNotNone(commander)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

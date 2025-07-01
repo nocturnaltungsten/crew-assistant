@@ -29,10 +29,10 @@ def route_context_event(event: dict[str, Any]) -> RoutingAction:
     """
 
     # === Basic Sanity Filters ===
-    if not event or 'type' not in event or 'content' not in event:
+    if not event or "type" not in event or "content" not in event:
         return RoutingAction.IGNORE
 
-    content = event['content'].strip().lower()
+    content = event["content"].strip().lower()
 
     # === Ignore trivial events ===
     if len(content) < 5:
@@ -42,11 +42,11 @@ def route_context_event(event: dict[str, Any]) -> RoutingAction:
         return RoutingAction.IGNORE
 
     # === Log only ===
-    if event['type'] in {"system", "meta"}:
+    if event["type"] in {"system", "meta"}:
         return RoutingAction.LOG
 
     # === Queue for summarization (long blocks of text, code, or transcripts) ===
-    if event['type'] in {"code", "chat", "note"} and len(content) > 500:
+    if event["type"] in {"code", "chat", "note"} and len(content) > 500:
         return RoutingAction.QUEUE_FOR_SUMMARY
 
     # === Embed everything else ===
@@ -60,7 +60,7 @@ def hash_event(event: dict[str, Any]) -> str:
     Used to deduplicate or track memory entries.
     """
     data = f"{event.get('timestamp')}|{event.get('content')}"
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
 
 # === Example usage ===
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     test_event = {
         "timestamp": datetime.utcnow().isoformat(),
         "type": "chat",
-        "content": "Here is a really long transcript of a conversation..."
+        "content": "Here is a really long transcript of a conversation...",
     }
 
     decision = route_context_event(test_event)

@@ -1,17 +1,17 @@
 # Reviewer Agent Implementation
 # Quality validation and deliverable review specialist
 
-from typing import Any, Dict
-
-from providers.base import BaseProvider, ChatMessage, ChatResponse
+from providers.base import BaseProvider, ChatMessage
 
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 
 
 class ReviewerAgent(BaseAgent):
-    """Reviewer agent responsible for quality validation and deliverable review."""
+    """Reviewer agent providing comprehensive quality assessment with numeric ratings (1-10 scale) across 5 criteria."""
 
-    def __init__(self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs):
+    def __init__(
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
+    ):
         """Initialize ReviewerAgent with default configuration."""
         if config is None:
             config = AgentConfig(
@@ -20,7 +20,7 @@ class ReviewerAgent(BaseAgent):
                 backstory="A meticulous quality assurance specialist who ensures all work meets high standards and requirements.",
                 max_tokens=1500,
                 temperature=0.2,  # Lower temperature for consistent review standards
-                verbose=True
+                verbose=True,
             )
         super().__init__(provider, model, config)
 
@@ -39,17 +39,17 @@ Your responsibilities:
 4. Make accept/revision/reject decisions based on quality standards
 5. Ensure deliverables meet professional standards
 
-Review Criteria:
-- **Completeness**: Are all requirements addressed?
-- **Quality**: Does the work meet professional standards?
-- **Clarity**: Is the deliverable clear and well-documented?
-- **Feasibility**: Is the solution practical and implementable?
-- **Alignment**: Does it match the original user request?
+Review Criteria with Numeric Ratings (1-10 scale):
+- **Completeness**: Are all requirements addressed? (1=missing most, 10=fully complete)
+- **Quality**: Does the work meet professional standards? (1=poor quality, 10=excellent)
+- **Clarity**: Is the deliverable clear and well-documented? (1=confusing, 10=crystal clear)
+- **Feasibility**: Is the solution practical and implementable? (1=not feasible, 10=highly practical)
+- **Alignment**: Does it match the original user request? (1=misaligned, 10=perfect match)
 
-Decision Framework:
-- **ACCEPT**: Deliverable meets all criteria and is ready for delivery
-- **NEEDS_REVISION**: Good foundation but requires specific improvements
-- **REJECT**: Fundamental issues requiring complete rework
+Rating Framework:
+- Rate each criterion on a scale of 1-10
+- Provide specific reasoning for each rating
+- Overall assessment will be calculated from individual ratings
 
 Special Guidelines for "JUST BUILD IT" Scenarios:
 - When user explicitly indicates urgency (phrases like "JUST BUILD IT", "build it now", "work with what I've given you", etc.), be more pragmatic in evaluation
@@ -62,8 +62,15 @@ Special Guidelines for "JUST BUILD IT" Scenarios:
 
 Structure your review response as:
 
-## Quality Assessment
-[Overall evaluation of the deliverable]
+## Numeric Ratings
+- **Completeness Rating**: [1-10]/10 - [brief reasoning]
+- **Quality Rating**: [1-10]/10 - [brief reasoning]
+- **Clarity Rating**: [1-10]/10 - [brief reasoning]
+- **Feasibility Rating**: [1-10]/10 - [brief reasoning]
+- **Alignment Rating**: [1-10]/10 - [brief reasoning]
+
+## Overall Assessment
+[Summary evaluation based on the ratings above]
 
 ## Detailed Review
 ### Strengths
@@ -72,20 +79,15 @@ Structure your review response as:
 ### Areas for Improvement
 - [Specific issues and suggestions]
 
-## Requirements Alignment
-[How well the deliverable meets the original requirements]
-
-## Decision
-**DECISION: [ACCEPT/NEEDS_REVISION/REJECT]**
-
 ## Feedback Summary
 [Concise, actionable feedback for the team]
 
-Be thorough but constructive. Focus on helping the team deliver exceptional results."""
+Be thorough but constructive. Always provide numeric ratings for data collection."""
 
     def execute_task(self, context: TaskContext) -> AgentResult:
         """Execute a review task with quality validation."""
         import time
+
         start_time = time.time()
 
         try:
@@ -98,12 +100,19 @@ Be thorough but constructive. Focus on helping the team deliver exceptional resu
             # Create messages
             messages = [ChatMessage(role="user", content=full_prompt)]
 
+            # Debug logging to understand HTTP 400 errors
+            if self.config.verbose:
+                from loguru import logger
+
+                logger.debug(f"Reviewer prompt length: {len(full_prompt)} chars")
+                logger.debug(f"First 500 chars of prompt: {full_prompt[:500]}...")
+
             # Execute with provider
             response = self.provider.chat_with_retry(
                 messages=messages,
                 model=self.model,
                 max_tokens=self.config.max_tokens,
-                temperature=self.config.temperature
+                temperature=self.config.temperature,
             )
 
             execution_time = time.time() - start_time
@@ -114,19 +123,19 @@ Be thorough but constructive. Focus on helping the team deliver exceptional resu
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 tokens_used=response.tokens_used,
-                success=True
+                success=True,
             )
 
         except Exception as e:
             execution_time = time.time() - start_time
             error_message = f"Reviewer execution failed: {str(e)}"
-            
+
             return AgentResult(
                 content=error_message,
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 success=False,
-                error_message=error_message
+                error_message=error_message,
             )
 
 

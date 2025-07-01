@@ -54,13 +54,13 @@ class AgentRegistry:
                 info[role] = {
                     "class": agent_class.__name__,
                     "role": role,
-                    "description": agent_class.__doc__ or f"{role} agent"
+                    "description": agent_class.__doc__ or f"{role} agent",
                 }
             except:
                 info[role] = {
                     "class": agent_class.__name__,
                     "role": role,
-                    "description": f"{role} agent"
+                    "description": f"{role} agent",
                 }
         return info
 

@@ -12,7 +12,9 @@ from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 class UXAgent(BaseAgent):
     """UX agent for handling user interactions and experience."""
 
-    def __init__(self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs):
+    def __init__(
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
+    ):
         """Initialize UXAgent with default configuration."""
         if config is None:
             config = AgentConfig(
@@ -26,7 +28,7 @@ class UXAgent(BaseAgent):
                 ),
                 max_tokens=1000,
                 temperature=0.7,
-                verbose=True
+                verbose=True,
             )
         super().__init__(provider, model, config)
 
@@ -67,6 +69,7 @@ For simple questions, conversations, and basic assistance, respond directly."""
     def execute_task(self, context: TaskContext) -> AgentResult:
         """Execute a UX task with conversation and delegation logic."""
         import time
+
         start_time = time.time()
 
         try:
@@ -84,7 +87,7 @@ For simple questions, conversations, and basic assistance, respond directly."""
                 messages=messages,
                 model=self.model,
                 max_tokens=self.config.max_tokens,
-                temperature=self.config.temperature
+                temperature=self.config.temperature,
             )
 
             execution_time = time.time() - start_time
@@ -95,19 +98,19 @@ For simple questions, conversations, and basic assistance, respond directly."""
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 tokens_used=response.tokens_used,
-                success=True
+                success=True,
             )
 
         except Exception as e:
             execution_time = time.time() - start_time
             error_message = f"UX execution failed: {str(e)}"
-            
+
             return AgentResult(
                 content=error_message,
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 success=False,
-                error_message=error_message
+                error_message=error_message,
             )
 
 

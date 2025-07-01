@@ -28,7 +28,6 @@ EXTENDED_TASK_BANK = {
         "Explain open source",
         "What is encryption?",
     ],
-    
     "simple": [
         "Write a Python function to calculate factorial",
         "Create a simple HTML contact form",
@@ -51,7 +50,6 @@ EXTENDED_TASK_BANK = {
         "Write a function to generate QR codes",
         "Create a basic time tracker",
     ],
-    
     "moderate": [
         "Build a REST API for a todo app with authentication",
         "Create a web scraper that saves data to CSV",
@@ -74,7 +72,6 @@ EXTENDED_TASK_BANK = {
         "Create a document collaboration tool",
         "Build a event management platform",
     ],
-    
     "complex": [
         "Build a microservices architecture for user management with Docker",
         "Create a real-time analytics dashboard with React and Python backend",
@@ -97,7 +94,6 @@ EXTENDED_TASK_BANK = {
         "Create a AI-powered customer service platform",
         "Build a distributed file storage system",
     ],
-    
     "vague": [
         "Make something cool",
         "Build an app",
@@ -120,7 +116,6 @@ EXTENDED_TASK_BANK = {
         "Create something scalable",
         "Build something secure",
     ],
-    
     "vague_override": [
         "Make something cool - JUST BUILD IT",
         "Build an app. Do your best with what I've given you",
@@ -152,7 +147,6 @@ EXTENDED_TASK_BANK = {
         "Write a file organizer - do your best",
         "Build a chat bot - JUST BUILD IT",
     ],
-    
     # Additional specialized categories for testing specific aspects
     "validation_testing": [
         # These should trigger clarification requests
@@ -161,7 +155,6 @@ EXTENDED_TASK_BANK = {
         "Make a website",
         "I want software",
         "Design something good",
-        
         # These should be approved with JUST BUILD IT
         "Build me something - JUST BUILD IT",
         "Create an application - do your best",
@@ -169,15 +162,13 @@ EXTENDED_TASK_BANK = {
         "I want software - just build it",
         "Design something good - proceed anyway",
     ],
-    
     "agent_stress_testing": [
         # Tasks designed to test specific agents
-        "Analyze the user experience requirements for a mobile banking app", # UX heavy
-        "Create a detailed 6-month development roadmap for a startup", # Planner heavy  
-        "Implement a complete REST API with all CRUD operations", # Developer heavy
-        "Review and validate this complex system architecture proposal", # Reviewer heavy
+        "Analyze the user experience requirements for a mobile banking app",  # UX heavy
+        "Create a detailed 6-month development roadmap for a startup",  # Planner heavy
+        "Implement a complete REST API with all CRUD operations",  # Developer heavy
+        "Review and validate this complex system architecture proposal",  # Reviewer heavy
     ],
-    
     "workflow_edge_cases": [
         # Edge cases for workflow testing
         "Build a Pong game with cute animations and fun sounds",
@@ -185,13 +176,13 @@ EXTENDED_TASK_BANK = {
         "Build a password manager that's both secure and user-friendly",
         "Create a chat bot that's helpful but not creepy",
         "Build a todo app that actually helps with productivity",
-    ]
+    ],
 }
 
 # Weights for extended testing (can be used to override defaults)
 EXTENDED_WEIGHTS = {
     "trivial": 3.0,
-    "simple": 3.0, 
+    "simple": 3.0,
     "moderate": 2.5,
     "complex": 2.0,
     "vague": 1.5,
@@ -201,44 +192,51 @@ EXTENDED_WEIGHTS = {
     "workflow_edge_cases": 1.5,
 }
 
+
 def get_task_bank():
     """Get the extended task bank."""
     return EXTENDED_TASK_BANK
+
 
 def get_weights():
     """Get the extended weights."""
     return EXTENDED_WEIGHTS
 
+
 def get_random_task(category: str) -> str:
     """Get a random task from a specific category."""
     import random
+
     if category in EXTENDED_TASK_BANK:
         return random.choice(EXTENDED_TASK_BANK[category])
     else:
         raise ValueError(f"Unknown category: {category}")
 
+
 def get_all_categories():
     """Get all available task categories."""
     return list(EXTENDED_TASK_BANK.keys())
+
 
 if __name__ == "__main__":
     # Print task bank statistics
     print("🧪 Extended Crew Test Task Bank")
     print("=" * 40)
-    
+
     total_tasks = 0
     for category, tasks in EXTENDED_TASK_BANK.items():
         count = len(tasks)
         total_tasks += count
         weight = EXTENDED_WEIGHTS.get(category, 1.0)
         print(f"{category:20} | {count:3d} tasks | weight {weight}")
-    
+
     print("=" * 40)
     print(f"Total tasks: {total_tasks}")
-    
+
     # Show a few random examples
     print("\n🎲 Random task examples:")
     import random
+
     for category in ["trivial", "simple", "moderate", "complex", "vague", "vague_override"]:
         example = get_random_task(category)
         print(f"{category:15} | {example}")

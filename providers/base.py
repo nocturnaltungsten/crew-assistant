@@ -14,6 +14,7 @@ from loguru import logger
 @dataclass
 class ModelInfo:
     """Information about an available model."""
+
     id: str
     name: str
     provider: str
@@ -22,22 +23,25 @@ class ModelInfo:
     size: str | None = None
     context_length: int | None = None
     capabilities: List[str] = field(default_factory=list)  # ["chat", "completion", "embedding"]
-    performance_tier: str = "standard"  # "fast", "standard", "high_quality"
+    performance_tier: str = "balanced"  # "fast", "balanced", "capable"
     last_tested: float = field(default_factory=time.time)
 
 
 @dataclass
 class ChatMessage:
     """Standardized chat message format."""
+
     role: str  # "user", "assistant", "system"
     content: str
     name: str | None = None
     timestamp: float = field(default_factory=time.time)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class ChatChunk:
     """Streaming response chunk."""
+
     content: str
     model: str
     provider: str
@@ -45,9 +49,11 @@ class ChatChunk:
     tokens_used: int | None = None
     is_final: bool = False
 
+
 @dataclass
 class ProviderHealth:
     """Provider health status."""
+
     is_healthy: bool
     response_time: float
     last_check: float
@@ -55,22 +61,24 @@ class ProviderHealth:
     consecutive_failures: int = 0
     uptime_percentage: float = 100.0
 
+
 @dataclass
 class ProviderMetrics:
     """Provider performance metrics."""
+
     total_requests: int = 0
     successful_requests: int = 0
     failed_requests: int = 0
     average_response_time: float = 0.0
     total_tokens: int = 0
     uptime_start: float = field(default_factory=time.time)
-    
+
     @property
     def success_rate(self) -> float:
         if self.total_requests == 0:
             return 100.0
         return (self.successful_requests / self.total_requests) * 100.0
-    
+
     @property
     def failure_rate(self) -> float:
         return 100.0 - self.success_rate
@@ -79,6 +87,7 @@ class ProviderMetrics:
 @dataclass
 class ChatResponse:
     """Standardized response from provider."""
+
     content: str
     model: str
     provider: str
@@ -98,15 +107,11 @@ class BaseProvider(ABC):
         """Initialize provider with configuration."""
         self.config = config
         self.name = self.__class__.__name__.replace("Provider", "").lower()
-        
+
         # Performance and reliability features
         self.metrics = ProviderMetrics()
-        self.health = ProviderHealth(
-            is_healthy=True,
-            response_time=0.0,
-            last_check=time.time()
-        )
-        
+        self.health = ProviderHealth(is_healthy=True, response_time=0.0, last_check=time.time())
+
         # Configuration with defaults
         self.timeout = config.get("timeout", 30)
         self.max_retries = config.get("max_retries", 3)
@@ -114,41 +119,30 @@ class BaseProvider(ABC):
         self.enable_streaming = config.get("enable_streaming", True)
         self.enable_caching = config.get("enable_caching", True)
         self.circuit_breaker_threshold = config.get("circuit_breaker_threshold", 5)
-        
+
         # Internal state
         self._circuit_breaker_failures = 0
         self._circuit_breaker_last_failure = 0.0
         self._circuit_breaker_open = False
         self._response_cache: Dict[str, Any] = {}
         self._cache_ttl = config.get("cache_ttl", 300)  # 5 minutes
-        
-        logger.info(f"Initialized {self.display_name} provider with config: timeout={self.timeout}s, retries={self.max_retries}")
+
+        logger.info(
+            f"Initialized {self.display_name} provider with config: timeout={self.timeout}s, retries={self.max_retries}"
+        )
 
     @abstractmethod
-    def chat(
-        self,
-        messages: list[ChatMessage],
-        model: str,
-        **kwargs
-    ) -> ChatResponse:
+    def chat(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
         """Send chat messages and get response."""
         pass
-    
-    async def chat_async(
-        self,
-        messages: list[ChatMessage],
-        model: str,
-        **kwargs
-    ) -> ChatResponse:
+
+    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
         """Async version of chat (default implementation runs sync in thread)."""
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.chat, messages, model, **kwargs)
-    
+
     def chat_streaming(
-        self,
-        messages: list[ChatMessage],
-        model: str,
-        **kwargs
+        self, messages: list[ChatMessage], model: str, **kwargs
     ) -> AsyncIterator[ChatChunk]:
         """Stream chat response in chunks (override for native streaming)."""
         # Default implementation: convert regular response to single chunk
@@ -159,22 +153,17 @@ class BaseProvider(ABC):
             provider=response.provider,
             finish_reason=response.finish_reason,
             tokens_used=response.tokens_used,
-            is_final=True
+            is_final=True,
         )
-    
-    def chat_with_retry(
-        self,
-        messages: list[ChatMessage],
-        model: str,
-        **kwargs
-    ) -> ChatResponse:
+
+    def chat_with_retry(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
         """Chat with automatic retry logic and circuit breaker."""
         if self._is_circuit_breaker_open():
             raise ConnectionError(f"Circuit breaker open for {self.name} provider")
-        
+
         start_time = time.time()
         last_exception = None
-        
+
         for attempt in range(self.max_retries + 1):
             try:
                 # Check cache first
@@ -187,49 +176,53 @@ class BaseProvider(ABC):
                         response.response_time = time.time() - start_time
                         self._update_metrics(True, response.response_time)
                         return response
-                
+
                 # Make the actual request
                 response = self.chat(messages, model, **kwargs)
                 response.response_time = time.time() - start_time
-                
+
                 # Cache successful response
                 if self.enable_caching:
                     self._response_cache[cache_key] = {
                         "response": response,
-                        "timestamp": time.time()
+                        "timestamp": time.time(),
                     }
-                
+
                 # Reset circuit breaker on success
                 self._circuit_breaker_failures = 0
                 self._circuit_breaker_open = False
-                
+
                 self._update_metrics(True, response.response_time)
                 self._update_health(True, response.response_time)
-                
+
                 return response
-                
+
             except Exception as e:
                 last_exception = e
                 self._circuit_breaker_failures += 1
                 self._circuit_breaker_last_failure = time.time()
-                
+
                 # Open circuit breaker if threshold reached
                 if self._circuit_breaker_failures >= self.circuit_breaker_threshold:
                     self._circuit_breaker_open = True
-                    logger.warning(f"Circuit breaker opened for {self.name} provider after {self._circuit_breaker_failures} failures")
-                
+                    logger.warning(
+                        f"Circuit breaker opened for {self.name} provider after {self._circuit_breaker_failures} failures"
+                    )
+
                 if attempt < self.max_retries:
-                    delay = self.retry_delay * (2 ** attempt)  # Exponential backoff
-                    logger.warning(f"Attempt {attempt + 1} failed for {self.name}, retrying in {delay}s: {e}")
+                    delay = self.retry_delay * (2**attempt)  # Exponential backoff
+                    logger.warning(
+                        f"Attempt {attempt + 1} failed for {self.name}, retrying in {delay}s: {e}"
+                    )
                     time.sleep(delay)
                 else:
                     logger.error(f"All {self.max_retries + 1} attempts failed for {self.name}: {e}")
-        
+
         # All attempts failed
         total_time = time.time() - start_time
         self._update_metrics(False, total_time)
         self._update_health(False, total_time, str(last_exception))
-        
+
         raise last_exception or ConnectionError(f"All retry attempts failed for {self.name}")
 
     @abstractmethod
@@ -250,7 +243,7 @@ class BaseProvider(ABC):
             return True, f"Model '{model}' is working (responded in {response.response_time:.2f}s)"
         except Exception as e:
             return False, f"Model '{model}' failed: {str(e)}"
-    
+
     async def test_model_async(self, model: str) -> tuple[bool, str]:
         """Async version of model testing."""
         try:
@@ -259,11 +252,8 @@ class BaseProvider(ABC):
             return True, f"Model '{model}' is working (responded in {response.response_time:.2f}s)"
         except Exception as e:
             return False, f"Model '{model}' failed: {str(e)}"
-    
-    def batch_chat(
-        self,
-        requests: List[tuple[list[ChatMessage], str, dict]]
-    ) -> List[ChatResponse]:
+
+    def batch_chat(self, requests: List[tuple[list[ChatMessage], str, dict]]) -> List[ChatResponse]:
         """Process multiple chat requests (override for native batch support)."""
         responses = []
         for messages, model, kwargs in requests:
@@ -276,20 +266,16 @@ class BaseProvider(ABC):
                     content=f"Error: {str(e)}",
                     model=model,
                     provider=self.name,
-                    finish_reason="error"
+                    finish_reason="error",
                 )
                 responses.append(error_response)
         return responses
-    
+
     async def batch_chat_async(
-        self,
-        requests: List[tuple[list[ChatMessage], str, dict]]
+        self, requests: List[tuple[list[ChatMessage], str, dict]]
     ) -> List[ChatResponse]:
         """Async batch processing with concurrency."""
-        tasks = [
-            self.chat_async(messages, model, **kwargs)
-            for messages, model, kwargs in requests
-        ]
+        tasks = [self.chat_async(messages, model, **kwargs) for messages, model, kwargs in requests]
         return await asyncio.gather(*tasks, return_exceptions=True)
 
     @property
@@ -303,7 +289,7 @@ class BaseProvider(ABC):
         if self._is_circuit_breaker_open():
             return False
         return self.test_connection()
-    
+
     def get_health_status(self) -> ProviderHealth:
         """Get current health status."""
         # Update health with fresh connection test
@@ -315,46 +301,46 @@ class BaseProvider(ABC):
         except Exception as e:
             response_time = time.time() - start_time
             self._update_health(False, response_time, str(e))
-        
+
         return self.health
-    
+
     def get_metrics(self) -> ProviderMetrics:
         """Get performance metrics."""
         return self.metrics
-    
+
     def reset_metrics(self) -> None:
         """Reset performance metrics."""
         self.metrics = ProviderMetrics()
         logger.info(f"Reset metrics for {self.name} provider")
-    
+
     def clear_cache(self) -> None:
         """Clear response cache."""
         cleared_count = len(self._response_cache)
         self._response_cache.clear()
         logger.info(f"Cleared {cleared_count} cached responses for {self.name} provider")
-    
+
     def _generate_cache_key(self, messages: list[ChatMessage], model: str, kwargs: dict) -> str:
         """Generate cache key for request."""
         import hashlib
-        
+
         content = "".join([f"{msg.role}:{msg.content}" for msg in messages])
         cache_params = f"{model}:{content}:{sorted(kwargs.items())}"
         return hashlib.md5(cache_params.encode()).hexdigest()
-    
+
     def _is_circuit_breaker_open(self) -> bool:
         """Check if circuit breaker is open."""
         if not self._circuit_breaker_open:
             return False
-        
+
         # Auto-reset circuit breaker after 60 seconds
         if time.time() - self._circuit_breaker_last_failure > 60:
             self._circuit_breaker_open = False
             self._circuit_breaker_failures = 0
             logger.info(f"Circuit breaker auto-reset for {self.name} provider")
             return False
-        
+
         return True
-    
+
     def _update_metrics(self, success: bool, response_time: float) -> None:
         """Update performance metrics."""
         self.metrics.total_requests += 1
@@ -362,23 +348,25 @@ class BaseProvider(ABC):
             self.metrics.successful_requests += 1
         else:
             self.metrics.failed_requests += 1
-        
+
         # Update average response time
         if self.metrics.total_requests == 1:
             self.metrics.average_response_time = response_time
         else:
             self.metrics.average_response_time = (
-                (self.metrics.average_response_time * (self.metrics.total_requests - 1) + response_time)
-                / self.metrics.total_requests
-            )
-    
-    def _update_health(self, is_healthy: bool, response_time: float, error_message: str | None = None) -> None:
+                self.metrics.average_response_time * (self.metrics.total_requests - 1)
+                + response_time
+            ) / self.metrics.total_requests
+
+    def _update_health(
+        self, is_healthy: bool, response_time: float, error_message: str | None = None
+    ) -> None:
         """Update health status."""
         self.health.is_healthy = is_healthy
         self.health.response_time = response_time
         self.health.last_check = time.time()
         self.health.error_message = error_message
-        
+
         if not is_healthy:
             self.health.consecutive_failures += 1
         else:
@@ -387,22 +375,29 @@ class BaseProvider(ABC):
 
 class ProviderError(Exception):
     """Base exception for provider-related errors."""
+
     pass
 
 
 class ModelNotFoundError(ProviderError):
     """Raised when requested model is not available."""
+
     pass
 
 
 class ConnectionError(ProviderError):
     """Raised when provider connection fails."""
+
     pass
+
 
 class CircuitBreakerOpenError(ProviderError):
     """Raised when circuit breaker is open."""
+
     pass
+
 
 class ProviderTimeoutError(ProviderError):
     """Raised when provider request times out."""
+
     pass

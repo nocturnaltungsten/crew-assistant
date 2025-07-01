@@ -9,11 +9,11 @@ from core.context_engine.fact_store import FactStore
 def learn_fact_if_possible(text, fact_store=None):
     """
     Extract facts from text using regex patterns.
-    
+
     Args:
         text (str): Input text to analyze
         fact_store (FactStore): Optional fact store instance
-    
+
     Returns:
         dict: Extracted facts {key: value}
     """
@@ -24,7 +24,7 @@ def learn_fact_if_possible(text, fact_store=None):
         r"(?i)my name is ([a-zA-Z ]{2,})": "name",
         r"(?i)you can call me ([a-zA-Z ]{2,})": "aliases",
         r"(?i)my partner is ([a-zA-Z ]{2,})": "partner",
-        r"(?i)i prefer ([a-zA-Z0-9 \-]+)": "preference"
+        r"(?i)i prefer ([a-zA-Z0-9 \-]+)": "preference",
     }
 
     extracted_facts = {}
@@ -43,14 +43,15 @@ def learn_fact_if_possible(text, fact_store=None):
 
     return extracted_facts
 
+
 def build_memory_context(memory_dir="memory/memory_store", limit=10):
     """
     Build context string from recent memory entries.
-    
+
     Args:
         memory_dir (str): Path to memory store directory
         limit (int): Max number of recent entries to include
-    
+
     Returns:
         str: Formatted memory context
     """

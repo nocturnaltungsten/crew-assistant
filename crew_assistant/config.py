@@ -12,28 +12,17 @@ class Settings(BaseSettings):
     """Application settings with validation."""
 
     # API Configuration
-    ai_provider: str = Field(
-        default="lm_studio",
-        description="AI provider: lm_studio or ollama"
-    )
+    ai_provider: str = Field(default="lm_studio", description="AI provider: lm_studio or ollama")
     openai_api_base: str = Field(
-        default="http://localhost:1234/v1",
-        description="Base URL for OpenAI-compatible API"
+        default="http://localhost:1234/v1", description="Base URL for OpenAI-compatible API"
     )
     openai_api_key: str = Field(
-        default="not-needed-for-local",
-        description="API key (not needed for local providers)"
+        default="not-needed-for-local", description="API key (not needed for local providers)"
     )
     openai_api_model: str = Field(
-        default="microsoft/phi-4-mini-reasoning",
-        description="Default model to use"
+        default="microsoft/phi-4-mini-reasoning", description="Default model to use"
     )
-    lm_timeout: int = Field(
-        default=60,
-        ge=1,
-        le=600,
-        description="LLM request timeout in seconds"
-    )
+    lm_timeout: int = Field(default=60, ge=1, le=600, description="LLM request timeout in seconds")
 
     # Application Configuration
     debug: bool = Field(default=False, description="Enable debug mode")
@@ -41,33 +30,26 @@ class Settings(BaseSettings):
 
     # Storage Configuration
     base_dir: Path = Field(
-        default_factory=lambda: Path.cwd(),
-        description="Base directory for the application"
+        default_factory=lambda: Path.cwd(), description="Base directory for the application"
     )
     memory_dir: Path = Field(
         default_factory=lambda: Path("memory/memory_store"),
-        description="Directory for memory storage"
+        description="Directory for memory storage",
     )
     facts_dir: Path = Field(
-        default_factory=lambda: Path("memory/facts"),
-        description="Directory for fact storage"
+        default_factory=lambda: Path("memory/facts"), description="Directory for fact storage"
     )
     snapshots_dir: Path = Field(
-        default_factory=lambda: Path("snapshots"),
-        description="Directory for run snapshots"
+        default_factory=lambda: Path("snapshots"), description="Directory for run snapshots"
     )
     crew_runs_dir: Path = Field(
-        default_factory=lambda: Path("crew_runs"),
-        description="Directory for crew run logs"
+        default_factory=lambda: Path("crew_runs"), description="Directory for crew run logs"
     )
 
     # Agent Configuration
     agent_verbose: bool = Field(default=True, description="Enable agent verbose output")
     max_memory_entries: int = Field(
-        default=1000,
-        ge=10,
-        le=10000,
-        description="Maximum memory entries to keep"
+        default=1000, ge=10, le=10000, description="Maximum memory entries to keep"
     )
 
     @field_validator("log_level")
@@ -133,9 +115,9 @@ def get_settings() -> Settings:
             lambda msg: print(msg, end=""),  # Print to stdout
             level=_settings.log_level,
             format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-                   "<level>{level: <8}</level> | "
-                   "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-                   "<level>{message}</level>",
+            "<level>{level: <8}</level> | "
+            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+            "<level>{message}</level>",
             colorize=True,
         )
 

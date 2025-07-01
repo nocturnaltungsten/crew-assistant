@@ -59,10 +59,9 @@ class TestModelSelector:
 
     def test_environment_variable_set(self, mock_requests):
         """Test that environment variable is properly set."""
-        with patch("builtins.input", return_value="1"), \
-             patch.dict("os.environ", {}, clear=True):
-
+        with patch("builtins.input", return_value="1"), patch.dict("os.environ", {}, clear=True):
             import os
+
             result = select_model()
 
             assert result == "test-model-1"

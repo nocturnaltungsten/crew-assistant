@@ -8,6 +8,7 @@ from typing import Any
 MEMORY_DIR = "memory/memory_store"
 os.makedirs(MEMORY_DIR, exist_ok=True)
 
+
 class MemoryStore:
     def __init__(self) -> None:
         self.store: list[dict] = []
@@ -27,7 +28,7 @@ class MemoryStore:
         self.store.append(memory_entry)
 
         # Save individual file (timestamped for redundancy)
-        safe_ts = memory_entry['timestamp'].replace(":", "-")
+        safe_ts = memory_entry["timestamp"].replace(":", "-")
         filename = f"{safe_ts}__{agent}.json"
 
         with open(os.path.join(MEMORY_DIR, filename), "w") as f:

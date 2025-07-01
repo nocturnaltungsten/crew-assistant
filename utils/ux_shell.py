@@ -24,23 +24,24 @@ def get_ux_agent():
             role="Chat interface",
             goal="Act as user's super-powerful AI machine",
             backstory=(
-            "You're a witty, helpful employee of the user. You talk shit, and make sure that every resource at your disposal is utilized to achieve user's (ie your) goals and objectives. "
-            "You act as user's electronic butler — assisting how you can, and using your brain (all the other agents and tools in the system) to do work autonomously"
+                "You're a witty, helpful employee of the user. You talk shit, and make sure that every resource at your disposal is utilized to achieve user's (ie your) goals and objectives. "
+                "You act as user's electronic butler — assisting how you can, and using your brain (all the other agents and tools in the system) to do work autonomously"
             ),
             allow_delegation=False,
             use_system_prompt=False,
             llm=get_llm(),
-            verbose=True
+            verbose=True,
         )
     except ImportError as e:
         print(f"❌ Could not import UX agent: {e}")
         print("💡 Make sure agents/ux.py exists and defines 'get_llm' function")
         raise
 
+
 def run_ux_shell(raw_mode=False):
     """
     Interactive UX shell with memory and fact learning.
-    
+
     Args:
         raw_mode (bool): If True, output only response text without formatting
     """
@@ -48,12 +49,13 @@ def run_ux_shell(raw_mode=False):
     if not os.getenv("AI_PROVIDER") or not os.getenv("OPENAI_API_MODEL"):
         print("🔧 No AI provider configured. Let's set one up!")
         from utils.provider_selector import interactive_setup
+
         result = interactive_setup()
         if result:
             model_id, provider, api_base = result
-            os.environ['OPENAI_API_MODEL'] = model_id
-            os.environ['OPENAI_API_BASE'] = api_base
-            os.environ['AI_PROVIDER'] = provider.value
+            os.environ["OPENAI_API_MODEL"] = model_id
+            os.environ["OPENAI_API_BASE"] = api_base
+            os.environ["AI_PROVIDER"] = provider.value
             print("✅ Provider configured!")
         else:
             print("❌ Setup cancelled. Using defaults.")
@@ -66,6 +68,7 @@ def run_ux_shell(raw_mode=False):
     if provider == "ollama":
         print("🔄 Using direct Ollama integration (bypassing CrewAI)...")
         from utils.simple_ollama_chat import run_simple_ollama_ux
+
         run_simple_ollama_ux()
         return
 
@@ -105,7 +108,7 @@ Respond as a helpful assistant. Speak clearly and helpfully.
             ux_task = Task(
                 description=task_description,
                 expected_output="A helpful response in plain English.",
-                agent=ux
+                agent=ux,
             )
 
             # Run with debugging
@@ -119,6 +122,7 @@ Respond as a helpful assistant. Speak clearly and helpfully.
             except Exception as e:
                 print(f"❌ Error during inference: {e}")
                 import traceback
+
                 traceback.print_exc()
                 continue
 
@@ -160,11 +164,13 @@ Respond as a helpful assistant. Speak clearly and helpfully.
             learn_fact_if_possible(reply)
 
             # Log session
-            chat_log.append({
-                "timestamp": datetime.datetime.utcnow().isoformat(),
-                "input": user_input,
-                "output": reply
-            })
+            chat_log.append(
+                {
+                    "timestamp": datetime.datetime.utcnow().isoformat(),
+                    "input": user_input,
+                    "output": reply,
+                }
+            )
 
         except KeyboardInterrupt:
             print("\n🫡 UX Agent signing off.")
@@ -172,6 +178,7 @@ Respond as a helpful assistant. Speak clearly and helpfully.
         except Exception as e:
             print(f"❌ Error in UX shell: {e}")
             import traceback
+
             print(f"📍 Details: {traceback.format_exc()}")
 
     # Save session log
@@ -180,17 +187,23 @@ Respond as a helpful assistant. Speak clearly and helpfully.
     snapshot_file = os.path.join(snapshot_dir, f"{safe_ts}__ux_session__{session_id}.json")
 
     with open(snapshot_file, "w") as f:
-        json.dump({
-            "session_id": session_id,
-            "timestamp": timestamp,
-            "model": os.environ.get("OPENAI_API_MODEL", "unknown"),
-            "chat_log": chat_log
-        }, f, indent=2)
+        json.dump(
+            {
+                "session_id": session_id,
+                "timestamp": timestamp,
+                "model": os.environ.get("OPENAI_API_MODEL", "unknown"),
+                "chat_log": chat_log,
+            },
+            f,
+            indent=2,
+        )
 
     print(f"💾 Session log saved: {snapshot_file}")
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Run UX Shell")
     parser.add_argument("--raw", action="store_true", help="Raw output mode")
     args = parser.parse_args()

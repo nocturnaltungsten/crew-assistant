@@ -46,7 +46,7 @@ class TaskContext:
         """Convert context to prompt format."""
         prompt_parts = [
             f"Task: {self.task_description}",
-            f"Expected Output: {self.expected_output}"
+            f"Expected Output: {self.expected_output}",
         ]
 
         if self.user_input:
@@ -55,7 +55,7 @@ class TaskContext:
         if self.previous_results:
             prompt_parts.append("Previous Results:")
             for i, result in enumerate(self.previous_results):
-                prompt_parts.append(f"{i+1}. {result}")
+                prompt_parts.append(f"{i + 1}. {result}")
 
         if self.memory_context:
             prompt_parts.append(f"Memory Context: {self.memory_context}")
@@ -81,12 +81,7 @@ class AgentResult:
 class BaseAgent(ABC):
     """Abstract base class for crew agents."""
 
-    def __init__(
-        self,
-        provider: BaseProvider,
-        model: str,
-        config: AgentConfig
-    ):
+    def __init__(self, provider: BaseProvider, model: str, config: AgentConfig):
         """Initialize agent with provider and configuration."""
         self.provider = provider
         self.model = model
@@ -104,6 +99,7 @@ class BaseAgent(ABC):
     def execute_task(self, context: TaskContext) -> AgentResult:
         """Execute a task with given context."""
         import time
+
         start_time = time.time()
 
         try:
@@ -123,7 +119,7 @@ class BaseAgent(ABC):
                 messages=messages,
                 model=self.model,
                 max_tokens=self.config.max_tokens,
-                temperature=self.config.temperature
+                temperature=self.config.temperature,
             )
 
             execution_time = time.time() - start_time
@@ -137,7 +133,7 @@ class BaseAgent(ABC):
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 tokens_used=response.tokens_used,
-                success=True
+                success=True,
             )
 
         except Exception as e:
@@ -152,7 +148,7 @@ class BaseAgent(ABC):
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 success=False,
-                error_message=error_msg
+                error_message=error_msg,
             )
 
     @property
@@ -167,20 +163,23 @@ class BaseAgent(ABC):
             "role": self.config.role,
             "executions": self.execution_count,
             "model": self.model,
-            "provider": self.provider.name
+            "provider": self.provider.name,
         }
 
 
 class AgentError(Exception):
     """Base exception for agent-related errors."""
+
     pass
 
 
 class TaskExecutionError(AgentError):
     """Raised when task execution fails."""
+
     pass
 
 
 class ConfigurationError(AgentError):
     """Raised when agent configuration is invalid."""
+
     pass

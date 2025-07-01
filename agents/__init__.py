@@ -23,22 +23,18 @@ __all__ = [
     "AgentConfig",
     "TaskContext",
     "AgentResult",
-
     # Exceptions
     "AgentError",
     "TaskExecutionError",
     "ConfigurationError",
-
     # Specialized agents
     "CommanderAgent",
-    "PlannerAgent", 
+    "PlannerAgent",
     "DeveloperAgent",
     "ReviewerAgent",
     "UXAgent",
-
     # Registry
     "AgentRegistry",
     "create_crew",
-    "list_available_agents"
+    "list_available_agents",
 ]
-

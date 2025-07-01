@@ -19,9 +19,9 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
             if result:
                 model, provider, api_base = result
                 # Set environment variables for current session
-                os.environ['OPENAI_API_MODEL'] = model
-                os.environ['OPENAI_API_BASE'] = api_base
-                os.environ['AI_PROVIDER'] = provider
+                os.environ["OPENAI_API_MODEL"] = model
+                os.environ["OPENAI_API_BASE"] = api_base
+                os.environ["AI_PROVIDER"] = provider
                 print("✅ Provider configured!")
             else:
                 print("❌ Setup cancelled.")
@@ -33,11 +33,7 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
     # Create crew engine
     try:
         engine = create_crew_engine(
-            provider=provider,
-            model=model,
-            verbose=True,
-            save_sessions=True,
-            memory_enabled=True
+            provider=provider, model=model, verbose=True, save_sessions=True, memory_enabled=True
         )
     except Exception as e:
         print(f"❌ Failed to initialize crew engine: {e}")
@@ -79,14 +75,16 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
 
             if result.success:
                 print("\n✅ Task completed successfully!")
-                print(f"📊 {result.iterations_count} iteration(s), {result.total_execution_time:.1f}s")
+                print(
+                    f"📊 {result.iterations_count} iteration(s), {result.total_execution_time:.1f}s"
+                )
                 print("\n📋 Final Deliverable:")
                 print("─" * 80)
                 print(result.final_output)
                 print("─" * 80)
             else:
                 # Handle different failure types
-                if hasattr(result, 'status') and result.status.value == "needs_clarification":
+                if hasattr(result, "status") and result.status.value == "needs_clarification":
                     print("\n📋 Task specification needs clarification:")
                     print("─" * 80)
                     print(result.final_output)
@@ -95,7 +93,9 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
                 else:
                     print(f"\n❌ Task failed: {result.error_message}")
                     if result.steps:
-                        print(f"📊 Completed {len([s for s in result.steps if s.result and s.result.success])}/{len(result.steps)} steps")
+                        print(
+                            f"📊 Completed {len([s for s in result.steps if s.result and s.result.success])}/{len(result.steps)} steps"
+                        )
 
             print()  # Add spacing
 
@@ -134,13 +134,13 @@ def _show_stats(engine):
     print(f"""
 📊 Crew Statistics:
 ─────────────────────
-  Session ID: {stats['session_id'][:8]}...
-  Tasks Executed: {stats['tasks_executed']}
-  Success Rate: {stats['success_rate']:.1%}
+  Session ID: {stats["session_id"][:8]}...
+  Tasks Executed: {stats["tasks_executed"]}
+  Success Rate: {stats["success_rate"]:.1%}
   
 🤖 Agent Stats:
 """)
-    for role, agent_stats in stats['crew_stats'].items():
+    for role, agent_stats in stats["crew_stats"].items():
         print(f"  {role}: {agent_stats['executions']} executions")
 
 
@@ -150,8 +150,8 @@ def _show_session_stats(engine):
     print(f"""
 📝 Session Summary:
 ──────────────────
-  Tasks completed: {stats['tasks_executed']}
-  Success rate: {stats['success_rate']:.1%}
+  Tasks completed: {stats["tasks_executed"]}
+  Success rate: {stats["success_rate"]:.1%}
   Session saved to: crew_runs/
 """)
 

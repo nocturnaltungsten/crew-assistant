@@ -70,10 +70,10 @@ Each agent inherits from CrewAI's base `Agent` class and defines:
    - Code generation and analysis
    - Tool usage for file operations
 
-4. **Commander Agent** (`agents/commander.py`)
-   - Reviews completed work
-   - Provides feedback and corrections
-   - Determines next steps
+4. **Reviewer Agent** (`agents/reviewer.py`)
+   - Quality assessment with numeric ratings (1-10 scale)
+   - Evaluates completeness, quality, clarity, feasibility, alignment
+   - Provides comprehensive feedback without blocking workflow execution
 
 ### 2. Context Engine (`core/context_engine/`)
 
@@ -143,9 +143,9 @@ User Input → UX Agent → Complexity Analysis → Route Decision
 
 ### 2. Crew Workflow
 ```
-Task → Planner → Subtasks → Dev → Implementation → Commander → Review
-         ↑                                               ↓
-         └────────────── Feedback Loop ←─────────────────┘
+Task → Planner → Subtasks → Dev → Implementation → Reviewer → Quality Ratings
+                                                       ↓
+                                              Analytics Collection (Non-blocking)
 ```
 
 ### 3. Memory Flow

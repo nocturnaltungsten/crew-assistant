@@ -41,11 +41,12 @@ agent_name = Agent(
 - **Capabilities**: Code implementation, testing, technical analysis
 - **Delegation**: Disabled
 
-#### Commander Agent (`agents/commander.py`)
-- **Role**: System Commander
-- **Purpose**: Oversight, coordination, and quality control
-- **Capabilities**: Work review, feedback, next steps determination
-- **Delegation**: Enabled
+#### Reviewer Agent (`agents/reviewer.py`)
+- **Role**: Quality Assessment Specialist
+- **Purpose**: Comprehensive quality evaluation with numeric ratings
+- **Capabilities**: 1-10 scale rating across 5 criteria (completeness, quality, clarity, feasibility, alignment)
+- **Delegation**: Disabled
+- **Output**: Structured numeric ratings for analytics (non-blocking)
 
 ### Agent Registry
 
@@ -63,9 +64,10 @@ from agents import AGENT_REGISTRY
 
 # Predefined agent mapping
 AGENT_REGISTRY = {
-    "Commander": commander,
+    "UX": ux,
     "Planner": planner,
-    "Dev": dev,
+    "Developer": dev,
+    "Reviewer": reviewer,
 }
 ```
 

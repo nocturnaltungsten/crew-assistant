@@ -11,13 +11,19 @@ CHAT_ENDPOINT = f"{LM_API_BASE}/chat/completions"
 
 # Known compatible model patterns
 COMPATIBLE_PATTERNS = [
-    "instruct", "chat", "conversational", "dialog",
-    "phi-3", "llama-3", "gemma", "mistral", "qwen"
+    "instruct",
+    "chat",
+    "conversational",
+    "dialog",
+    "phi-3",
+    "llama-3",
+    "gemma",
+    "mistral",
+    "qwen",
 ]
 
-INCOMPATIBLE_PATTERNS = [
-    "base", "foundation", "embedding", "code-only"
-]
+INCOMPATIBLE_PATTERNS = ["base", "foundation", "embedding", "code-only"]
+
 
 def categorize_model_compatibility(model_id: str) -> tuple[str, str]:
     """Categorize model compatibility based on name patterns."""
@@ -36,6 +42,7 @@ def categorize_model_compatibility(model_id: str) -> tuple[str, str]:
     # Unknown - needs testing
     return "❓ Unknown", "May need testing - try UX mode first"
 
+
 def test_model_compatibility(model_id: str = None) -> tuple[bool, str]:
     """Test if a model supports the chat completion format needed by CrewAI."""
     if model_id:
@@ -46,11 +53,9 @@ def test_model_compatibility(model_id: str = None) -> tuple[bool, str]:
     try:
         test_payload = {
             "model": current_model,
-            "messages": [
-                {"role": "user", "content": "Hello"}
-            ],
+            "messages": [{"role": "user", "content": "Hello"}],
             "max_tokens": 10,
-            "temperature": 0.1
+            "temperature": 0.1,
         }
 
         headers = {"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY', 'not-needed')}"}
@@ -70,6 +75,7 @@ def test_model_compatibility(model_id: str = None) -> tuple[bool, str]:
     except Exception as e:
         return False, f"Model compatibility test failed: {e}"
 
+
 def get_available_models() -> list[dict[str, str]]:
     """Get available models with compatibility information."""
     try:
@@ -82,18 +88,14 @@ def get_available_models() -> list[dict[str, str]]:
             model_id = model.get("id", "unknown")
             status, note = categorize_model_compatibility(model_id)
 
-            enhanced_models.append({
-                "id": model_id,
-                "status": status,
-                "note": note,
-                "raw": model
-            })
+            enhanced_models.append({"id": model_id, "status": status, "note": note, "raw": model})
 
         return enhanced_models
 
     except Exception as e:
         print(f"❌ Could not fetch models: {e}")
         return []
+
 
 def select_model():
     """
@@ -111,14 +113,14 @@ def select_model():
     print("─" * 80)
 
     for i, model in enumerate(models):
-        print(f"{i+1:2d}. {model['status']} {model['id']}")
+        print(f"{i + 1:2d}. {model['status']} {model['id']}")
         print(f"    📝 {model['note']}")
         print()
 
     while True:
         choice = input("Select a model by number (or 'q' to quit): ").strip()
 
-        if choice.lower() == 'q':
+        if choice.lower() == "q":
             return None
 
         if not choice.isdigit():
@@ -146,7 +148,7 @@ def select_model():
             else:
                 print(f"❌ {message}")
                 retry = input("Try a different model? (y/n): ").strip().lower()
-                if retry != 'y':
+                if retry != "y":
                     return None
                 print()
                 continue
@@ -157,6 +159,7 @@ def select_model():
         except Exception as e:
             print(f"❌ Error testing model: {e}")
             continue
+
 
 if __name__ == "__main__":
     select_model()

@@ -23,7 +23,7 @@ class TestCrewWorkflow:
             agent="TestAgent",
             input_summary="Test task description",
             output_summary="Test task result",
-            task_id="integration-test-123"
+            task_id="integration-test-123",
         )
 
         # Verify memory was saved to disk
@@ -91,4 +91,5 @@ class TestCrewWorkflow:
 
         # Verify environment is updated
         import os
+
         assert os.environ.get("OPENAI_API_MODEL") == "test-model-1"

@@ -21,33 +21,20 @@ class SimpleOllamaChat:
 
         # Add system prompt if provided
         if system_prompt:
-            messages.append({
-                "role": "system",
-                "content": system_prompt
-            })
+            messages.append({"role": "system", "content": system_prompt})
 
         # Add user message
-        messages.append({
-            "role": "user",
-            "content": message
-        })
+        messages.append({"role": "user", "content": message})
 
         payload = {
             "model": self.model,
             "messages": messages,
             "stream": False,
-            "options": {
-                "temperature": 0.7,
-                "num_predict": 500
-            }
+            "options": {"temperature": 0.7, "num_predict": 500},
         }
 
         try:
-            response = requests.post(
-                f"{self.base_url}/api/chat",
-                json=payload,
-                timeout=30
-            )
+            response = requests.post(f"{self.base_url}/api/chat", json=payload, timeout=30)
             response.raise_for_status()
 
             result = response.json()
@@ -55,6 +42,7 @@ class SimpleOllamaChat:
 
         except Exception as e:
             return f"Error: {e}"
+
 
 def run_simple_ollama_ux():
     """Simple UX shell using direct Ollama integration."""
@@ -130,7 +118,10 @@ Respond helpfully to the user's request."""
                 except Exception as e:
                     print(f"❌ Crew delegation failed: {e}")
                     response = "I tried to delegate this to the crew, but encountered an issue. Let me try a simpler approach..."
-                    response = chat.chat(f"Provide a simpler response to: {user_input}", system_prompt.replace("🚀 DELEGATE_TO_CREW:", ""))
+                    response = chat.chat(
+                        f"Provide a simpler response to: {user_input}",
+                        system_prompt.replace("🚀 DELEGATE_TO_CREW:", ""),
+                    )
 
             print(response)
 
@@ -150,11 +141,13 @@ Respond helpfully to the user's request."""
                 pass
 
             # Update chat log
-            chat_log.append({
-                "timestamp": str(datetime.datetime.now()),
-                "user": user_input,
-                "assistant": response
-            })
+            chat_log.append(
+                {
+                    "timestamp": str(datetime.datetime.now()),
+                    "user": user_input,
+                    "assistant": response,
+                }
+            )
 
         except KeyboardInterrupt:
             print("\n🫡 UX Agent signing off.")
@@ -173,13 +166,14 @@ Respond helpfully to the user's request."""
         "session_id": session_id,
         "timestamp": datetime.datetime.now().isoformat(),
         "model": model,
-        "chat_log": chat_log
+        "chat_log": chat_log,
     }
 
     with open(session_file, "w") as f:
         json.dump(session_data, f, indent=2)
 
     print(f"📝 Session log saved: {session_file}")
+
 
 def run_ollama_crew_task(task_description: str, model: str, base_url: str) -> str:
     """Run a task using the crew system with Ollama models."""
@@ -188,68 +182,69 @@ def run_ollama_crew_task(task_description: str, model: str, base_url: str) -> st
     # Create Ollama-compatible LLM
     llm = LLM(
         model=model,
-        api_base=f"{base_url}/v1"  # Use OpenAI-compatible endpoint
+        api_base=f"{base_url}/v1",  # Use OpenAI-compatible endpoint
     )
 
     # Create specialized agents with Ollama LLM
     planner = Agent(
-        role='Planner',
-        goal='Break down high-level goals into manageable sub-tasks.',
-        backstory='A strategic thinker who turns visions into roadmaps.',
+        role="Planner",
+        goal="Break down high-level goals into manageable sub-tasks.",
+        backstory="A strategic thinker who turns visions into roadmaps.",
         allow_delegation=False,
         use_system_prompt=False,
         llm=llm,
-        verbose=False
+        verbose=False,
     )
 
     dev = Agent(
-        role='Dev',
-        goal='Implement and test individual Python subtasks.',
-        backstory='A passionate engineer who loves shipping working code.',
+        role="Dev",
+        goal="Implement and test individual Python subtasks.",
+        backstory="A passionate engineer who loves shipping working code.",
         allow_delegation=False,
         use_system_prompt=False,
         llm=llm,
-        verbose=False
+        verbose=False,
     )
 
     commander = Agent(
-        role='Commander',
-        goal='Oversee the agent system and ensure proper planning and execution.',
-        backstory='A seasoned systems architect, you ensure the agents work in harmony.',
+        role="Commander",
+        goal="Oversee the agent system and ensure proper planning and execution.",
+        backstory="A seasoned systems architect, you ensure the agents work in harmony.",
         allow_delegation=True,
         use_system_prompt=False,
         llm=llm,
-        verbose=False
+        verbose=False,
     )
 
     # Create tasks
     planner_task = Task(
         description=f"Plan this task: {task_description}",
         expected_output="A clear plan with 3-5 actionable steps",
-        agent=planner
+        agent=planner,
     )
 
     dev_task = Task(
         description="Implement the planned solution with working code and documentation",
         expected_output="Complete implementation with code, documentation, and usage instructions",
-        agent=dev
+        agent=dev,
     )
 
     commander_task = Task(
         description="Review the implementation and provide evaluation and next steps",
         expected_output="Technical review with recommendations and suggested next actions",
-        agent=commander
+        agent=commander,
     )
 
     # Execute crew workflow
     crew = Crew(
         agents=[planner, dev, commander],
         tasks=[planner_task, dev_task, commander_task],
-        verbose=False
+        verbose=False,
     )
 
     result = crew.kickoff()
     return str(result)
+
 
 if __name__ == "__main__":
     run_simple_ollama_ux()

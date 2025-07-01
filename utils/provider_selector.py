@@ -11,6 +11,7 @@ class Provider(Enum):
     LM_STUDIO = "lm_studio"
     OLLAMA = "ollama"
 
+
 # Provider configurations
 PROVIDER_CONFIGS = {
     Provider.LM_STUDIO: {
@@ -18,26 +19,32 @@ PROVIDER_CONFIGS = {
         "default_base": "http://localhost:1234/v1",
         "models_endpoint": "/models",
         "chat_endpoint": "/chat/completions",
-        "description": "Local LM Studio server with OpenAI-compatible API"
+        "description": "Local LM Studio server with OpenAI-compatible API",
     },
     Provider.OLLAMA: {
         "name": "Ollama",
         "default_base": "http://localhost:11434",
         "models_endpoint": "/api/tags",
         "chat_endpoint": "/api/chat",
-        "description": "Local Ollama server with native API"
-    }
+        "description": "Local Ollama server with native API",
+    },
 }
 
 # Known compatible model patterns
 COMPATIBLE_PATTERNS = [
-    "instruct", "chat", "conversational", "dialog",
-    "phi-3", "llama-3", "gemma", "mistral", "qwen"
+    "instruct",
+    "chat",
+    "conversational",
+    "dialog",
+    "phi-3",
+    "llama-3",
+    "gemma",
+    "mistral",
+    "qwen",
 ]
 
-INCOMPATIBLE_PATTERNS = [
-    "base", "foundation", "embedding", "code-only"
-]
+INCOMPATIBLE_PATTERNS = ["base", "foundation", "embedding", "code-only"]
+
 
 def select_provider() -> Provider | None:
     """Interactive provider selection."""
@@ -46,7 +53,7 @@ def select_provider() -> Provider | None:
 
     for i, provider in enumerate(Provider):
         config = PROVIDER_CONFIGS[provider]
-        print(f"{i+1}. {config['name']}")
+        print(f"{i + 1}. {config['name']}")
         print(f"   📍 {config['default_base']}")
         print(f"   📝 {config['description']}")
         print()
@@ -54,7 +61,7 @@ def select_provider() -> Provider | None:
     while True:
         choice = input("Select provider (1-2) or 'q' to quit: ").strip()
 
-        if choice.lower() == 'q':
+        if choice.lower() == "q":
             return None
 
         if not choice.isdigit():
@@ -77,6 +84,7 @@ def select_provider() -> Provider | None:
             print(f"❌ Please enter a number between 1 and {len(providers)}")
             continue
 
+
 def get_available_models(provider: Provider, base_url: str | None = None) -> list[dict]:
     """Get available models from the specified provider."""
     config = PROVIDER_CONFIGS[provider]
@@ -90,18 +98,23 @@ def get_available_models(provider: Provider, base_url: str | None = None) -> lis
         if provider == Provider.LM_STUDIO:
             # LM Studio uses OpenAI format
             models_data = response.json().get("data", [])
-            return [{"id": model.get("id", "unknown"), "provider": provider.value}
-                   for model in models_data]
+            return [
+                {"id": model.get("id", "unknown"), "provider": provider.value}
+                for model in models_data
+            ]
 
         elif provider == Provider.OLLAMA:
             # Ollama uses different format
             models_data = response.json().get("models", [])
-            return [{"id": model.get("name", "unknown"), "provider": provider.value}
-                   for model in models_data]
+            return [
+                {"id": model.get("name", "unknown"), "provider": provider.value}
+                for model in models_data
+            ]
 
     except Exception as e:
         print(f"❌ Could not fetch models from {config['name']}: {e}")
         return []
+
 
 def categorize_model_compatibility(model_id: str) -> tuple[str, str]:
     """Categorize model compatibility based on name patterns."""
@@ -120,7 +133,10 @@ def categorize_model_compatibility(model_id: str) -> tuple[str, str]:
     # Unknown - needs testing
     return "❓ Unknown", "May need testing - try UX mode first"
 
-def test_model_compatibility(provider: Provider, model_id: str, base_url: str | None = None) -> tuple[bool, str]:
+
+def test_model_compatibility(
+    provider: Provider, model_id: str, base_url: str | None = None
+) -> tuple[bool, str]:
     """Test if a model supports the chat completion format."""
     config = PROVIDER_CONFIGS[provider]
     api_base = (base_url or config["default_base"]).rstrip("/")
@@ -133,7 +149,7 @@ def test_model_compatibility(provider: Provider, model_id: str, base_url: str | 
                 "model": model_id,
                 "messages": [{"role": "user", "content": "Hello"}],
                 "max_tokens": 10,
-                "temperature": 0.1
+                "temperature": 0.1,
             }
             headers = {"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY', 'not-needed')}"}
 
@@ -142,7 +158,7 @@ def test_model_compatibility(provider: Provider, model_id: str, base_url: str | 
             test_payload = {
                 "model": model_id,
                 "messages": [{"role": "user", "content": "Hello"}],
-                "stream": False
+                "stream": False,
             }
             headers = {"Content-Type": "application/json"}
 
@@ -162,7 +178,10 @@ def test_model_compatibility(provider: Provider, model_id: str, base_url: str | 
     except Exception as e:
         return False, f"Model compatibility test failed: {e}"
 
-def select_model_from_provider(provider: Provider, base_url: str | None = None) -> tuple[str, Provider] | None:
+
+def select_model_from_provider(
+    provider: Provider, base_url: str | None = None
+) -> tuple[str, Provider] | None:
     """Select a model from the specified provider."""
     config = PROVIDER_CONFIGS[provider]
     print(f"\n🔍 Fetching available models from {config['name']}...")
@@ -180,22 +199,19 @@ def select_model_from_provider(provider: Provider, base_url: str | None = None) 
     for model in models:
         model_id = model["id"]
         status, note = categorize_model_compatibility(model_id)
-        enhanced_models.append({
-            "id": model_id,
-            "status": status,
-            "note": note,
-            "provider": provider
-        })
+        enhanced_models.append(
+            {"id": model_id, "status": status, "note": note, "provider": provider}
+        )
 
     for i, model in enumerate(enhanced_models):
-        print(f"{i+1:2d}. {model['status']} {model['id']}")
+        print(f"{i + 1:2d}. {model['status']} {model['id']}")
         print(f"    📝 {model['note']}")
         print()
 
     while True:
         choice = input("Select a model by number (or 'q' to quit): ").strip()
 
-        if choice.lower() == 'q':
+        if choice.lower() == "q":
             return None
 
         if not choice.isdigit():
@@ -223,7 +239,7 @@ def select_model_from_provider(provider: Provider, base_url: str | None = None) 
             else:
                 print(f"❌ {message}")
                 retry = input("Try a different model? (y/n): ").strip().lower()
-                if retry != 'y':
+                if retry != "y":
                     return None
                 print()
                 continue
@@ -234,6 +250,7 @@ def select_model_from_provider(provider: Provider, base_url: str | None = None) 
         except Exception as e:
             print(f"❌ Error testing model: {e}")
             continue
+
 
 def interactive_setup() -> tuple[str, Provider, str] | None:
     """Interactive setup flow for provider and model selection."""
@@ -264,6 +281,7 @@ def interactive_setup() -> tuple[str, Provider, str] | None:
     print(f"API Base: {api_base}")
 
     return model_id, provider, api_base
+
 
 if __name__ == "__main__":
     result = interactive_setup()

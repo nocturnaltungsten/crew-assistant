@@ -15,7 +15,7 @@ class DeveloperAgent(BaseAgent):
             goal="Implement working solutions with clean, well-documented code",
             backstory="A passionate engineer who loves shipping production-ready code",
             max_tokens=2000,  # Developers need more tokens for code
-            **kwargs
+            **kwargs,
         )
         super().__init__(provider, model, config)
 

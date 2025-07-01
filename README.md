@@ -7,27 +7,33 @@ Crew Assistant is a **production-grade native multi-agent orchestration platform
 **Key Features:**
 * 🏗️ **Native Architecture** - No external AI framework dependencies
 * 🔧 **Production Provider System** - Circuit breakers, connection pooling, intelligent caching
-* 🤖 **5-Agent Workflow** - UX → Planner → Developer → Reviewer → Commander pipeline
+* 🤖 **4-Agent Workflow** - UX → Planner → Developer → Reviewer pipeline with numeric quality assessment
 * 🏠 **Local-First** - Complete offline capability with LM Studio/Ollama support
-* 📊 **Quality Gates** - Built-in validation and feedback loops
+* 📊 **Quality Analytics** - Numeric ratings system (1-10 scale) for comprehensive quality assessment
 * 🎯 **Performance Optimized** - Sub-200ms response times, efficient model detection
 
 ---
 
 ## 🎯 Agent Architecture
 
-**Core 5-Agent System:**
+**Core 4-Agent System:**
 
 * **🎨 UX Agent**: User experience specialist and interaction coordinator
 * **📋 Planner Agent**: Strategic planning and task breakdown 
 * **💻 Developer Agent**: Implementation and coding specialist
-* **🔍 Reviewer Agent**: Quality validation and deliverable review
-* **⚡ Commander Agent**: Executive oversight and coordination
+* **🔍 Reviewer Agent**: Quality assessment with numeric ratings (1-10 scale)
 
 **Workflow Pattern:**
 ```
-User Request → UX Analysis → Planning → Development → Quality Review → Delivery
+User Request → UX Analysis → Planning → Development → Quality Assessment → Delivery
 ```
+
+**Quality Rating System:**
+- **Completeness**: Are all requirements addressed? (1-10)
+- **Quality**: Professional standards compliance (1-10)
+- **Clarity**: Documentation and presentation quality (1-10)
+- **Feasibility**: Solution practicality (1-10)
+- **Alignment**: Match with original requirements (1-10)
 
 ---
 
@@ -104,10 +110,11 @@ Interactive provider and model configuration.
 
 ### Workflow Engine
 **Native orchestration system:**
-- Sequential and parallel workflows
-- Quality gates with feedback loops
+- Sequential workflow execution
+- Numeric quality assessment (no blocking)
 - Task routing and delegation
 - Execution context management
+- Real-time quality analytics collection
 
 ---
 
@@ -245,22 +252,23 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Status**: 🎯 **Optimization Phase** - Production-grade native multi-agent orchestration platform with comprehensive testing and validation systems
 
-## 🚀 Latest Updates (2025-06-30)
+## 🚀 Latest Updates (2025-07-01)
 
+- ✅ **Numeric Ratings System**: Replaced binary validation with 1-10 scale quality assessment
+- ✅ **Non-Blocking Workflow**: Quality ratings collected for analytics without blocking execution
+- ✅ **Enhanced Quality Data**: Comprehensive 5-criteria rating system (completeness, quality, clarity, feasibility, alignment)
 - ✅ **Complete Native Platform**: Eliminated all external AI framework dependencies
 - ✅ **Long-Duration Testing**: Enterprise-grade workflow testing with 139 tasks across 9 complexity levels
-- ✅ **Validation Tuning**: Enhanced "JUST BUILD IT" directive support for pragmatic workflow overrides
 - ✅ **Performance Analytics**: 5-stream JSON logging with actionable optimization insights
-- 🔧 **Current Focus**: Validation optimization and agent performance tuning
 
 ## 📊 Performance Metrics
 
 **Current Benchmarks** (M4 Max + LM Studio):
-- **Validation**: 8-15s per task approval/rejection
+- **Quality Assessment**: 8-15s per quality rating evaluation (non-blocking)
 - **Agent Execution**: UX(15s) → Planner(20s) → Developer(35s) → Reviewer(25s)
-- **End-to-End Workflow**: 2-3 minutes for complex tasks
+- **End-to-End Workflow**: 2-3 minutes with comprehensive quality analytics
 - **Test Coverage**: 139 tasks across trivial → complex → vague task categories
-- **Override Effectiveness**: "JUST BUILD IT" bypasses validation for user urgency
+- **Workflow Success**: 100% completion rate with quality data collection
 
 ## 🧪 Testing & Validation
 

@@ -6,7 +6,6 @@ from core.context_engine.memory_store import MemoryStore
 
 class ContextInjector:
     def __init__(self, memory=None, factstore=None):
-
         self.memory = memory or MemoryStore()
         self.facts = factstore or FactStore()
 

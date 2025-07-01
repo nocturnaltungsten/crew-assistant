@@ -11,7 +11,9 @@ from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 class CommanderAgent(BaseAgent):
     """Executive agent responsible for review, evaluation, and next steps."""
 
-    def __init__(self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs):
+    def __init__(
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
+    ):
         """Initialize CommanderAgent with default configuration."""
         if config is None:
             config = AgentConfig(
@@ -20,7 +22,7 @@ class CommanderAgent(BaseAgent):
                 backstory="A seasoned systems architect who ensures agents work in harmony and quality standards are met.",
                 max_tokens=1500,
                 temperature=0.3,
-                verbose=True
+                verbose=True,
             )
         super().__init__(provider, model, config)
 
@@ -61,6 +63,7 @@ Be thorough but constructive. Focus on helping the team deliver high-quality res
     def execute_task(self, context: TaskContext) -> AgentResult:
         """Execute a commander task with review and evaluation."""
         import time
+
         start_time = time.time()
 
         try:
@@ -78,7 +81,7 @@ Be thorough but constructive. Focus on helping the team deliver high-quality res
                 messages=messages,
                 model=self.model,
                 max_tokens=self.config.max_tokens,
-                temperature=self.config.temperature
+                temperature=self.config.temperature,
             )
 
             execution_time = time.time() - start_time
@@ -89,19 +92,19 @@ Be thorough but constructive. Focus on helping the team deliver high-quality res
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 tokens_used=response.tokens_used,
-                success=True
+                success=True,
             )
 
         except Exception as e:
             execution_time = time.time() - start_time
             error_message = f"Commander execution failed: {str(e)}"
-            
+
             return AgentResult(
                 content=error_message,
                 agent_role=self.config.role,
                 execution_time=execution_time,
                 success=False,
-                error_message=error_message
+                error_message=error_message,
             )
 
 

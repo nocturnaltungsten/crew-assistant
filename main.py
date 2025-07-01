@@ -19,7 +19,7 @@ Examples:
   %(prog)s                    # Enhanced UX shell mode (default)
   %(prog)s --setup            # Interactive provider and model setup
   %(prog)s --crew "task"      # Direct crew execution
-        """
+        """,
     )
 
     parser.add_argument("--setup", action="store_true", help="Interactive provider and model setup")
@@ -36,9 +36,9 @@ Examples:
         if result:
             model_id, provider, api_base = result
             # Set environment variables for current session
-            os.environ['OPENAI_API_MODEL'] = model_id
-            os.environ['OPENAI_API_BASE'] = api_base
-            os.environ['AI_PROVIDER'] = provider
+            os.environ["OPENAI_API_MODEL"] = model_id
+            os.environ["OPENAI_API_BASE"] = api_base
+            os.environ["AI_PROVIDER"] = provider
             print("\n✅ Environment configured for this session!")
             print("You can now run: python main.py")
         return
@@ -54,11 +54,7 @@ Examples:
             return
 
         try:
-            engine = create_crew_engine(
-                provider=provider,
-                model=model,
-                verbose=args.verbose
-            )
+            engine = create_crew_engine(provider=provider, model=model, verbose=args.verbose)
 
             print(f"🚀 Executing task with {provider}/{model}...")
             result = engine.execute_task(args.crew)
@@ -75,16 +71,34 @@ Examples:
             sys.exit(1)
         return
 
-    # Default to enhanced UX shell
+    # Default to enhanced UX shell - auto-run setup if not configured
+    provider = args.provider or os.getenv("AI_PROVIDER")
+    model = args.model or os.getenv("OPENAI_API_MODEL")
+
+    if not provider or not model:
+        print("🚀 Enhanced Crew Assistant - First Time Setup")
+        print("=" * 60)
+        print("No AI provider configured. Let's set that up!")
+        print()
+
+        result = interactive_provider_setup()
+        if result:
+            model_id, provider_name, api_base = result
+            # Set environment variables for current session
+            os.environ["OPENAI_API_MODEL"] = model_id
+            os.environ["OPENAI_API_BASE"] = api_base
+            os.environ["AI_PROVIDER"] = provider_name
+            print("\n✅ Environment configured for this session!")
+            provider, model = provider_name, model_id
+        else:
+            print("❌ Setup cancelled. Cannot proceed without configuration.")
+            return
+
     print("🧠 Starting Enhanced Crew Assistant")
-    print("💡 For setup, use: python main.py --setup")
-    print("💡 For direct execution, use: python main.py --crew 'your task'")
+    print(f"🤖 Using: {provider}/{model}")
     print()
 
-    run_enhanced_ux_shell(
-        provider=args.provider,
-        model=args.model
-    )
+    run_enhanced_ux_shell(provider=provider, model=model)
 
 
 if __name__ == "__main__":

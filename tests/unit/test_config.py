@@ -18,9 +18,13 @@ class TestSettings:
         from unittest.mock import patch
 
         # Override env vars that might interfere with tests
-        with patch.dict(os.environ, {
-            "LM_TIMEOUT": "60",  # Valid timeout
-        }, clear=False):
+        with patch.dict(
+            os.environ,
+            {
+                "LM_TIMEOUT": "60",  # Valid timeout
+            },
+            clear=False,
+        ):
             settings = Settings(base_dir=temp_dir, _env_file=None)
 
         assert settings.openai_api_base == "http://localhost:1234/v1"

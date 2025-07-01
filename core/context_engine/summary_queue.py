@@ -46,7 +46,7 @@ class SummaryQueue:
             "timestamp": datetime.datetime.utcnow().isoformat(),
             "source": source,
             "content": content.strip(),
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
         self.queue.append(entry)
 

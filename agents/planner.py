@@ -14,7 +14,7 @@ class PlannerAgent(BaseAgent):
             role="Planner",
             goal="Break down high-level goals into manageable sub-tasks",
             backstory="A strategic thinker who turns visions into actionable roadmaps",
-            **kwargs
+            **kwargs,
         )
         super().__init__(provider, model, config)
 

@@ -19,7 +19,7 @@ class TestEndToEnd:
             ["python", "crew_agents.py", "--help"],
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent.parent.parent
+            cwd=Path(__file__).parent.parent.parent,
         )
 
         assert result.returncode == 0
@@ -36,7 +36,7 @@ class TestEndToEnd:
                 capture_output=True,
                 text=True,
                 cwd=Path(__file__).parent.parent.parent,
-                env={"PYTHONPATH": str(Path(__file__).parent.parent.parent)}
+                env={"PYTHONPATH": str(Path(__file__).parent.parent.parent)},
             )
 
         # Should not crash and should show model selection
@@ -52,7 +52,7 @@ class TestEndToEnd:
             ["python", "-c", "import crew_agents; print('Import successful')"],
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent.parent.parent
+            cwd=Path(__file__).parent.parent.parent,
         )
 
         assert result.returncode == 0

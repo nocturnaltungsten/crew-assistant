@@ -16,6 +16,7 @@ from .ollama import OllamaProvider
 
 class ProviderStatus(Enum):
     """Provider status enumeration."""
+
     ONLINE = "online"
     OFFLINE = "offline"
     DEGRADED = "degraded"
@@ -25,6 +26,7 @@ class ProviderStatus(Enum):
 @dataclass
 class ProviderConfig:
     """Configuration for a provider instance."""
+
     name: str
     provider_class: Type[BaseProvider]
     config: Dict[str, Any]
@@ -36,11 +38,13 @@ class ProviderConfig:
     status: ProviderStatus = ProviderStatus.OFFLINE
 
 
-@dataclass 
+@dataclass
 class ModelRequirements:
     """Requirements for model selection."""
+
     capabilities: List[str] = field(default_factory=list)  # ["chat", "completion", "code"]
-    performance_tier: Optional[str] = None  # "fast", "standard", "high_quality"
+    performance_tier: Optional[str] = None  # "fast", "balanced", "capable"
+    agent_role: Optional[str] = None  # "ux", "planner", "developer", "reviewer", "commander"
     max_tokens: Optional[int] = None
     streaming_required: bool = False
     compatibility_required: bool = True
@@ -54,11 +58,20 @@ class ProviderRegistry:
         self._provider_instances: Dict[str, BaseProvider] = {}
         self._health_monitor_task: Optional[asyncio.Task] = None
         self._health_check_running = False
-        
+
         # Load balancing and routing
         self._request_counts: Dict[str, int] = {}
         self._last_used: Dict[str, float] = {}
-        
+
+        # Model tier mapping for agent-role optimization
+        self._agent_role_tiers = {
+            "ux": "fast",  # UX agents benefit from quick responses
+            "planner": "balanced",  # Planners need balance of speed and capability
+            "developer": "capable",  # Developers need capable models for complex code
+            "reviewer": "capable",  # Reviewers need capable models for analysis
+            "commander": "balanced",  # Commanders coordinate, need balanced performance
+        }
+
         logger.info("Enhanced Provider Registry initialized")
 
     def register_provider(
@@ -67,7 +80,7 @@ class ProviderRegistry:
         provider_class: Type[BaseProvider],
         config: Dict[str, Any],
         priority: int = 1,
-        enabled: bool = True
+        enabled: bool = True,
     ) -> None:
         """Register a provider with configuration."""
         provider_config = ProviderConfig(
@@ -75,13 +88,13 @@ class ProviderRegistry:
             provider_class=provider_class,
             config=config,
             priority=priority,
-            enabled=enabled
+            enabled=enabled,
         )
-        
+
         self._provider_configs[name] = provider_config
         self._request_counts[name] = 0
         self._last_used[name] = 0.0
-        
+
         logger.info(f"Registered provider '{name}' with priority {priority}")
 
     def get_provider(self, name: str) -> Optional[BaseProvider]:
@@ -108,41 +121,45 @@ class ProviderRegistry:
         return self._provider_instances[name]
 
     def get_optimal_provider(
-        self,
-        requirements: Optional[ModelRequirements] = None
+        self, requirements: Optional[ModelRequirements] = None
     ) -> Optional[BaseProvider]:
         """Get the optimal provider based on requirements and health."""
         if not requirements:
             requirements = ModelRequirements()
 
+        # Apply agent-role-specific performance tier mapping
+        requirements = self._apply_agent_role_mapping(requirements)
+
         # Get eligible providers
         eligible = self._get_eligible_providers(requirements)
-        
+
         if not eligible:
             logger.warning("No eligible providers found")
             return None
 
         # Sort by priority and health
-        eligible.sort(key=lambda x: (
-            -self._provider_configs[x].priority,  # Higher priority first
-            self._provider_configs[x].status != ProviderStatus.ONLINE,  # Online first
-            self._request_counts[x]  # Least used first (load balancing)
-        ))
+        eligible.sort(
+            key=lambda x: (
+                -self._provider_configs[x].priority,  # Higher priority first
+                self._provider_configs[x].status != ProviderStatus.ONLINE,  # Online first
+                self._request_counts[x],  # Least used first (load balancing)
+            )
+        )
 
         provider_name = eligible[0]
         provider = self.get_provider(provider_name)
-        
+
         if provider:
             self._request_counts[provider_name] += 1
             self._last_used[provider_name] = time.time()
-            logger.debug(f"Selected provider '{provider_name}' for request")
+            logger.debug(
+                f"Selected provider '{provider_name}' for request (role: {requirements.agent_role}, tier: {requirements.performance_tier})"
+            )
 
         return provider
 
     def get_provider_with_model(
-        self,
-        model_id: str,
-        requirements: Optional[ModelRequirements] = None
+        self, model_id: str, requirements: Optional[ModelRequirements] = None
     ) -> Optional[tuple[BaseProvider, ModelInfo]]:
         """Get provider that has the specified model."""
         if not requirements:
@@ -168,15 +185,14 @@ class ProviderRegistry:
         return None
 
     def list_all_models(
-        self,
-        requirements: Optional[ModelRequirements] = None
+        self, requirements: Optional[ModelRequirements] = None
     ) -> List[tuple[str, ModelInfo]]:
         """List all models from all providers."""
         if not requirements:
             requirements = ModelRequirements()
 
         all_models = []
-        
+
         for provider_name in self._get_eligible_providers(requirements):
             provider = self.get_provider(provider_name)
             if not provider:
@@ -195,7 +211,7 @@ class ProviderRegistry:
     def health_check_all(self) -> Dict[str, ProviderHealth]:
         """Perform health check on all providers."""
         health_status = {}
-        
+
         for provider_name, config in self._provider_configs.items():
             if not config.enabled:
                 continue
@@ -205,7 +221,7 @@ class ProviderRegistry:
                 try:
                     health = provider.get_health_status()
                     health_status[provider_name] = health
-                    
+
                     # Update provider status based on health
                     if health.is_healthy:
                         config.status = ProviderStatus.ONLINE
@@ -213,9 +229,9 @@ class ProviderRegistry:
                         config.status = ProviderStatus.DEGRADED
                     else:
                         config.status = ProviderStatus.OFFLINE
-                        
+
                     config.last_health_check = time.time()
-                    
+
                 except Exception as e:
                     logger.error(f"Health check failed for provider '{provider_name}': {e}")
                     config.status = ProviderStatus.OFFLINE
@@ -224,7 +240,7 @@ class ProviderRegistry:
                         response_time=0.0,
                         last_check=time.time(),
                         error_message=str(e),
-                        consecutive_failures=getattr(config, 'consecutive_failures', 0) + 1
+                        consecutive_failures=getattr(config, "consecutive_failures", 0) + 1,
                     )
 
         return health_status
@@ -236,7 +252,7 @@ class ProviderRegistry:
     def get_provider_metrics(self) -> Dict[str, Dict[str, Any]]:
         """Get metrics for all providers."""
         metrics = {}
-        
+
         for provider_name, config in self._provider_configs.items():
             provider = self.get_provider(provider_name)
             if provider:
@@ -250,8 +266,8 @@ class ProviderRegistry:
                             "enabled": config.enabled,
                             "request_count": self._request_counts.get(provider_name, 0),
                             "last_used": self._last_used.get(provider_name, 0.0),
-                            "last_health_check": config.last_health_check
-                        }
+                            "last_health_check": config.last_health_check,
+                        },
                     }
                 except Exception as e:
                     logger.error(f"Error getting metrics for provider '{provider_name}': {e}")
@@ -267,15 +283,17 @@ class ProviderRegistry:
         async def health_monitor():
             self._health_check_running = True
             logger.info(f"Started health monitoring with {interval}s interval")
-            
+
             while self._health_check_running:
                 try:
                     health_status = self.health_check_all()
                     healthy_count = sum(1 for h in health_status.values() if h.is_healthy)
-                    logger.debug(f"Health check completed: {healthy_count}/{len(health_status)} providers healthy")
+                    logger.debug(
+                        f"Health check completed: {healthy_count}/{len(health_status)} providers healthy"
+                    )
                 except Exception as e:
                     logger.error(f"Health monitoring error: {e}")
-                
+
                 await asyncio.sleep(interval)
 
         self._health_monitor_task = asyncio.create_task(health_monitor())
@@ -319,10 +337,10 @@ class ProviderRegistry:
     def get_provider_status(self) -> Dict[str, Dict[str, Any]]:
         """Get status information for all providers."""
         status = {}
-        
+
         for name, config in self._provider_configs.items():
             provider = self.get_provider(name)
-            
+
             status[name] = {
                 "name": name,
                 "status": config.status.value,
@@ -332,7 +350,7 @@ class ProviderRegistry:
                 "last_health_check": config.last_health_check,
                 "request_count": self._request_counts.get(name, 0),
                 "last_used": self._last_used.get(name, 0.0),
-                "available": provider.is_available if provider else False
+                "available": provider.is_available if provider else False,
             }
 
         return status
@@ -342,47 +360,70 @@ class ProviderRegistry:
         for name in self._provider_configs:
             self._request_counts[name] = 0
             self._last_used[name] = 0.0
-            
+
             provider = self.get_provider(name)
             if provider:
                 provider.reset_metrics()
-        
+
         logger.info("Reset all provider metrics")
 
     def cleanup(self) -> None:
         """Cleanup all providers and stop monitoring."""
         self.stop_health_monitoring()
-        
+
         for provider in self._provider_instances.values():
             try:
                 provider.close()
             except Exception as e:
                 logger.error(f"Error closing provider: {e}")
-        
+
         self._provider_instances.clear()
         logger.info("Cleaned up all providers")
 
     def _get_eligible_providers(self, requirements: ModelRequirements) -> List[str]:
         """Get list of providers that meet requirements."""
         eligible = []
-        
+
         for name, config in self._provider_configs.items():
             if not config.enabled:
                 continue
-                
+
             # Skip offline providers unless no alternatives
             if config.status == ProviderStatus.OFFLINE:
                 continue
-                
+
             # Check if provider supports streaming if required
             if requirements.streaming_required:
                 provider = self.get_provider(name)
                 if provider and not provider.enable_streaming:
                     continue
-                    
+
             eligible.append(name)
 
         return eligible
+
+    def _apply_agent_role_mapping(self, requirements: ModelRequirements) -> ModelRequirements:
+        """Apply agent-role-specific performance tier mapping."""
+        # Create a copy to avoid modifying the original
+        mapped_requirements = ModelRequirements(
+            capabilities=requirements.capabilities.copy(),
+            performance_tier=requirements.performance_tier,
+            agent_role=requirements.agent_role,
+            max_tokens=requirements.max_tokens,
+            streaming_required=requirements.streaming_required,
+            compatibility_required=requirements.compatibility_required,
+        )
+
+        # Apply role-to-tier mapping if agent_role is specified and performance_tier is not
+        if mapped_requirements.agent_role and not mapped_requirements.performance_tier:
+            mapped_tier = self._agent_role_tiers.get(mapped_requirements.agent_role)
+            if mapped_tier:
+                mapped_requirements.performance_tier = mapped_tier
+                logger.debug(
+                    f"Mapped agent role '{mapped_requirements.agent_role}' to performance tier '{mapped_tier}'"
+                )
+
+        return mapped_requirements
 
     def _model_meets_requirements(self, model: ModelInfo, requirements: ModelRequirements) -> bool:
         """Check if a model meets the given requirements."""
@@ -421,7 +462,7 @@ def get_registry() -> ProviderRegistry:
     global _registry
     if _registry is None:
         _registry = ProviderRegistry()
-        
+
         # Register built-in providers with intelligent defaults
         _registry.register_provider(
             "lmstudio",
@@ -431,12 +472,12 @@ def get_registry() -> ProviderRegistry:
                 "timeout": 60,
                 "connection_pool_size": 10,
                 "enable_streaming": True,
-                "enable_caching": True
+                "enable_caching": True,
             },
             priority=2,  # Higher priority than Ollama by default
-            enabled=True
+            enabled=True,
         )
-        
+
         _registry.register_provider(
             "ollama",
             OllamaProvider,
@@ -445,12 +486,12 @@ def get_registry() -> ProviderRegistry:
                 "timeout": 60,
                 "connection_pool_size": 8,
                 "enable_streaming": True,
-                "enable_caching": True
+                "enable_caching": True,
             },
             priority=1,
-            enabled=True
+            enabled=True,
         )
-        
+
         logger.info("Initialized global provider registry with built-in providers")
 
     return _registry
@@ -461,12 +502,16 @@ def get_provider(name: str) -> Optional[BaseProvider]:
     return get_registry().get_provider(name)
 
 
-def get_optimal_provider(requirements: Optional[ModelRequirements] = None) -> Optional[BaseProvider]:
+def get_optimal_provider(
+    requirements: Optional[ModelRequirements] = None,
+) -> Optional[BaseProvider]:
     """Convenience function to get optimal provider."""
     return get_registry().get_optimal_provider(requirements)
 
 
-def list_all_models(requirements: Optional[ModelRequirements] = None) -> List[tuple[str, ModelInfo]]:
+def list_all_models(
+    requirements: Optional[ModelRequirements] = None,
+) -> List[tuple[str, ModelInfo]]:
     """Convenience function to list all models."""
     return get_registry().list_all_models(requirements)
 
