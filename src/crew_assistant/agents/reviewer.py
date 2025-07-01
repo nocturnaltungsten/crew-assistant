@@ -1,7 +1,7 @@
 # Reviewer Agent Implementation
 # Quality validation and deliverable review specialist
 
-from providers.base import BaseProvider, ChatMessage
+from ..providers.base import BaseProvider, ChatMessage
 
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 

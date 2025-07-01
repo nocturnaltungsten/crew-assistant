@@ -3,7 +3,7 @@
 
 import os
 
-from core import create_crew_engine
+from ..core import create_crew_engine
 
 from .setup import interactive_provider_setup
 

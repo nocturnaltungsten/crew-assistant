@@ -2,7 +2,7 @@
 # Research → Plan → Develop → Review workflow with feedback loops
 
 
-from agents.base import AgentResult, BaseAgent
+from ..agents.base import AgentResult, BaseAgent
 
 from .base import BaseWorkflow, TaskContext, WorkflowStep
 

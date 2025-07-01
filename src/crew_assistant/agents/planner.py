@@ -1,7 +1,7 @@
 # Planner Agent
 # Strategic planning and task breakdown specialist
 
-from providers import BaseProvider
+from ..providers import BaseProvider
 
 from .base import AgentConfig, BaseAgent
 

@@ -1,7 +1,7 @@
 # Developer Agent
 # Implementation and coding specialist
 
-from providers import BaseProvider
+from ..providers import BaseProvider
 
 from .base import AgentConfig, BaseAgent
 

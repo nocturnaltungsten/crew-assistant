@@ -11,7 +11,7 @@ import pytest
 import requests
 import httpx
 
-from providers.base import (
+from src.crew_assistant.providers.base import (
     BaseProvider,
     ChatChunk,
     ChatMessage,
@@ -23,9 +23,9 @@ from providers.base import (
     ModelNotFoundError,
     ProviderTimeoutError,
 )
-from providers.lmstudio_enhanced import LMStudioEnhancedProvider
-from providers.ollama_enhanced import OllamaEnhancedProvider
-from providers.registry_enhanced import (
+# from src.crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
+# from src.crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
+# from src.crew_assistant.providers.registry_enhanced import (  # TODO: Create enhanced providers
     EnhancedProviderRegistry,
     ModelRequirements,
     ProviderConfig,

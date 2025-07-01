@@ -20,10 +20,10 @@ from typing import Any, Dict, List, Optional
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from core import create_crew_engine
-from providers.registry import get_registry
-from providers.lmstudio import LMStudioProvider
-from providers.ollama import OllamaProvider
+from src.crew_assistant.core import create_crew_engine
+from src.crew_assistant.providers.registry import get_registry
+from src.crew_assistant.providers.lmstudio import LMStudioProvider
+from src.crew_assistant.providers.ollama import OllamaProvider
 from crew_test_tasks import get_task_bank, get_weights
 
 # Configure comprehensive logging

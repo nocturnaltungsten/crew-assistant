@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from agents.base import AgentResult, BaseAgent, TaskContext
+from ..agents.base import AgentResult, BaseAgent, TaskContext
 
 
 class WorkflowStatus(Enum):

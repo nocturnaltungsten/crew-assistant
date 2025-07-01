@@ -5,8 +5,8 @@ import argparse
 import os
 import sys
 
-from core import create_crew_engine
-from ui import interactive_provider_setup, run_enhanced_ux_shell
+from .core import create_crew_engine
+from .ui import interactive_provider_setup, run_enhanced_ux_shell
 
 
 def main():

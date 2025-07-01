@@ -1,8 +1,8 @@
 import unittest
 
-from agents.commander import commander
-from agents.dev import dev
-from agents.planner import planner
+from src.crew_assistant.agents.commander import commander
+from src.crew_assistant.agents.dev import dev
+from src.crew_assistant.agents.planner import planner
 
 
 class TestAgents(unittest.TestCase):

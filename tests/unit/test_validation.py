@@ -2,7 +2,7 @@
 """Quick test script for the new task validation feature."""
 
 import os
-from core import create_crew_engine
+from src.crew_assistant.core import create_crew_engine
 
 
 def test_validation():

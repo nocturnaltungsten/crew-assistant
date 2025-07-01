@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
 
-from providers import BaseProvider, ChatMessage
+from ..providers import BaseProvider, ChatMessage
 
 
 @dataclass

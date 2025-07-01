@@ -3,7 +3,7 @@
 
 import os
 
-from providers import get_provider, list_all_models
+from ..providers import get_provider, list_all_models
 
 
 def interactive_provider_setup() -> tuple[str, str, str] | None:
@@ -158,7 +158,7 @@ def select_provider() -> str | None:
     print("─" * 40)
 
     # Get available providers from registry
-    from providers.registry import get_registry
+    from ..providers.registry import get_registry
 
     registry = get_registry()
     providers = list(registry._provider_configs.keys())

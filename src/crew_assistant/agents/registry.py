@@ -2,7 +2,7 @@
 # Dynamic discovery and factory for crew agents
 
 
-from providers import BaseProvider
+from ..providers import BaseProvider
 
 from .base import BaseAgent
 from .commander import CommanderAgent

@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from crew_assistant.config import Settings
+from src.crew_assistant.config import Settings
 
 
 class TestCrewWorkflow:

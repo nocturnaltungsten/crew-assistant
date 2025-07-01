@@ -25,6 +25,9 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 
+[project.scripts]
+crew-assistant = "crew_assistant.__main__:main"
+
 [dependency-groups]
 dev = [
     "mypy>=1.16.1",
@@ -95,7 +98,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["crew_assistant", "agents", "core", "utils"]
+source = ["src/crew_assistant"]
 omit = [
     "tests/*",
     "*/__init__.py",

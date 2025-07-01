@@ -4,7 +4,7 @@
 import os
 from typing import Any, Dict
 
-from providers.base import BaseProvider, ChatMessage, ChatResponse
+from ..providers.base import BaseProvider, ChatMessage, ChatResponse
 
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 

@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from core.context_engine.context_router import (
+from src.crew_assistant.core.context_engine.context_router import (
     RoutingAction,
     route_context_event,
     hash_event,

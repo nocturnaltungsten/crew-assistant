@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
-from utils.model_selector import select_model
+from src.crew_assistant.utils.model_selector import select_model
 
 
 class TestModelSelector:
