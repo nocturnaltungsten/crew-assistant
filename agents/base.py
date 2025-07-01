@@ -3,7 +3,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 from providers import BaseProvider, ChatMessage
 
@@ -33,6 +33,18 @@ class AgentConfig:
 
 
 @dataclass
+class TaskDelegationData:
+    """Task delegation information for adaptive workflows."""
+    
+    complexity_assessment: int  # 1-10 scale
+    delegation_instructions: str
+    expected_subtasks: list[str] = field(default_factory=list)
+    context_target_range: tuple[int, int] = (1000, 4000)  # (min_tokens, max_tokens)
+    expected_cycles: int = 1  # Predicted execution cycles
+    priority_level: str = "standard"  # "fast", "standard", "capable"
+
+
+@dataclass
 class TaskContext:
     """Context passed to agents during task execution."""
 
@@ -41,9 +53,15 @@ class TaskContext:
     previous_results: list[str] = field(default_factory=list)
     memory_context: str = ""
     user_input: str = ""
+    
+    # NEW: Optional delegation data for adaptive workflows (BACKWARD COMPATIBLE)
+    delegation_data: Optional[TaskDelegationData] = None
 
     def to_prompt(self) -> str:
-        """Convert context to prompt format."""
+        """
+        Convert context to prompt format.
+        BACKWARD COMPATIBLE: Existing behavior preserved when delegation_data is None.
+        """
         prompt_parts = [
             f"Task: {self.task_description}",
             f"Expected Output: {self.expected_output}"
@@ -60,7 +78,35 @@ class TaskContext:
         if self.memory_context:
             prompt_parts.append(f"Memory Context: {self.memory_context}")
 
+        # NEW: Add delegation context for adaptive workflows
+        if self.delegation_data:
+            prompt_parts.append(self._format_delegation_context())
+
         return "\n\n".join(prompt_parts)
+    
+    def _format_delegation_context(self) -> str:
+        """
+        NEW: Format delegation data for prompt inclusion.
+        Part of unified prompt engine foundation.
+        """
+        if not self.delegation_data:
+            return ""
+        
+        delegation_parts = [
+            "Delegation Context:",
+            f"  Complexity Level: {self.delegation_data.complexity_assessment}/10",
+            f"  Instructions: {self.delegation_data.delegation_instructions}",
+            f"  Expected Cycles: {self.delegation_data.expected_cycles}",
+            f"  Context Target: {self.delegation_data.context_target_range[0]}-{self.delegation_data.context_target_range[1]} tokens",
+            f"  Performance Tier: {self.delegation_data.priority_level}"
+        ]
+        
+        if self.delegation_data.expected_subtasks:
+            delegation_parts.append("  Expected Subtasks:")
+            for i, subtask in enumerate(self.delegation_data.expected_subtasks):
+                delegation_parts.append(f"    {i+1}. {subtask}")
+        
+        return "\n".join(delegation_parts)
 
 
 @dataclass

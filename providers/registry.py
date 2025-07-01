@@ -22,6 +22,13 @@ class ProviderStatus(Enum):
     MAINTENANCE = "maintenance"
 
 
+class PriorityLevel(Enum):
+    """Priority levels for agent provider access."""
+    UX_INTERACTIVE = 1      # Highest priority - UX agent (sub-100ms target)
+    STANDARD = 5            # Default priority - existing behavior  
+    BACKGROUND = 10         # Background delegates - lowest priority
+
+
 @dataclass
 class ProviderConfig:
     """Configuration for a provider instance."""
@@ -109,12 +116,74 @@ class ProviderRegistry:
 
     def get_optimal_provider(
         self,
-        requirements: Optional[ModelRequirements] = None
+        requirements: Optional[ModelRequirements] = None,
+        priority_level: Optional[PriorityLevel] = None
     ) -> Optional[BaseProvider]:
-        """Get the optimal provider based on requirements and health."""
+        """
+        Get the optimal provider based on requirements and health.
+        
+        Args:
+            requirements: Model requirements (existing functionality)
+            priority_level: Optional priority level for UX agent prioritization
+            
+        Returns:
+            BaseProvider instance or None
+            
+        Note: BACKWARD COMPATIBLE - existing calls work identically
+        """
         if not requirements:
             requirements = ModelRequirements()
 
+        # NEW: UX priority fast path for sub-100ms latency
+        if priority_level == PriorityLevel.UX_INTERACTIVE:
+            return self._get_ux_priority_provider(requirements)
+        
+        # EXISTING LOGIC UNCHANGED - zero impact on current workflows
+        return self._get_standard_provider(requirements, priority_level)
+    
+    def _get_ux_priority_provider(self, requirements: ModelRequirements) -> Optional[BaseProvider]:
+        """
+        NEW: UX-optimized provider selection for sub-100ms interactions.
+        - Prefers fastest response providers
+        - Bypasses load balancing for immediate access
+        - Falls back to standard selection if needed
+        """
+        # Get eligible providers
+        eligible = self._get_eligible_providers(requirements)
+        
+        if not eligible:
+            logger.warning("No eligible providers found for UX priority")
+            return None
+        
+        # UX Priority Selection: Speed over load balancing
+        # 1. Online providers first
+        # 2. Highest priority providers  
+        # 3. Skip load balancing - immediate access
+        eligible.sort(key=lambda x: (
+            self._provider_configs[x].status != ProviderStatus.ONLINE,  # Online first
+            -self._provider_configs[x].priority,  # Higher priority first
+            # Skip request count load balancing for UX speed
+        ))
+        
+        provider_name = eligible[0]
+        provider = self.get_provider(provider_name)
+        
+        if provider:
+            self._request_counts[provider_name] += 1
+            self._last_used[provider_name] = time.time()
+            logger.debug(f"Selected UX priority provider '{provider_name}' for interactive request")
+        
+        return provider
+    
+    def _get_standard_provider(
+        self, 
+        requirements: ModelRequirements, 
+        priority_level: Optional[PriorityLevel] = None
+    ) -> Optional[BaseProvider]:
+        """
+        EXISTING: Standard provider selection with original load balancing logic.
+        Preserves 100% backward compatibility for existing workflows.
+        """
         # Get eligible providers
         eligible = self._get_eligible_providers(requirements)
         
@@ -122,7 +191,7 @@ class ProviderRegistry:
             logger.warning("No eligible providers found")
             return None
 
-        # Sort by priority and health
+        # ORIGINAL LOGIC PRESERVED - Sort by priority and health
         eligible.sort(key=lambda x: (
             -self._provider_configs[x].priority,  # Higher priority first
             self._provider_configs[x].status != ProviderStatus.ONLINE,  # Online first
@@ -461,9 +530,20 @@ def get_provider(name: str) -> Optional[BaseProvider]:
     return get_registry().get_provider(name)
 
 
-def get_optimal_provider(requirements: Optional[ModelRequirements] = None) -> Optional[BaseProvider]:
-    """Convenience function to get optimal provider."""
-    return get_registry().get_optimal_provider(requirements)
+def get_optimal_provider(
+    requirements: Optional[ModelRequirements] = None,
+    priority_level: Optional[PriorityLevel] = None
+) -> Optional[BaseProvider]:
+    """
+    Convenience function to get optimal provider.
+    
+    Args:
+        requirements: Model requirements (existing functionality)
+        priority_level: Optional priority level for UX agent prioritization
+        
+    Note: BACKWARD COMPATIBLE - existing calls work identically
+    """
+    return get_registry().get_optimal_provider(requirements, priority_level)
 
 
 def list_all_models(requirements: Optional[ModelRequirements] = None) -> List[tuple[str, ModelInfo]]:
