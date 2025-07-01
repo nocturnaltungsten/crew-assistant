@@ -2,15 +2,14 @@
 
 ## Overview
 
-Crew Assistant is a **production-grade native multi-agent orchestration platform** designed for local-first AI workflows. Built from the ground up with a focus on modularity, performance, and extensibility, it provides a complete framework for structured agent collaboration using local large language models (LLMs).
+Crew Assistant is a **Experimental native multi-agent orchestration platform** designed for local-first AI workflows. Built from the ground up with a focus on modularity, performance, and extensibility, it provides a complete framework for structured agent collaboration using local large language models (LLMs).
 
-**Key Features:**
-* 🏗️ **Native Architecture** - No external AI framework dependencies
-* 🔧 **Production Provider System** - Circuit breakers, connection pooling, intelligent caching
-* 🤖 **4-Agent Workflow** - UX → Planner → Developer → Reviewer pipeline with numeric quality assessment
-* 🏠 **Local-First** - Complete offline capability with LM Studio/Ollama support
-* 📊 **Quality Analytics** - Numeric ratings system (1-10 scale) for comprehensive quality assessment
-* 🎯 **Performance Optimized** - Sub-200ms response times, efficient model detection
+**Key Features:** N.B. all in development, varying degree of functionality. 
+* Native Architecture - No external AI framework dependencies
+* Production Provider System - Circuit breakers, connection pooling, intelligent caching
+* 4-Agent Workflow - UX → Planner → Developer → Reviewer pipeline with numeric quality assessment
+* Local-First - Complete offline capability with LM Studio/Ollama support
+* Quality Analytics - Numeric ratings system (1-10 scale) for comprehensive quality assessment
 
 ---
 
