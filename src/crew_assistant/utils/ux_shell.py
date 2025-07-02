@@ -6,9 +6,8 @@ import json
 import os
 import uuid
 
-from crewai import Crew, Task
-
 from core.context_engine.memory_store import MemoryStore
+from crewai import Crew, Task
 from utils.fact_learning import build_memory_context, learn_fact_if_possible
 
 
@@ -16,9 +15,8 @@ from utils.fact_learning import build_memory_context, learn_fact_if_possible
 def get_ux_agent():
     """Get UX agent with current configuration."""
     try:
-        from crewai import Agent
-
         from agents.ux import get_llm
+        from crewai import Agent
 
         return Agent(
             role="Chat interface",

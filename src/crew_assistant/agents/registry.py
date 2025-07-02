@@ -3,7 +3,6 @@
 
 
 from ..providers import BaseProvider
-
 from .base import BaseAgent
 from .commander import CommanderAgent
 from .dev import DeveloperAgent
@@ -50,7 +49,6 @@ class AgentRegistry:
         for role, agent_class in cls._agents.items():
             # Create temporary instance to get config
             try:
-                temp_config = agent_class.__init__.__defaults__
                 info[role] = {
                     "class": agent_class.__name__,
                     "role": role,

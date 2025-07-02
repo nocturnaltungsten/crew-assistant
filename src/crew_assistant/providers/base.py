@@ -4,9 +4,9 @@
 import asyncio
 import time
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional
-from urllib.parse import urlparse
+from typing import Any
 
 from loguru import logger
 
@@ -22,7 +22,7 @@ class ModelInfo:
     description: str
     size: str | None = None
     context_length: int | None = None
-    capabilities: List[str] = field(default_factory=list)  # ["chat", "completion", "embedding"]
+    capabilities: list[str] = field(default_factory=list)  # ["chat", "completion", "embedding"]
     performance_tier: str = "balanced"  # "fast", "balanced", "capable"
     last_tested: float = field(default_factory=time.time)
 
@@ -35,7 +35,7 @@ class ChatMessage:
     content: str
     name: str | None = None
     timestamp: float = field(default_factory=time.time)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -124,7 +124,7 @@ class BaseProvider(ABC):
         self._circuit_breaker_failures = 0
         self._circuit_breaker_last_failure = 0.0
         self._circuit_breaker_open = False
-        self._response_cache: Dict[str, Any] = {}
+        self._response_cache: dict[str, Any] = {}
         self._cache_ttl = config.get("cache_ttl", 300)  # 5 minutes
 
         logger.info(
@@ -253,7 +253,7 @@ class BaseProvider(ABC):
         except Exception as e:
             return False, f"Model '{model}' failed: {str(e)}"
 
-    def batch_chat(self, requests: List[tuple[list[ChatMessage], str, dict]]) -> List[ChatResponse]:
+    def batch_chat(self, requests: list[tuple[list[ChatMessage], str, dict]]) -> list[ChatResponse]:
         """Process multiple chat requests (override for native batch support)."""
         responses = []
         for messages, model, kwargs in requests:
@@ -272,8 +272,8 @@ class BaseProvider(ABC):
         return responses
 
     async def batch_chat_async(
-        self, requests: List[tuple[list[ChatMessage], str, dict]]
-    ) -> List[ChatResponse]:
+        self, requests: list[tuple[list[ChatMessage], str, dict]]
+    ) -> list[ChatResponse]:
         """Async batch processing with concurrency."""
         tasks = [self.chat_async(messages, model, **kwargs) for messages, model, kwargs in requests]
         return await asyncio.gather(*tasks, return_exceptions=True)

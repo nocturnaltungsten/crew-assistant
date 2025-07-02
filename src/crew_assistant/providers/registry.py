@@ -3,13 +3,13 @@
 
 import asyncio
 import time
-from typing import Any, Dict, List, Optional, Type
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
 from loguru import logger
 
-from .base import BaseProvider, ModelInfo, ProviderHealth, ProviderMetrics
+from .base import BaseProvider, ModelInfo, ProviderHealth
 from .lmstudio import LMStudioProvider
 from .ollama import OllamaProvider
 
@@ -28,8 +28,8 @@ class ProviderConfig:
     """Configuration for a provider instance."""
 
     name: str
-    provider_class: Type[BaseProvider]
-    config: Dict[str, Any]
+    provider_class: type[BaseProvider]
+    config: dict[str, Any]
     priority: int = 1  # Higher number = higher priority
     enabled: bool = True
     auto_failover: bool = True
@@ -42,10 +42,10 @@ class ProviderConfig:
 class ModelRequirements:
     """Requirements for model selection."""
 
-    capabilities: List[str] = field(default_factory=list)  # ["chat", "completion", "code"]
-    performance_tier: Optional[str] = None  # "fast", "balanced", "capable"
-    agent_role: Optional[str] = None  # "ux", "planner", "developer", "reviewer", "commander"
-    max_tokens: Optional[int] = None
+    capabilities: list[str] = field(default_factory=list)  # ["chat", "completion", "code"]
+    performance_tier: str | None = None  # "fast", "balanced", "capable"
+    agent_role: str | None = None  # "ux", "planner", "developer", "reviewer", "commander"
+    max_tokens: int | None = None
     streaming_required: bool = False
     compatibility_required: bool = True
 
@@ -54,14 +54,14 @@ class ProviderRegistry:
     """Enhanced provider registry with health monitoring and intelligent routing."""
 
     def __init__(self):
-        self._provider_configs: Dict[str, ProviderConfig] = {}
-        self._provider_instances: Dict[str, BaseProvider] = {}
-        self._health_monitor_task: Optional[asyncio.Task] = None
+        self._provider_configs: dict[str, ProviderConfig] = {}
+        self._provider_instances: dict[str, BaseProvider] = {}
+        self._health_monitor_task: asyncio.Task | None = None
         self._health_check_running = False
 
         # Load balancing and routing
-        self._request_counts: Dict[str, int] = {}
-        self._last_used: Dict[str, float] = {}
+        self._request_counts: dict[str, int] = {}
+        self._last_used: dict[str, float] = {}
 
         # Model tier mapping for agent-role optimization
         self._agent_role_tiers = {
@@ -77,8 +77,8 @@ class ProviderRegistry:
     def register_provider(
         self,
         name: str,
-        provider_class: Type[BaseProvider],
-        config: Dict[str, Any],
+        provider_class: type[BaseProvider],
+        config: dict[str, Any],
         priority: int = 1,
         enabled: bool = True,
     ) -> None:
@@ -97,7 +97,7 @@ class ProviderRegistry:
 
         logger.info(f"Registered provider '{name}' with priority {priority}")
 
-    def get_provider(self, name: str) -> Optional[BaseProvider]:
+    def get_provider(self, name: str) -> BaseProvider | None:
         """Get or create provider instance."""
         if name not in self._provider_configs:
             logger.error(f"Unknown provider: {name}")
@@ -121,8 +121,8 @@ class ProviderRegistry:
         return self._provider_instances[name]
 
     def get_optimal_provider(
-        self, requirements: Optional[ModelRequirements] = None
-    ) -> Optional[BaseProvider]:
+        self, requirements: ModelRequirements | None = None
+    ) -> BaseProvider | None:
         """Get the optimal provider based on requirements and health."""
         if not requirements:
             requirements = ModelRequirements()
@@ -159,8 +159,8 @@ class ProviderRegistry:
         return provider
 
     def get_provider_with_model(
-        self, model_id: str, requirements: Optional[ModelRequirements] = None
-    ) -> Optional[tuple[BaseProvider, ModelInfo]]:
+        self, model_id: str, requirements: ModelRequirements | None = None
+    ) -> tuple[BaseProvider, ModelInfo] | None:
         """Get provider that has the specified model."""
         if not requirements:
             requirements = ModelRequirements()
@@ -185,8 +185,8 @@ class ProviderRegistry:
         return None
 
     def list_all_models(
-        self, requirements: Optional[ModelRequirements] = None
-    ) -> List[tuple[str, ModelInfo]]:
+        self, requirements: ModelRequirements | None = None
+    ) -> list[tuple[str, ModelInfo]]:
         """List all models from all providers."""
         if not requirements:
             requirements = ModelRequirements()
@@ -208,7 +208,7 @@ class ProviderRegistry:
 
         return all_models
 
-    def health_check_all(self) -> Dict[str, ProviderHealth]:
+    def health_check_all(self) -> dict[str, ProviderHealth]:
         """Perform health check on all providers."""
         health_status = {}
 
@@ -245,11 +245,11 @@ class ProviderRegistry:
 
         return health_status
 
-    def get_provider_by_name(self, provider_name: str) -> Optional[BaseProvider]:
+    def get_provider_by_name(self, provider_name: str) -> BaseProvider | None:
         """Get a specific provider by name."""
         return self.get_provider(provider_name)
 
-    def get_provider_metrics(self) -> Dict[str, Dict[str, Any]]:
+    def get_provider_metrics(self) -> dict[str, dict[str, Any]]:
         """Get metrics for all providers."""
         metrics = {}
 
@@ -330,11 +330,11 @@ class ProviderRegistry:
             return True
         return False
 
-    def list_providers(self) -> List[str]:
+    def list_providers(self) -> list[str]:
         """Get list of registered provider names."""
         return list(self._provider_configs.keys())
 
-    def get_provider_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_provider_status(self) -> dict[str, dict[str, Any]]:
         """Get status information for all providers."""
         status = {}
 
@@ -380,7 +380,7 @@ class ProviderRegistry:
         self._provider_instances.clear()
         logger.info("Cleaned up all providers")
 
-    def _get_eligible_providers(self, requirements: ModelRequirements) -> List[str]:
+    def _get_eligible_providers(self, requirements: ModelRequirements) -> list[str]:
         """Get list of providers that meet requirements."""
         eligible = []
 
@@ -454,7 +454,7 @@ class ProviderRegistry:
 
 
 # Global registry instance
-_registry: Optional[ProviderRegistry] = None
+_registry: ProviderRegistry | None = None
 
 
 def get_registry() -> ProviderRegistry:
@@ -497,25 +497,25 @@ def get_registry() -> ProviderRegistry:
     return _registry
 
 
-def get_provider(name: str) -> Optional[BaseProvider]:
+def get_provider(name: str) -> BaseProvider | None:
     """Convenience function to get provider instance."""
     return get_registry().get_provider(name)
 
 
 def get_optimal_provider(
-    requirements: Optional[ModelRequirements] = None,
-) -> Optional[BaseProvider]:
+    requirements: ModelRequirements | None = None,
+) -> BaseProvider | None:
     """Convenience function to get optimal provider."""
     return get_registry().get_optimal_provider(requirements)
 
 
 def list_all_models(
-    requirements: Optional[ModelRequirements] = None,
-) -> List[tuple[str, ModelInfo]]:
+    requirements: ModelRequirements | None = None,
+) -> list[tuple[str, ModelInfo]]:
     """Convenience function to list all models."""
     return get_registry().list_all_models(requirements)
 
 
-def health_check_all() -> Dict[str, ProviderHealth]:
+def health_check_all() -> dict[str, ProviderHealth]:
     """Convenience function for health check."""
     return get_registry().health_check_all()

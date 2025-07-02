@@ -3,8 +3,6 @@
 
 import subprocess
 import sys
-import time
-from typing import Optional, Tuple
 
 
 def get_cpu_info() -> dict:

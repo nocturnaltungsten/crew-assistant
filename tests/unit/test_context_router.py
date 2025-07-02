@@ -1,14 +1,9 @@
 """Unit tests for context router functionality."""
 
-from enum import auto
-from unittest.mock import patch, MagicMock
-
-import pytest
-
 from crew_assistant.core.context_engine.context_router import (
     RoutingAction,
-    route_context_event,
     hash_event,
+    route_context_event,
 )
 
 

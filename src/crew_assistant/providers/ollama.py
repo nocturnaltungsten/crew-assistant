@@ -4,7 +4,8 @@
 import asyncio
 import json
 import time
-from typing import Any, AsyncIterator, Dict, List, Optional
+from collections.abc import AsyncIterator
+from typing import Any
 
 import httpx
 import requests
@@ -54,7 +55,7 @@ class OllamaProvider(BaseProvider):
         self._sync_client.mount("https://", adapter)
 
         # Async client for streaming and async operations
-        self._async_client: Optional[httpx.AsyncClient] = None
+        self._async_client: httpx.AsyncClient | None = None
 
         logger.info(f"Ollama provider initialized with pool size {self.connection_pool_size}")
 
@@ -133,7 +134,7 @@ class OllamaProvider(BaseProvider):
         except requests.exceptions.ConnectionError as e:
             logger.error(f"[{request_id}] Ollama connection error: {e}")
             raise ConnectionError(f"Cannot connect to Ollama at {self.base_url}: {e}")
-        except requests.exceptions.Timeout as e:
+        except requests.exceptions.Timeout:
             logger.error(f"[{request_id}] Ollama timeout after {self.timeout}s")
             raise ProviderTimeoutError(f"Ollama request timed out after {self.timeout}s")
         except requests.exceptions.HTTPError as e:
@@ -149,7 +150,7 @@ class OllamaProvider(BaseProvider):
                     )
                 raise ModelNotFoundError(f"Model '{model}' not found in Ollama")
             elif e.response and e.response.status_code == 400:
-                raise ConnectionError(f"Ollama bad request - check model name and parameters")
+                raise ConnectionError("Ollama bad request - check model name and parameters")
             raise ConnectionError(f"Ollama HTTP error: {e}")
         except json.JSONDecodeError as e:
             logger.error(f"[{request_id}] Invalid JSON response from Ollama: {e}")
@@ -318,7 +319,7 @@ class OllamaProvider(BaseProvider):
                 size_bytes = model.get("size", 0)
 
                 # Parse model details
-                details = model.get("details", {})
+                model.get("details", {})
 
                 # Determine compatibility and capabilities
                 compatibility = self._categorize_compatibility(model_id)
@@ -409,7 +410,7 @@ class OllamaProvider(BaseProvider):
             logger.error(f"Failed to pull model {model_name}: {e}")
             return False
 
-    def show_model_info(self, model_name: str) -> Optional[Dict[str, Any]]:
+    def show_model_info(self, model_name: str) -> dict[str, Any] | None:
         """Get detailed information about a specific model."""
         try:
             payload = {"name": model_name}
@@ -422,7 +423,7 @@ class OllamaProvider(BaseProvider):
             logger.error(f"Failed to get model info for {model_name}: {e}")
             return None
 
-    def get_model_info(self, model_id: str) -> Optional[ModelInfo]:
+    def get_model_info(self, model_id: str) -> ModelInfo | None:
         """Get detailed information about a specific model."""
         try:
             models = self.list_models()
@@ -434,7 +435,7 @@ class OllamaProvider(BaseProvider):
             logger.error(f"Failed to get model info for {model_id}: {e}")
             return None
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         """Get Ollama server information."""
         try:
             # Try to get server status

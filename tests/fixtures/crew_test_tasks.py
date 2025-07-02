@@ -235,7 +235,6 @@ if __name__ == "__main__":
 
     # Show a few random examples
     print("\n🎲 Random task examples:")
-    import random
 
     for category in ["trivial", "simple", "moderate", "complex", "vague", "vague_override"]:
         example = get_random_task(category)

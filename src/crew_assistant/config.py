@@ -65,17 +65,17 @@ class Settings(BaseSettings):
     def resolve_paths(self):
         """Resolve relative paths against base_dir."""
         path_fields = ["memory_dir", "facts_dir", "snapshots_dir", "crew_runs_dir"]
-        
+
         for field_name in path_fields:
             path = getattr(self, field_name)
             if not isinstance(path, Path):
                 path = Path(path)
-            
+
             if not path.is_absolute():
                 path = self.base_dir / path
-                
+
             object.__setattr__(self, field_name, path)
-            
+
         return self
 
     def create_directories(self) -> None:

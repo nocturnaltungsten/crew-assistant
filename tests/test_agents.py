@@ -3,8 +3,8 @@ import unittest
 from crew_assistant.agents.commander import CommanderAgent
 from crew_assistant.agents.dev import DeveloperAgent
 from crew_assistant.agents.planner import PlannerAgent
-from crew_assistant.agents.ux import UXAgent
 from crew_assistant.agents.reviewer import ReviewerAgent
+from crew_assistant.agents.ux import UXAgent
 
 
 class TestAgents(unittest.TestCase):
@@ -16,10 +16,10 @@ class TestAgents(unittest.TestCase):
 
     def test_commander_agent_exists(self):
         self.assertIsNotNone(CommanderAgent)
-        
+
     def test_ux_agent_exists(self):
         self.assertIsNotNone(UXAgent)
-        
+
     def test_reviewer_agent_exists(self):
         self.assertIsNotNone(ReviewerAgent)
 

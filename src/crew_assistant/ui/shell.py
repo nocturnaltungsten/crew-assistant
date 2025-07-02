@@ -4,7 +4,6 @@
 import os
 
 from ..core import create_crew_engine
-
 from .setup import interactive_provider_setup
 
 
@@ -114,16 +113,16 @@ def _show_help():
 🤖 Enhanced Crew Commands:
 ─────────────────────────────
   help         Show this help
-  stats        Show crew statistics  
+  stats        Show crew statistics
   switch MODEL Switch to different model
   exit/quit/q  Exit the shell
 
 🧠 How it works:
   1. Researcher analyzes your request
-  2. Planner creates implementation roadmap  
+  2. Planner creates implementation roadmap
   3. Developer builds the solution
   4. Reviewer validates & may reject for revision
-  
+
   The crew will iterate up to 3 times until quality standards are met!
 """)
 
@@ -137,7 +136,7 @@ def _show_stats(engine):
   Session ID: {stats["session_id"][:8]}...
   Tasks Executed: {stats["tasks_executed"]}
   Success Rate: {stats["success_rate"]:.1%}
-  
+
 🤖 Agent Stats:
 """)
     for role, agent_stats in stats["crew_stats"].items():

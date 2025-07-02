@@ -5,14 +5,15 @@ import datetime
 import json
 import os
 import uuid
+
 from dataclasses import asdict, dataclass
 from typing import Any
 
 from ..agents import create_crew
-from ..providers import get_provider, list_all_models
+from ..providers import get_provider
 from ..workflows import SequentialWorkflow, WorkflowResult
-
 from .context_engine.memory_store import MemoryStore
+from crew_assistant.providers.registry import get_registry
 
 
 @dataclass
@@ -212,7 +213,7 @@ class CrewEngine:
 
     def get_available_providers(self) -> list:
         """Get list of available providers."""
-        return list_available_providers()
+        return get_registry().list_providers()
 
     def switch_model(self, new_model: str):
         """Switch to a different model (recreates crew)."""

@@ -77,7 +77,6 @@ def setup_ollama_for_crewai():
         adapter = OllamaAdapter(os.getenv("OPENAI_API_BASE", "http://localhost:11434"))
 
         # Patch the chat completion method
-        original_create = openai.ChatCompletion.create
 
         def ollama_create(*args, **kwargs):
             return adapter.chat_completion(**kwargs)

@@ -72,7 +72,7 @@ When the user asks for complex tasks that require planning, development, or eval
 
 Examples of tasks to delegate:
 - Building applications or scripts
-- Project planning and implementation  
+- Project planning and implementation
 - Code review and evaluation
 - Multi-step technical workflows
 

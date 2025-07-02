@@ -1,10 +1,8 @@
 # Commander Agent Implementation
 # Executive agent for review and evaluation
 
-from typing import Any, Dict
 
-from ..providers.base import BaseProvider, ChatMessage, ChatResponse
-
+from ..providers.base import BaseProvider, ChatMessage
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 
 

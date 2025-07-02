@@ -2,15 +2,13 @@
 # Test with REAL agentic workflow token loads (10k, 20k, 30k tokens)
 # Because 100 tokens is a joke for persistent workflows!
 
-import asyncio
 import time
+
 import pytest
 import requests
-from typing import List, Tuple
 
-from crew_assistant.providers.lmstudio import LMStudioProvider
-from crew_assistant.providers.ollama import OllamaProvider
 from crew_assistant.providers.base import ChatMessage, ChatResponse
+from crew_assistant.providers.lmstudio import LMStudioProvider
 
 
 def check_server_running(url: str) -> bool:
@@ -63,35 +61,35 @@ class EventProcessor:
         self.kafka_consumer = KafkaConsumer(config.kafka_config)
         self.redis_client = Redis(config.redis_config)
         self.metrics = MetricsCollector()
-        
+
     async def process_event(self, event: Event) -> ProcessResult:
         start_time = time.time()
         try:
             # Validate event
             if not self.validate_event(event):
                 raise InvalidEventError(f"Invalid event: {event.id}")
-                
+
             # Check cache
             cached_result = await self.redis_client.get(f"event:{event.id}")
             if cached_result:
                 self.metrics.increment("cache_hits")
                 return ProcessResult.from_cache(cached_result)
-                
+
             # Process event
             result = await self.process_event_logic(event)
-            
+
             # Store in cache
             await self.redis_client.set(
-                f"event:{event.id}", 
+                f"event:{event.id}",
                 result.to_json(),
                 expire=3600
             )
-            
+
             # Update metrics
             self.metrics.record_latency("event_processing", time.time() - start_time)
-            
+
             return result
-            
+
         except Exception as e:
             self.metrics.increment("processing_errors")
             logger.error(f"Event processing failed: {e}")
@@ -106,7 +104,7 @@ class EventProcessor:
     for i in range(5):
         full_context += f"\n\nCode Review #{i + 1}:\n{code_sample}\n"
         full_context += (
-            f"Review Comment: Consider implementing retry logic with exponential backoff.\n"
+            "Review Comment: Consider implementing retry logic with exponential backoff.\n"
         )
         full_context += f"Performance metrics show {i * 100}ms average latency.\n"
 
@@ -193,7 +191,7 @@ class TestBattleLMStudioProvider:
             # Performance metrics
             tokens_per_second = token_count / elapsed_time if elapsed_time > 0 else 0
 
-            print(f"✅ BATTLE SUCCESS!")
+            print("✅ BATTLE SUCCESS!")
             print(f"  ⏱️  Total Time: {elapsed_time:.2f}s")
             print(f"  📊 Input Tokens: ~{token_count}")
             print(f"  📊 Output Tokens: {response.completion_tokens or 'N/A'}")
@@ -240,7 +238,7 @@ class TestBattleLMStudioProvider:
 
             total_time = time.time() - start_time
 
-            print(f"✅ STREAMING BATTLE SUCCESS!")
+            print("✅ STREAMING BATTLE SUCCESS!")
             print(f"  ⏱️  Total Time: {total_time:.2f}s")
             print(f"  📦 Chunks: {chunks_received}")
             print(f"  📝 Response Length: {len(full_response)} chars")
@@ -254,7 +252,7 @@ class TestBattleLMStudioProvider:
 
     def test_battle_concurrent_requests(self, battle_provider, battle_model):
         """Test handling multiple large requests concurrently."""
-        print(f"\n🔥 BATTLE CONCURRENT TEST: 3 x 5000 tokens")
+        print("\n🔥 BATTLE CONCURRENT TEST: 3 x 5000 tokens")
 
         # Create multiple large requests
         requests = []
@@ -278,7 +276,7 @@ class TestBattleLMStudioProvider:
         assert len(responses) == 3
         successful = sum(1 for r in responses if r.content and not r.finish_reason == "error")
 
-        print(f"✅ CONCURRENT BATTLE COMPLETE!")
+        print("✅ CONCURRENT BATTLE COMPLETE!")
         print(f"  ⏱️  Total Time: {total_time:.2f}s")
         print(f"  ✅ Successful: {successful}/3")
         print(f"  🚀 Avg Time per Request: {total_time / 3:.2f}s")
@@ -287,7 +285,7 @@ class TestBattleLMStudioProvider:
 
     def test_battle_resilience(self, battle_provider, battle_model):
         """Test provider resilience with edge cases."""
-        print(f"\n🔥 BATTLE RESILIENCE TEST")
+        print("\n🔥 BATTLE RESILIENCE TEST")
 
         # Test 1: Maximum context that won't overflow
         huge_context = generate_large_context(40000)  # Near limit
@@ -295,13 +293,13 @@ class TestBattleLMStudioProvider:
 
         try:
             response = battle_provider.chat(messages, battle_model, max_tokens=10)
-            print(f"  ✅ Handled 40k token context")
+            print("  ✅ Handled 40k token context")
         except Exception as e:
             print(f"  ❌ Failed on huge context: {e}")
             # This might fail depending on model limits, which is OK
 
         # Test 2: Rapid successive requests
-        print(f"  🔥 Testing rapid requests...")
+        print("  🔥 Testing rapid requests...")
         success_count = 0
 
         for i in range(5):
@@ -322,7 +320,7 @@ class TestBattleMetrics:
 
     def test_battle_metrics_accuracy(self, battle_provider, battle_model):
         """Verify metrics are accurate under load."""
-        print(f"\n🔥 BATTLE METRICS TEST")
+        print("\n🔥 BATTLE METRICS TEST")
 
         # Reset metrics
         battle_provider.reset_metrics()
@@ -347,7 +345,7 @@ class TestBattleMetrics:
         # Check metrics
         final_metrics = battle_provider.get_metrics()
 
-        print(f"\n📊 BATTLE METRICS:")
+        print("\n📊 BATTLE METRICS:")
         print(f"  Total Requests: {final_metrics.total_requests}")
         print(f"  Successful: {final_metrics.successful_requests}")
         print(f"  Failed: {final_metrics.failed_requests}")
@@ -366,9 +364,9 @@ def run_battle_summary():
     print("""
     Battle testing with REAL token loads:
     - 10,000 tokens (10k) - Small agentic context
-    - 20,000 tokens (20k) - Medium workflow state  
+    - 20,000 tokens (20k) - Medium workflow state
     - 30,000 tokens (30k) - Large persistent context
-    
+
     These tests validate:
     ✓ Timeouts don't trip under real loads
     ✓ Streaming works with huge contexts

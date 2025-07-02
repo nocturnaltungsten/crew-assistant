@@ -3,7 +3,7 @@
 
 import os
 
-from ..providers import get_provider, list_all_models
+from ..providers import get_provider
 
 
 def interactive_provider_setup() -> tuple[str, str, str] | None:
@@ -110,7 +110,7 @@ def setup_assigned_tier_mode() -> tuple[str, str, str] | None:
             provider_config = _get_provider_config(last_provider)
             api_base = provider_config.get("base_url", "Unknown")
 
-            print(f"\n🎉 Assigned Tier Setup Complete!")
+            print("\n🎉 Assigned Tier Setup Complete!")
             print(f"Provider: {last_provider.title()}")
             print(f"Model: {last_model} (all tiers)")
             print(f"API Base: {api_base}")

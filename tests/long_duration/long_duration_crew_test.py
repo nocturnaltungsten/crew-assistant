@@ -15,16 +15,14 @@ import time
 import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from crew_assistant.core import create_crew_engine
-from crew_assistant.providers.registry import get_registry
 from crew_assistant.providers.lmstudio import LMStudioProvider
-from crew_assistant.providers.ollama import OllamaProvider
-from tests.fixtures.crew_test_tasks import get_task_bank, get_weights
+from tests.fixtures.crew_test_tasks import get_task_bank
 
 # Configure comprehensive logging
 LOG_DIR = Path("test_logs") / f"crew_workflow_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -155,7 +153,7 @@ class TaskComplexity:
 class CrewWorkflowTest:
     """Test scenario for crew workflow execution."""
 
-    def __init__(self, name: str, complexity_level: Dict, weight: float = 1.0):
+    def __init__(self, name: str, complexity_level: dict, weight: float = 1.0):
         self.name = name
         self.complexity_level = complexity_level
         self.weight = weight
@@ -166,10 +164,10 @@ class CrewWorkflowTest:
         self.validation_rejections = 0
         self.workflow_completions = 0
         self.agent_failures = 0
-        self.errors: List[str] = []
-        self.task_results: List[Dict] = []
+        self.errors: list[str] = []
+        self.task_results: list[dict] = []
 
-    async def execute(self, crew_engine, task_prompt: str) -> Dict[str, Any]:
+    async def execute(self, crew_engine, task_prompt: str) -> dict[str, Any]:
         """Execute a crew workflow test."""
         start_time = time.time()
         self.execution_count += 1
@@ -233,7 +231,7 @@ class CrewWorkflowTest:
                 "complexity": self.complexity_level["level"],
             }
 
-    def _analyze_result(self, result, execution_time: float, task_prompt: str) -> Dict[str, Any]:
+    def _analyze_result(self, result, execution_time: float, task_prompt: str) -> dict[str, Any]:
         """Analyze crew workflow result for insights."""
         analysis = {
             "task_prompt": task_prompt,
@@ -304,7 +302,7 @@ class CrewWorkflowTest:
 
         return analysis
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get comprehensive test statistics."""
         return {
             "name": self.name,
@@ -390,7 +388,7 @@ class LongDurationCrewTester:
             error_logger.error(f"Failed to setup crew engine with {provider_name}:{model}: {e}")
             return False
 
-    def auto_select_lm_studio_model(self) -> Optional[str]:
+    def auto_select_lm_studio_model(self) -> str | None:
         """Automatically select best available LM Studio model."""
         try:
             config = {"base_url": "http://localhost:1234/v1", "api_key": "not-needed-for-local"}
@@ -449,7 +447,7 @@ class LongDurationCrewTester:
         # Fallback to original examples
         return random.choice(scenario.complexity_level["examples"])
 
-    def calculate_scenario_weights(self) -> List[float]:
+    def calculate_scenario_weights(self) -> list[float]:
         """Calculate normalized weights for scenario selection."""
         weights = [scenario.weight for scenario in self.scenarios]
         total_weight = sum(weights)
@@ -506,14 +504,14 @@ class LongDurationCrewTester:
 
         # Print to console
         print(f"\n{'=' * 60}")
-        print(f"🧪 CREW WORKFLOW TEST SUMMARY")
+        print("🧪 CREW WORKFLOW TEST SUMMARY")
         print(f"{'=' * 60}")
         print(f"⏱️  Elapsed: {elapsed} | Remaining: {remaining}")
         print(
             f"📊 Tests: {self.total_tests} | Successes: {self.total_successes} ({summary['overall_success_rate']:.1f}%)"
         )
         print(f"🤖 Current Model: {self.current_model}")
-        print(f"📈 Scenarios tested:")
+        print("📈 Scenarios tested:")
         for scenario in self.scenarios:
             stats = scenario.get_stats()
             print(
@@ -551,7 +549,7 @@ class LongDurationCrewTester:
                 except KeyboardInterrupt:
                     main_logger.info("Test interrupted by user")
                     break
-                except Exception as e:
+                except Exception:
                     error_logger.error(f"Test cycle error: {traceback.format_exc()}")
                     await asyncio.sleep(5)  # Brief pause on error
 
@@ -592,7 +590,7 @@ class LongDurationCrewTester:
         main_logger.info("Final report generated")
         print(f"\n📋 Final report saved to: {LOG_DIR}/final_report.md")
 
-    def _generate_insights(self) -> Dict[str, Any]:
+    def _generate_insights(self) -> dict[str, Any]:
         """Generate insights from test results."""
         insights = {
             "validation_patterns": {},
@@ -639,7 +637,7 @@ class LongDurationCrewTester:
 
         return insights
 
-    def _generate_markdown_report(self, report: Dict[str, Any]) -> str:
+    def _generate_markdown_report(self, report: dict[str, Any]) -> str:
         """Generate markdown final report."""
         md = f"""# Crew Workflow Long Duration Test Report
 
@@ -658,7 +656,7 @@ class LongDurationCrewTester:
         for scenario in report["scenario_results"]:
             md += f"| {scenario['complexity_level']} | {scenario['executions']} | {scenario['success_rate']:.1f}% | {scenario['avg_time']:.2f}s | {scenario.get('validation_approval_rate', 0):.1f}% |\n"
 
-        md += f"""
+        md += """
 ## 🔍 Key Insights
 
 ### Validation Patterns
@@ -667,7 +665,7 @@ class LongDurationCrewTester:
         for level, data in report["insights"]["validation_patterns"].items():
             md += f"- **{level.title()}**: {data['approval_rate']:.1f}% approval rate, {data['success_rate']:.1f}% success rate\n"
 
-        md += f"""
+        md += """
 ### Recommendations
 """
 

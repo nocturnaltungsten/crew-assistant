@@ -12,10 +12,11 @@ import os
 import random
 import sys
 import time
-import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
+
+from crew_assistant.providers.registry import get_registry
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -23,8 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # from crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
 # from crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
 # from crew_assistant.providers.registry_enhanced import EnhancedProviderRegistry, ModelRequirements, get_registry  # TODO: Create enhanced providers
-from crew_assistant.providers.base import ChatMessage, ProviderError
-
+from crew_assistant.providers.base import ChatMessage
 
 # Configure comprehensive logging
 LOG_DIR = Path("test_logs") / f"long_duration_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -69,13 +69,13 @@ class TestScenario:
         self.execution_count = 0
         self.success_count = 0
         self.total_time = 0.0
-        self.errors: List[str] = []
+        self.errors: list[str] = []
 
-    async def execute(self, provider, model: str) -> Dict[str, Any]:
+    async def execute(self, provider, model: str) -> dict[str, Any]:
         """Execute the test scenario."""
         raise NotImplementedError
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get scenario statistics."""
         return {
             "name": self.name,
@@ -98,7 +98,7 @@ class SimpleInferenceTest(TestScenario):
         super().__init__("simple_inference", weight=3.0)
         self.token_sizes = [100, 500, 1000, 5000, 10000]
 
-    async def execute(self, provider, model: str) -> Dict[str, Any]:
+    async def execute(self, provider, model: str) -> dict[str, Any]:
         token_size = random.choice(self.token_sizes)
         prompt = "Explain the concept of " + " ".join(
             [
@@ -141,7 +141,7 @@ class StreamingTest(TestScenario):
     def __init__(self):
         super().__init__("streaming", weight=2.0)
 
-    async def execute(self, provider, model: str) -> Dict[str, Any]:
+    async def execute(self, provider, model: str) -> dict[str, Any]:
         prompts = [
             "Write a detailed 10-step plan for building a distributed system",
             "Explain machine learning concepts with examples",
@@ -188,7 +188,7 @@ class ConcurrentLoadTest(TestScenario):
     def __init__(self):
         super().__init__("concurrent_load", weight=1.5)
 
-    async def execute(self, provider, model: str) -> Dict[str, Any]:
+    async def execute(self, provider, model: str) -> dict[str, Any]:
         concurrent_count = random.randint(2, 5)
 
         tasks = []
@@ -231,7 +231,7 @@ class LargeContextTest(TestScenario):
     def __init__(self):
         super().__init__("large_context", weight=0.5)
 
-    async def execute(self, provider, model: str) -> Dict[str, Any]:
+    async def execute(self, provider, model: str) -> dict[str, Any]:
         # Use battle test context generation
         from tests.integration.test_battle_providers import generate_large_context
 
@@ -274,7 +274,7 @@ class ProviderFailoverTest(TestScenario):
     def __init__(self):
         super().__init__("provider_failover", weight=0.5)
 
-    async def execute(self, provider, model: str) -> Dict[str, Any]:
+    async def execute(self, provider, model: str) -> dict[str, Any]:
         # This tests the registry's failover capabilities
         registry = get_registry()
 
@@ -291,7 +291,7 @@ class ProviderFailoverTest(TestScenario):
 
             # Make a request
             messages = [ChatMessage(role="user", content="Test failover capability")]
-            response = await optimal.chat_async(messages, model, max_tokens=50)
+            await optimal.chat_async(messages, model, max_tokens=50)
 
             # Check health
             health = optimal.get_health_status()
@@ -328,8 +328,8 @@ class LongDurationTestRunner:
         # Test statistics
         self.total_tests = 0
         self.successful_tests = 0
-        self.provider_stats: Dict[str, Dict[str, Any]] = {}
-        self.model_stats: Dict[str, Dict[str, Any]] = {}
+        self.provider_stats: dict[str, dict[str, Any]] = {}
+        self.model_stats: dict[str, dict[str, Any]] = {}
 
         # Initialize registry
         self.registry = get_registry()
