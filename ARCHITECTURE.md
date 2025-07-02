@@ -2,7 +2,7 @@
 
 ## Overview
 
-Crew Assistant is a native multi-agent orchestration platform built from scratch without external AI framework dependencies. The architecture emphasizes modularity, extensibility, and production-grade reliability.
+Crew Assistant is a native multi-agent orchestration platform built from scratch without external AI framework dependencies. The architecture emphasizes modularity, extensibility, and local inference compatibility.
 
 ## Core Design Principles
 
@@ -40,11 +40,6 @@ Crew Assistant is a native multi-agent orchestration platform built from scratch
 - **Direct Crew Mode**: Bypass UX for direct task execution
 - **Setup Wizard**: Interactive provider and model configuration
 
-#### Web UI (Future)
-- Real-time workflow visualization
-- Quality metrics dashboard
-- Session history and analytics
-
 ### 2. Orchestration Layer
 
 #### Workflow Engine (`core/crew_engine.py`)
@@ -61,9 +56,7 @@ Crew Assistant is a native multi-agent orchestration platform built from scratch
   - Clarity (1-10): Documentation and presentation quality
   - Feasibility (1-10): Solution practicality
   - Alignment (1-10): Match with original requirements
-- **100% Success Rate**: Workflows always complete with quality insights
-- **Analytics Collection**: Rich data for continuous improvement
-
+  
 ### 3. Agent Layer
 
 #### Base Agent Architecture (`agents/base.py`)
