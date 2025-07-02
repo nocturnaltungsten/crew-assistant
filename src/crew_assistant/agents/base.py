@@ -11,6 +11,7 @@ from ..providers import BaseProvider, ChatMessage
 from typing import Any
 from dataclasses import dataclass
 
+
 @dataclass
 class ToolResult:
     success: bool

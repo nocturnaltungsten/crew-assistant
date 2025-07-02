@@ -4,6 +4,7 @@
 import pathlib
 
 from .tools import BaseTool, ToolCallStatus, ToolParameter, ToolResult
+
 # Register tools with default registry
 from .tools import default_registry
 
@@ -318,8 +319,6 @@ class ListDirectoryTool(BaseTool):
                 status=ToolCallStatus.ERROR,
                 error_message=f"Unexpected error listing directory: {str(e)}",
             )
-
-
 
 
 def register_file_tools():
