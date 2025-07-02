@@ -16,7 +16,7 @@ class TestEndToEnd:
     def test_crew_agents_help(self):
         """Test that crew_agents.py shows help."""
         result = subprocess.run(
-            ["python", "crew_agents.py", "--help"],
+            ["python", "main.py", "--help"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -32,7 +32,7 @@ class TestEndToEnd:
         """Test model selector as standalone script."""
         with patch("builtins.input", return_value="1"):
             result = subprocess.run(
-                ["python", "-m", "utils.model_selector"],
+                ["python", "-m", "crew_assistant.utils.model_selector"],
                 capture_output=True,
                 text=True,
                 cwd=Path(__file__).parent.parent.parent,
@@ -49,7 +49,7 @@ class TestEndToEnd:
         # This would require mocking the entire CrewAI stack
         # For now, just test that the script can be imported
         result = subprocess.run(
-            ["python", "-c", "import crew_agents; print('Import successful')"],
+            ["python", "-c", "import main; print('Import successful')"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent.parent,
@@ -65,7 +65,7 @@ class TestEndToEnd:
 
         # Check critical files exist
         critical_files = [
-            "crew_agents.py",
+            "main.py",
             "pyproject.toml",
             "README.md",
             "CLAUDE.md",
@@ -76,11 +76,11 @@ class TestEndToEnd:
 
         # Check critical directories exist
         critical_dirs = [
-            "agents",
-            "core",
-            "utils",
+            "src/crew_assistant/agents",
+            "src/crew_assistant/core",
+            "src/crew_assistant/utils",
             "tests",
-            "crew_assistant",
+            "src/crew_assistant",
         ]
 
         for dir_path in critical_dirs:
@@ -95,11 +95,11 @@ class TestEndToEnd:
             "crew_assistant",
             "crew_assistant.config",
             "crew_assistant.exceptions",
-            "utils.model_selector",
-            "utils.fact_learning",
-            "core.agent_registry",
-            "core.context_engine.memory_store",
-            "core.context_engine.fact_store",
+            "crew_assistant.utils.model_selector",
+            "crew_assistant.utils.fact_learning",
+            "crew_assistant.core.agent_registry",
+            "crew_assistant.core.context_engine.memory_store",
+            "crew_assistant.core.context_engine.fact_store",
         ]
 
         for module_name in modules_to_test:

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Quick test script for the new task validation feature."""
+"""Integration test for the task validation feature."""
 
 import os
-from src.crew_assistant.core import create_crew_engine
+import pytest
+from crew_assistant.core import create_crew_engine
 
 
+@pytest.mark.integration
 def test_validation():
     """Test the task validation system with clear and unclear requests."""
 

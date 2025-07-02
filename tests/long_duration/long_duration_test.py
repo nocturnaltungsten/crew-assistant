@@ -20,10 +20,10 @@ from typing import Any, Dict, List, Optional
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from providers.lmstudio_enhanced import LMStudioEnhancedProvider
-from providers.ollama_enhanced import OllamaEnhancedProvider
-from providers.registry_enhanced import EnhancedProviderRegistry, ModelRequirements, get_registry
-from providers.base import ChatMessage, ProviderError
+# from crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
+# from crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
+# from crew_assistant.providers.registry_enhanced import EnhancedProviderRegistry, ModelRequirements, get_registry  # TODO: Create enhanced providers
+from crew_assistant.providers.base import ChatMessage, ProviderError
 
 
 # Configure comprehensive logging

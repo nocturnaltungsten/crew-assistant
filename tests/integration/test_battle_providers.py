@@ -8,9 +8,9 @@ import pytest
 import requests
 from typing import List, Tuple
 
-from providers.lmstudio_enhanced import LMStudioEnhancedProvider
-from providers.ollama_enhanced import OllamaEnhancedProvider
-from providers.base import ChatMessage, ChatResponse
+from crew_assistant.providers.lmstudio import LMStudioProvider
+from crew_assistant.providers.ollama import OllamaProvider
+from crew_assistant.providers.base import ChatMessage, ChatResponse
 
 
 def check_server_running(url: str) -> bool:
@@ -134,7 +134,7 @@ class TestBattleLMStudioProvider:
             "enable_caching": False,  # Disable for accurate timing
             "stream_timeout": 600,  # 10 minutes for streaming
         }
-        return LMStudioEnhancedProvider(config)
+        return LMStudioProvider(config)
 
     @pytest.fixture(scope="class")
     def battle_model(self, battle_provider):

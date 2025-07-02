@@ -20,11 +20,11 @@ from typing import Any, Dict, List, Optional
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.crew_assistant.core import create_crew_engine
-from src.crew_assistant.providers.registry import get_registry
-from src.crew_assistant.providers.lmstudio import LMStudioProvider
-from src.crew_assistant.providers.ollama import OllamaProvider
-from crew_test_tasks import get_task_bank, get_weights
+from crew_assistant.core import create_crew_engine
+from crew_assistant.providers.registry import get_registry
+from crew_assistant.providers.lmstudio import LMStudioProvider
+from crew_assistant.providers.ollama import OllamaProvider
+from tests.fixtures.crew_test_tasks import get_task_bank, get_weights
 
 # Configure comprehensive logging
 LOG_DIR = Path("test_logs") / f"crew_workflow_{datetime.now().strftime('%Y%m%d_%H%M%S')}"

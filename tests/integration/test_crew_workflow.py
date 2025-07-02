@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.crew_assistant.config import Settings
+from crew_assistant.config import Settings
 
 
 class TestCrewWorkflow:
@@ -14,7 +14,7 @@ class TestCrewWorkflow:
     @pytest.mark.integration
     def test_memory_persistence_workflow(self, test_settings: Settings, mock_crewai):
         """Test that crew runs properly persist memory."""
-        from core.context_engine.memory_store import MemoryStore
+        from crew_assistant.core.context_engine.memory_store import MemoryStore
 
         memory_store = MemoryStore()
 
@@ -44,7 +44,7 @@ class TestCrewWorkflow:
     @pytest.mark.integration
     def test_agent_registry_discovery(self, test_settings: Settings):
         """Test agent registry can discover agents."""
-        from core.agent_registry import discover_agents
+        from crew_assistant.core.agent_registry import discover_agents
 
         # This will test the actual agent discovery
         agents = discover_agents()
@@ -61,8 +61,8 @@ class TestCrewWorkflow:
     @pytest.mark.integration
     def test_fact_learning_integration(self, test_settings: Settings):
         """Test fact learning and storage integration."""
-        from core.context_engine.fact_store import FactStore
-        from utils.fact_learning import learn_fact_if_possible
+        from crew_assistant.core.context_engine.fact_store import FactStore
+        from crew_assistant.utils.fact_learning import learn_fact_if_possible
 
         fact_store = FactStore()
 
@@ -82,7 +82,7 @@ class TestCrewWorkflow:
     @pytest.mark.integration
     def test_model_selector_integration(self, test_settings: Settings, mock_requests):
         """Test model selector with mocked API."""
-        from utils.model_selector import select_model
+        from crew_assistant.utils.model_selector import select_model
 
         with patch("builtins.input", return_value="1"):
             result = select_model()

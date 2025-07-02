@@ -7,10 +7,10 @@ import pytest
 import requests
 from typing import List, Optional
 
-from providers.lmstudio_enhanced import LMStudioEnhancedProvider
-from providers.ollama_enhanced import OllamaEnhancedProvider
-from providers.registry_enhanced import get_registry, ModelRequirements
-from providers.base import ChatMessage, ChatResponse, ModelInfo
+# from crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
+# from crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
+# from crew_assistant.providers.registry_enhanced import get_registry, ModelRequirements  # TODO: Create enhanced providers
+from crew_assistant.providers.base import ChatMessage, ChatResponse, ModelInfo
 
 
 def check_server_running(url: str) -> bool:
