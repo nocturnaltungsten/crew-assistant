@@ -1,8 +1,8 @@
-# 🧠 Crew Assistant: Native Multi-Agent AI Orchestration Platform v0.3.0
+# 🧠 Crew Assistant: Native Multi-Agent AI Orchestration Platform v0.3.1
 
 ## Overview
 
-Crew Assistant is a **Experimental native multi-agent orchestration platform** designed for local-first AI workflows. Built from the ground up with a focus on modularity, performance, and extensibility, it provides a complete framework for structured agent collaboration using local large language models (LLMs).
+Crew Assistant is a **native multi-agent orchestration platform** designed for local-first AI workflows. Built from the ground up with a focus on modularity, performance, and extensibility, it provides a complete framework for structured agent collaboration using local large language models (LLMs).
 
 **Key Features:**
 * 🏗️ **Native Architecture** - No external AI framework dependencies
@@ -11,6 +11,7 @@ Crew Assistant is a **Experimental native multi-agent orchestration platform** d
 * 🏠 **Local-First** - Complete offline capability with LM Studio/Ollama support
 * 📊 **Revolutionary Numeric Ratings** - Non-blocking quality assessment (1-10 scale) with 100% workflow success
 * 🎯 **Performance Optimized** - 2-3 minute end-to-end workflows, efficient model detection
+* 🛠️ **Tool Calling System** - Agents can execute actions through a comprehensive tool framework
 
 ---
 
@@ -20,13 +21,20 @@ Crew Assistant is a **Experimental native multi-agent orchestration platform** d
 
 * **🎨 UX Agent**: User experience specialist and interaction coordinator
 * **📋 Planner Agent**: Strategic planning and task breakdown 
-* **💻 Developer Agent**: Implementation and coding specialist
+* **💻 Developer Agent**: Implementation and coding specialist with tool execution capabilities
 * **🔍 Reviewer Agent**: Non-blocking quality assessment with numeric ratings (1-10 scale)
 
 **Workflow Pattern:**
 ```
-User Request → UX Analysis → Planning → Development → Quality Assessment (Non-blocking) → Delivery
+User Request → UX Analysis → Planning → Development (with Tools) → Quality Assessment (Non-blocking) → Delivery
 ```
+
+**Tool Calling System (v0.3.1):**
+- **Action-Oriented**: Agents execute actions immediately without seeking permission
+- **Robust Parser**: Handles 8+ response formats (JSON, XML, function calls, natural language)
+- **File Operations**: Safe read/write/list operations with validation
+- **Extensible Framework**: Easy to add new tools through registry pattern
+- **Error Recovery**: Graceful handling of malformed tool calls
 
 **Revolutionary Quality Rating System (v0.3.0):**
 - **100% Workflow Completion**: Quality assessment never blocks progress
@@ -339,8 +347,16 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Status**: 🎯 **Optimization Phase** - Production-grade native multi-agent orchestration platform with comprehensive testing and validation systems
 
-## 🚀 Latest Updates (2025-07-01)
+## 🚀 Latest Updates
 
+### v0.3.1 (2025-07-02)
+- ✅ **Tool Calling System**: Comprehensive tool framework enabling agents to take actions
+- ✅ **Robust Tool Parser**: Handles 8+ response formats with confidence scoring
+- ✅ **File Operations**: Safe read/write/list operations with security validation
+- ✅ **Nuclear Prompt Strategy**: Overcomes LLM permission-seeking behavior
+- ✅ **Chat Memory**: Multi-turn contextual conversations for agents
+
+### v0.3.0 (2025-07-01)
 - ✅ **Numeric Ratings System**: Replaced binary validation with 1-10 scale quality assessment
 - ✅ **Non-Blocking Workflow**: Quality ratings collected for analytics without blocking execution
 - ✅ **Enhanced Quality Data**: Comprehensive 5-criteria rating system (completeness, quality, clarity, feasibility, alignment)

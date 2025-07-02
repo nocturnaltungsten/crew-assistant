@@ -1,4 +1,4 @@
-# 🏗️ Crew Assistant Architecture v0.3.0
+# 🏗️ Crew Assistant Architecture v0.3.1
 
 ## Overview
 
@@ -66,9 +66,40 @@ class BaseAgent:
     - model: str                  # Model identifier
     - config: AgentConfig         # Agent configuration
     - stats: AgentStats          # Performance metrics
+    - tool_registry: ToolRegistry # Available tools (v0.3.1)
     
     execute_task(context: TaskContext) -> AgentResult
     get_system_prompt() -> str    # Agent-specific prompt
+    execute_with_tools(prompt: str) -> AgentResult  # Tool-enabled execution
+```
+
+#### Tool Calling System (v0.3.1)
+
+**Core Components:**
+
+1. **Tool Registry** (`agents/tools.py`)
+   - Global tool registration and discovery
+   - Tool definitions with parameter schemas
+   - Execution framework with error handling
+   - OpenAI function calling format compatibility
+
+2. **Tool Parser** (`agents/tool_parser.py`)
+   - Multi-format parser (JSON, XML, function calls, natural language)
+   - Confidence-based parsing strategies
+   - Robust error recovery and malformed input handling
+   - Deduplication and validation
+
+3. **File Tools** (`agents/file_tools.py`)
+   - Safe file operations (read/write/list)
+   - System directory protection
+   - Path validation and size limits
+   - Comprehensive error messages
+
+**Tool Execution Flow:**
+```
+LLM Response → Parser → Tool Registry → Validation → Execution → Result Aggregation
+      ↓           ↓          ↓              ↓            ↓              ↓
+   Raw Text   Tool Calls  Tool Lookup  Parameters  Safe Execute  Agent Result
 ```
 
 #### Agent Implementations
@@ -90,6 +121,7 @@ class BaseAgent:
 - Technical solution design
 - Best practices application
 - Documentation generation
+- Tool execution capabilities (v0.3.1)
 
 **Reviewer Agent** (`agents/reviewer.py`)
 - Non-blocking quality assessment
@@ -190,11 +222,12 @@ User Input → UX Context → Planning Context → Development Context → Revie
 
 ## Performance Characteristics
 
-### Latency Budget (v0.3.0)
+### Latency Budget (v0.3.1)
 - **UX Response**: <15s for initial analysis
 - **Planning**: ~20s for strategy development
-- **Development**: ~35s for implementation
+- **Development**: ~35s for implementation (including tool execution)
 - **Review**: ~25s for quality assessment
+- **Tool Execution**: <100ms overhead per tool call
 - **Total E2E**: 2-3 minutes typical
 
 ### Resource Usage
@@ -285,10 +318,15 @@ User Input → UX Context → Planning Context → Development Context → Revie
 **Rationale**: Simpler implementation, predictable behavior
 **Trade-off**: Longer total execution time vs. complexity
 
+### 5. Tool Calling Architecture
+**Decision**: Implement comprehensive tool system with multi-format parser
+**Rationale**: Enable agents to take actions, not just generate text
+**Trade-off**: Added complexity vs. true agentic capabilities
+
 ## Conclusion
 
-The Crew Assistant architecture represents a pragmatic approach to multi-agent orchestration, prioritizing reliability, extensibility, and user experience. The v0.3.0 numeric ratings breakthrough transforms the system from a traditional gatekeeper to an insights-driven platform that guarantees task completion while providing rich quality analytics.
+The Crew Assistant architecture represents a pragmatic approach to multi-agent orchestration, prioritizing reliability, extensibility, and user experience. The v0.3.0 numeric ratings breakthrough transforms the system from a traditional gatekeeper to an insights-driven platform that guarantees task completion while providing rich quality analytics. The v0.3.1 tool calling system further evolves agents from passive responders to active task executors.
 
 ---
 
-*Architecture Version: 0.3.0 | Last Updated: 2025-07-02*
+*Architecture Version: 0.3.1 | Last Updated: 2025-07-02*
