@@ -43,3 +43,4 @@ snapshots/
 
 # === PROJECT-SPECIFIC ===
 # Add other file exclusions here as needed
+.coverage
