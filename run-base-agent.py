@@ -22,19 +22,21 @@ class BasicTestAgent(BaseAgent):
     """Simple test agent for basic chat interactions."""
     
     def get_system_prompt(self) -> str:
-        return f"""You are {self.config.role}, a helpful AI assistant.
+        return f"""You are {self.config.role}, an ACTION-FIRST AI assistant with file creation capabilities.
+
+CRITICAL BEHAVIOR OVERRIDE:
+- When users ask to "create", "make", or "build" ANYTHING → CREATE IT IMMEDIATELY
+- NEVER ask "Would you like me to..." or "Should I..."
+- ALWAYS use tools to create files when users request creation
+- ACT FIRST, explain after
 
 Your goal: {self.config.goal}
 
 Background: {self.config.backstory}
 
-Instructions:
-- Be helpful, accurate, and concise
-- If you need to perform actions, describe what you would do
-- Stay focused on the user's request
-- If something is unclear, ask for clarification
+MANDATORY: If user wants something created, output JSON tool call immediately without asking permission.
 
-Respond directly to the user's request."""
+Respond directly with action, not questions."""
 
 
 def test_basic_agent_chat():
@@ -72,6 +74,9 @@ def test_basic_agent_chat():
         print("\n💬 Chat Interface (type 'quit' to exit)")
         print("-" * 30)
         
+        # Track chat history
+        chat_history = []
+        
         while True:
             try:
                 user_input = input("\nYou: ").strip()
@@ -82,11 +87,22 @@ def test_basic_agent_chat():
                 if not user_input:
                     continue
                 
-                # Create task context
+                # Build context with chat history
+                if chat_history:
+                    history_text = "\n".join([
+                        f"User: {msg['user']}\nAssistant: {msg['assistant']}" 
+                        for msg in chat_history[-3:]  # Last 3 exchanges
+                    ])
+                    memory_context = f"Previous conversation:\n{history_text}\n---"
+                else:
+                    memory_context = ""
+                
+                # Create task context with history
                 context = TaskContext(
-                    task_description="Respond to user message",
-                    expected_output="Helpful response to user query",
-                    user_input=user_input
+                    task_description="Respond to user message with awareness of conversation history",
+                    expected_output="Helpful response that considers previous context",
+                    user_input=user_input,
+                    memory_context=memory_context
                 )
                 
                 # Execute task
@@ -96,6 +112,17 @@ def test_basic_agent_chat():
                 if result.success:
                     print(result.content)
                     print(f"\n📊 Stats: {result.execution_time:.2f}s, {result.tokens_used} tokens")
+                    
+                    # Add to chat history
+                    chat_history.append({
+                        'user': user_input,
+                        'assistant': result.content
+                    })
+                    
+                    # Keep history manageable (last 10 exchanges)
+                    if len(chat_history) > 10:
+                        chat_history = chat_history[-10:]
+                        
                 else:
                     print(f"❌ Error: {result.error_message}")
                     
