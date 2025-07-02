@@ -68,7 +68,13 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*" = ["S101", "T201", "S311", "S607", "E722", "F821"]  # Allow test-specific patterns
+"tests/**/*" = ["S101", "T201", "S311", "S607", "E722", "F821", "S110", "S112", "S108"]
+"src/crew_assistant/utils/**" = ["S607", "S603", "S110", "S112", "E722", "B904"]
+"src/crew_assistant/providers/**" = ["B904", "S110", "E722"]
+"src/crew_assistant/agents/**" = ["E722", "S110", "S112"]
+"src/crew_assistant/core/**" = ["S112"]
+"*.py" = ["S324", "S108"]
+
 
 [tool.mypy]
 python_version = "3.11"

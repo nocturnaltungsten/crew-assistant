@@ -5,15 +5,15 @@ import datetime
 import json
 import os
 import uuid
-
 from dataclasses import asdict, dataclass
 from typing import Any
+
+from crew_assistant.providers.registry import get_registry
 
 from ..agents import create_crew
 from ..providers import get_provider
 from ..workflows import SequentialWorkflow, WorkflowResult
 from .context_engine.memory_store import MemoryStore
-from crew_assistant.providers.registry import get_registry
 
 
 @dataclass

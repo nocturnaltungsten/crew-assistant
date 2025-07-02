@@ -3,10 +3,8 @@
 
 import pathlib
 
-from .tools import BaseTool, ToolCallStatus, ToolParameter, ToolResult
-
 # Register tools with default registry
-from .tools import default_registry
+from .tools import BaseTool, ToolCallStatus, ToolParameter, ToolResult, default_registry
 
 
 class ReadFileTool(BaseTool):
