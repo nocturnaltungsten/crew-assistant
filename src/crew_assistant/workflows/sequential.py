@@ -1,6 +1,7 @@
 # Sequential Workflow Implementation
 # Research → Plan → Develop → Review workflow with feedback loops
 
+from typing import Any
 
 from ..agents.base import AgentResult, BaseAgent
 from .base import BaseWorkflow, TaskContext, WorkflowStep
@@ -9,7 +10,7 @@ from .base import BaseWorkflow, TaskContext, WorkflowStep
 class SequentialWorkflow(BaseWorkflow):
     """Sequential workflow: UX → Planner → Developer → Reviewer with quality gates."""
 
-    def __init__(self, agents: dict[str, BaseAgent], **kwargs):
+    def __init__(self, agents: dict[str, BaseAgent], **kwargs: Any) -> None:
         """Initialize sequential workflow."""
         required_agents = {"UX", "Planner", "Developer", "Reviewer"}
         available_agents = set(agents.keys())

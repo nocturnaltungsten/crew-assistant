@@ -1,6 +1,7 @@
 # UX Agent Implementation
 # User experience and interaction specialist
 
+from typing import Any
 
 from ..providers.base import BaseProvider, ChatMessage
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
@@ -10,8 +11,8 @@ class UXAgent(BaseAgent):
     """UX agent for handling user interactions and experience."""
 
     def __init__(
-        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
-    ):
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs: Any
+    ) -> None:
         """Initialize UXAgent with default configuration."""
         if config is None:
             config = AgentConfig(

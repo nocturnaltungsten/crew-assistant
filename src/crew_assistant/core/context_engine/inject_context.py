@@ -5,11 +5,11 @@ from .memory_store import MemoryStore
 
 
 class ContextInjector:
-    def __init__(self, memory=None, factstore=None):
+    def __init__(self, memory: MemoryStore | None = None, factstore: FactStore | None = None) -> None:
         self.memory = memory or MemoryStore()
         self.facts = factstore or FactStore()
 
-    def get_context(self, agent="UX", max_items=5):
+    def get_context(self, agent: str = "UX", max_items: int = 5) -> str:
         """
         Build a context block containing recent memory and known facts.
         """

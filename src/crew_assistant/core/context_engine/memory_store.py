@@ -13,7 +13,7 @@ class MemoryStore:
     def __init__(self) -> None:
         self.store: list[dict] = []
 
-    def save(self, agent: str, input_summary: str, output_summary: str, task_id: str | None = None):
+    def save(self, agent: str, input_summary: str, output_summary: str, task_id: str | None = None) -> None:
         """
         Save a memory snapshot.
         """

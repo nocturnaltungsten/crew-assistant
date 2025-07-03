@@ -43,7 +43,7 @@ def categorize_model_compatibility(model_id: str) -> tuple[str, str]:
     return "❓ Unknown", "May need testing - try UX mode first"
 
 
-def test_model_compatibility(model_id: str = None) -> tuple[bool, str]:
+def test_model_compatibility(model_id: str | None = None) -> tuple[bool, str]:
     """Test if a model supports the chat completion format needed by CrewAI."""
     if model_id:
         os.environ["OPENAI_API_MODEL"] = model_id
@@ -97,7 +97,7 @@ def get_available_models() -> list[dict[str, str]]:
         return []
 
 
-def select_model():
+def select_model() -> str | None:
     """
     Interactively select a model with compatibility information.
     Shows compatibility status and tests selected model.

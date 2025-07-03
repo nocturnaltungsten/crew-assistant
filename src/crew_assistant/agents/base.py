@@ -3,9 +3,12 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from ..providers import BaseProvider, ChatMessage
+
+if TYPE_CHECKING:
+    from .tools import ToolResult
 
 
 @dataclass
@@ -82,7 +85,7 @@ class AgentResult:
     tokens_used: int | None = None
     success: bool = True
     error_message: str | None = None
-    tool_calls_executed: list["ToolResult"] = field(default_factory=list)
+    tool_calls_executed: list[Any] = field(default_factory=list)  # Actually list[ToolResult]
     tool_call_count: int = 0
 
     def __str__(self) -> str:
@@ -103,8 +106,8 @@ class BaseAgent(ABC):
         self.memory = None  # Will implement if needed
 
         # Tool system (imported here to avoid circular imports)
-        self._tool_registry = None
-        self._tool_parser = None
+        self._tool_registry: Any | None = None
+        self._tool_parser: Any | None = None
 
     @abstractmethod
     def get_system_prompt(self) -> str:

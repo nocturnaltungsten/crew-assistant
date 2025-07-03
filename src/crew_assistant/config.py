@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 
 from loguru import logger
-from pydantic import ConfigDict, Field, field_validator, model_validator
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -62,7 +62,7 @@ class Settings(BaseSettings):
         return v.upper()
 
     @model_validator(mode="after")
-    def resolve_paths(self):
+    def resolve_paths(self) -> "Settings":
         """Resolve relative paths against base_dir."""
         path_fields = ["memory_dir", "facts_dir", "snapshots_dir", "crew_runs_dir"]
 
@@ -95,7 +95,7 @@ class Settings(BaseSettings):
                 logger.error(f"Failed to create directory {directory}: {e}")
                 raise
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,

@@ -1,6 +1,8 @@
 # Developer Agent
 # Implementation and coding specialist
 
+from typing import Any
+
 from ..providers import BaseProvider
 from .base import AgentConfig, BaseAgent
 
@@ -8,7 +10,7 @@ from .base import AgentConfig, BaseAgent
 class DeveloperAgent(BaseAgent):
     """Developer agent for implementing solutions and writing code."""
 
-    def __init__(self, provider: BaseProvider, model: str, **kwargs):
+    def __init__(self, provider: BaseProvider, model: str, **kwargs: Any) -> None:
         config = AgentConfig(
             role="Developer",
             goal="Implement working solutions with clean, well-documented code",

@@ -284,10 +284,9 @@ class BaseProvider(ABC):
             if isinstance(result, BaseException):
                 responses.append(
                     ChatResponse(
-                        content="",
+                        content=f"Error: {str(result)}",
                         model="unknown",
                         provider=self.name,
-                        error=str(result),
                         tokens_used=0,
                         response_time=0.0,
                     )

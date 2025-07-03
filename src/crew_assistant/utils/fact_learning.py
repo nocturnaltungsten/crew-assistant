@@ -6,7 +6,7 @@ import re
 from crew_assistant.core.context_engine.fact_store import FactStore
 
 
-def learn_fact_if_possible(text, fact_store=None):
+def learn_fact_if_possible(text: str, fact_store: FactStore | None = None) -> dict[str, str]:
     """
     Extract facts from text using regex patterns.
 
@@ -44,7 +44,7 @@ def learn_fact_if_possible(text, fact_store=None):
     return extracted_facts
 
 
-def build_memory_context(memory_dir="memory/memory_store", limit=10):
+def build_memory_context(memory_dir: str = "memory/memory_store", limit: int = 10) -> str:
     """
     Build context string from recent memory entries.
 

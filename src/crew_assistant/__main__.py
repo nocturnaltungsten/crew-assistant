@@ -82,9 +82,9 @@ Examples:
         print("No AI provider configured. Let's set that up!")
         print()
 
-        result = interactive_provider_setup()
-        if result:
-            model_id, provider_name, api_base = result
+        setup_result = interactive_provider_setup()
+        if setup_result:
+            model_id, provider_name, api_base = setup_result
             # Set environment variables for current session
             os.environ["OPENAI_API_MODEL"] = model_id
             os.environ["OPENAI_API_BASE"] = api_base

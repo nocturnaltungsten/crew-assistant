@@ -23,7 +23,7 @@ class FactStore:
         with open(FACT_FILE, "w") as f:
             json.dump(self.facts, f, indent=2)
 
-    def set(self, key: str, value: str):
+    def set(self, key: str, value: str) -> None:
         self.facts[key] = value
         self.save()
 

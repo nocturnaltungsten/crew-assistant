@@ -1,6 +1,8 @@
 # Planner Agent
 # Strategic planning and task breakdown specialist
 
+from typing import Any
+
 from ..providers import BaseProvider
 from .base import AgentConfig, BaseAgent
 
@@ -8,7 +10,7 @@ from .base import AgentConfig, BaseAgent
 class PlannerAgent(BaseAgent):
     """Strategic planner agent for breaking down complex tasks."""
 
-    def __init__(self, provider: BaseProvider, model: str, **kwargs):
+    def __init__(self, provider: BaseProvider, model: str, **kwargs: Any) -> None:
         config = AgentConfig(
             role="Planner",
             goal="Break down high-level goals into manageable sub-tasks",

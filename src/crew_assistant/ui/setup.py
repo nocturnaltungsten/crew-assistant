@@ -208,6 +208,9 @@ def select_model_from_provider(provider_name: str) -> tuple[str, str] | None:
 
     # Get provider instance
     provider = get_provider(provider_name)
+    if not provider:
+        print(f"❌ Failed to get provider: {provider_name}")
+        return None
 
     try:
         models = provider.list_models()
@@ -254,7 +257,10 @@ def select_model_from_provider(provider_name: str) -> tuple[str, str] | None:
             print(f"\n🧪 Testing model '{model_id}'...")
 
             # Test the model
-            is_compatible, message = provider.test_model(model_id)
+            if provider:
+                is_compatible, message = provider.test_model(model_id)
+            else:
+                is_compatible, message = False, "Provider not available"
 
             if is_compatible:
                 print(f"✅ {message}")
