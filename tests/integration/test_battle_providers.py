@@ -115,41 +115,43 @@ class EventProcessor:
     return full_context[:chars_needed]
 
 
+@pytest.fixture(scope="module")
+def battle_provider():
+    """Create provider configured for battle testing."""
+    if not check_server_running("http://localhost:1234/v1/models"):
+        pytest.skip("LM Studio server not running on localhost:1234")
+
+    config = {
+        "base_url": "http://localhost:1234/v1",
+        "timeout": 300,  # 5 minutes for large requests
+        "connection_pool_size": 10,
+        "enable_streaming": True,
+        "enable_caching": False,  # Disable for accurate timing
+        "stream_timeout": 600,  # 10 minutes for streaming
+    }
+    return LMStudioProvider(config)
+
+
+@pytest.fixture(scope="module")
+def battle_model(battle_provider):
+    """Get suitable model for battle testing."""
+    models = battle_provider.list_models()
+
+    # Find 8B model for testing
+    for model in models:
+        if (
+            "8b" in model.id.lower()
+            and model.compatibility == "compatible"
+            and "embed" not in model.id.lower()
+        ):
+            print(f"🎯 Selected battle model: {model.id}")
+            return model.id
+
+    pytest.skip("No suitable 8B model for battle testing")
+
+
 class TestBattleLMStudioProvider:
     """BATTLE tests with real token loads."""
-
-    @pytest.fixture(scope="class")
-    def battle_provider(self):
-        """Create provider configured for battle testing."""
-        if not check_server_running("http://localhost:1234/v1/models"):
-            pytest.skip("LM Studio server not running on localhost:1234")
-
-        config = {
-            "base_url": "http://localhost:1234/v1",
-            "timeout": 300,  # 5 minutes for large requests
-            "connection_pool_size": 10,
-            "enable_streaming": True,
-            "enable_caching": False,  # Disable for accurate timing
-            "stream_timeout": 600,  # 10 minutes for streaming
-        }
-        return LMStudioProvider(config)
-
-    @pytest.fixture(scope="class")
-    def battle_model(self, battle_provider):
-        """Get suitable model for battle testing."""
-        models = battle_provider.list_models()
-
-        # Find 8B model for testing
-        for model in models:
-            if (
-                "8b" in model.id.lower()
-                and model.compatibility == "compatible"
-                and "embed" not in model.id.lower()
-            ):
-                print(f"🎯 Selected battle model: {model.id}")
-                return model.id
-
-        pytest.skip("No suitable 8B model for battle testing")
 
     @pytest.mark.parametrize("token_count", [10000, 20000, 30000])
     def test_battle_large_context(self, battle_provider, battle_model, token_count):

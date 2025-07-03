@@ -9,7 +9,7 @@ from ..providers import BaseProvider, ChatMessage
 
 
 @dataclass
-class ToolResult:
+class SimpleToolResult:
     success: bool
     result: Any
     error: str | None = None
@@ -112,7 +112,7 @@ class BaseAgent(ABC):
         pass
 
     @property
-    def tool_registry(self):
+    def tool_registry(self) -> Any:
         """Get tool registry, initializing if needed."""
         if self._tool_registry is None:
             from .tools import default_registry
@@ -121,7 +121,7 @@ class BaseAgent(ABC):
         return self._tool_registry
 
     @property
-    def tool_parser(self):
+    def tool_parser(self) -> Any:
         """Get tool parser, initializing if needed."""
         if self._tool_parser is None:
             from .tool_parser import ToolCallParser
@@ -271,7 +271,7 @@ class BaseAgent(ABC):
 
         return tool_name in self.config.allowed_tools
 
-    def execute_tool_calls(self, response_text: str) -> list["ToolResult"]:
+    def execute_tool_calls(self, response_text: str) -> list[Any]:
         """Parse and execute tool calls from LLM response."""
         if not self.config.tools_enabled:
             return []

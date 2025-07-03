@@ -130,7 +130,7 @@ def get_settings() -> Settings:
         )
 
         logger.info(f"Crew Assistant v{os.getenv('CREW_ASSISTANT_VERSION', '0.2.0')} initialized")
-        logger.debug(f"Configuration: {_settings.dict(exclude={'openai_api_key'})}")
+        logger.debug(f"Configuration: {_settings.model_dump(exclude={'openai_api_key'})}")
 
     return _settings
 

@@ -83,33 +83,7 @@ def mock_requests():
     requests.get = original_get
 
 
-@pytest.fixture
-def mock_crewai():
-    """Mock CrewAI components for testing."""
-    from unittest.mock import patch
-
-    mock_agent = Mock()
-    mock_agent.role = "TestAgent"
-    mock_agent.__class__.__name__ = "TestAgent"
-
-    mock_task = Mock()
-    mock_task.id = "test-task-123"
-    mock_task.output.content = "Test output"
-
-    mock_crew = Mock()
-    mock_crew.kickoff.return_value = "Test crew result"
-    mock_crew.tasks = [mock_task]
-
-    with (
-        patch("crewai.Agent", return_value=mock_agent),
-        patch("crewai.Task", return_value=mock_task),
-        patch("crewai.Crew", return_value=mock_crew),
-    ):
-        yield {
-            "agent": mock_agent,
-            "task": mock_task,
-            "crew": mock_crew,
-        }
+# Removed mock_crewai fixture - no longer needed as project doesn't use CrewAI
 
 
 @pytest.fixture

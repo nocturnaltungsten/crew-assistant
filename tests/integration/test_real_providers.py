@@ -6,10 +6,10 @@
 import pytest
 import requests
 
-# from crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
-# from crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
-# from crew_assistant.providers.registry_enhanced import get_registry, ModelRequirements  # TODO: Create enhanced providers
 from crew_assistant.providers.base import ChatMessage, ChatResponse, ModelInfo
+from crew_assistant.providers.lmstudio import LMStudioProvider
+from crew_assistant.providers.ollama import OllamaProvider
+from crew_assistant.providers.registry import ModelRequirements, get_registry
 
 
 def check_server_running(url: str) -> bool:
@@ -92,7 +92,7 @@ class TestRealLMStudioIntegration:
             "enable_streaming": True,
             "enable_caching": True,
         }
-        return LMStudioEnhancedProvider(config)
+        return LMStudioProvider(config)
 
     @pytest.fixture(scope="class")
     def available_model(self, lmstudio_provider):
@@ -297,7 +297,7 @@ class TestRealOllamaIntegration:
             "enable_streaming": True,
             "enable_caching": True,
         }
-        return OllamaEnhancedProvider(config)
+        return OllamaProvider(config)
 
     @pytest.fixture(scope="class")
     def ollama_model(self, ollama_provider):

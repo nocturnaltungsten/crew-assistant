@@ -7,7 +7,7 @@ try:
     from .compute_throttling import print_gpu_status, set_gpu_power_limit
 except ImportError:
     # For standalone execution
-    from compute_throttling import print_gpu_status, set_gpu_power_limit
+    from crew_assistant.utils.compute_throttling import print_gpu_status, set_gpu_power_limit
 
 
 def get_testing_provider_config(provider_type: str = "lmstudio") -> dict[str, Any]:

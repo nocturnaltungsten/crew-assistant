@@ -12,7 +12,7 @@ class TestCrewWorkflow:
     """Test complete crew workflow integration."""
 
     @pytest.mark.integration
-    def test_memory_persistence_workflow(self, test_settings: Settings, mock_crewai):
+    def test_memory_persistence_workflow(self, test_settings: Settings):
         """Test that crew runs properly persist memory."""
         from crew_assistant.core.context_engine.memory_store import MemoryStore
 

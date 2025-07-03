@@ -36,7 +36,7 @@ jobs:
         run: uv run ruff check .
       
       - name: Run mypy
-        run: uv run mypy crew_assistant/ core/ utils/ agents/
+        run: uv run mypy src/crew_assistant/
 
   test:
     name: Test Suite
@@ -62,7 +62,7 @@ jobs:
         run: uv sync --group dev
       
       - name: Run unit tests
-        run: uv run python -m pytest tests/unit/ -v --cov=crew_assistant --cov=core --cov=utils --cov-report=xml
+        run: uv run python -m pytest tests/unit/ -v --cov=crew_assistant --cov-report=xml
         env:
           LM_TIMEOUT: "60"  # Override problematic env var
       
@@ -102,7 +102,7 @@ jobs:
         continue-on-error: true  # Don't fail build on security warnings
       
       - name: Run bandit security scan
-        run: uv run bandit -r crew_assistant/ core/ utils/ -f json -o bandit-report.json
+        run: uv run bandit -r src/crew_assistant/ -f json -o bandit-report.json
         continue-on-error: true
 
   system-test:

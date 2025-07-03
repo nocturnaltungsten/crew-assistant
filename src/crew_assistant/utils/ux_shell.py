@@ -6,16 +6,16 @@ import json
 import os
 import uuid
 
-from core.context_engine.memory_store import MemoryStore
+from crew_assistant.core.context_engine.memory_store import MemoryStore
 from crewai import Crew, Task
-from utils.fact_learning import build_memory_context, learn_fact_if_possible
+from crew_assistant.utils.fact_learning import build_memory_context, learn_fact_if_possible
 
 
 # Import UX agent creation function
 def get_ux_agent():
     """Get UX agent with current configuration."""
     try:
-        from agents.ux import get_llm
+        from crew_assistant.agents.ux import get_llm
         from crewai import Agent
 
         return Agent(
@@ -46,7 +46,7 @@ def run_ux_shell(raw_mode=False):
     # Check if provider is configured, if not, prompt for setup
     if not os.getenv("AI_PROVIDER") or not os.getenv("OPENAI_API_MODEL"):
         print("🔧 No AI provider configured. Let's set one up!")
-        from utils.provider_selector import interactive_setup
+        from crew_assistant.utils.provider_selector import interactive_setup
 
         result = interactive_setup()
         if result:
@@ -65,7 +65,7 @@ def run_ux_shell(raw_mode=False):
     # Use direct Ollama integration for Ollama provider
     if provider == "ollama":
         print("🔄 Using direct Ollama integration (bypassing CrewAI)...")
-        from utils.simple_ollama_chat import run_simple_ollama_ux
+        from crew_assistant.utils.simple_ollama_chat import run_simple_ollama_ux
 
         run_simple_ollama_ux()
         return

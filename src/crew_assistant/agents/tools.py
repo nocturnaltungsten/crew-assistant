@@ -38,11 +38,11 @@ class ToolDefinition:
 
     def to_openai_format(self) -> dict[str, Any]:
         """Convert to OpenAI function calling format."""
-        properties = {}
-        required = []
+        properties: dict[str, dict[str, Any]] = {}
+        required: list[str] = []
 
         for param in self.parameters:
-            prop_def = {"type": param.type, "description": param.description}
+            prop_def: dict[str, Any] = {"type": param.type, "description": param.description}
 
             if param.enum_values:
                 prop_def["enum"] = param.enum_values
@@ -71,12 +71,12 @@ class ToolCall:
     raw_text: str = ""  # Original text that was parsed
     confidence: float = 1.0  # Parser confidence in the call (0-1)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate tool call after initialization."""
-        if not self.tool_name:
-            raise ValueError("Tool name cannot be empty")
         if self.parameters is None:
             self.parameters = {}
+        if not self.tool_name:
+            raise ValueError("Tool name cannot be empty")
 
 
 @dataclass
@@ -105,7 +105,7 @@ class ToolResult:
 class BaseTool(ABC):
     """Abstract base class for all tools."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._definition: ToolDefinition | None = None
 
     @property
@@ -136,7 +136,7 @@ class BaseTool(ABC):
         return self._definition
 
     @abstractmethod
-    def execute(self, **kwargs) -> ToolResult:
+    def execute(self, **kwargs: Any) -> ToolResult:
         """Execute the tool with given parameters."""
         pass
 
@@ -199,7 +199,7 @@ class BaseTool(ABC):
 class ToolRegistry:
     """Registry for managing available tools."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._tools: dict[str, BaseTool] = {}
 
     def register(self, tool: BaseTool) -> None:

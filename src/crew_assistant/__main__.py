@@ -6,10 +6,11 @@ import os
 import sys
 
 from .core import create_crew_engine
+from .workflows.base import WorkflowResult
 from .ui import interactive_provider_setup, run_enhanced_ux_shell
 
 
-def main():
+def main() -> None:
     """Main entry point with argument parsing."""
     parser = argparse.ArgumentParser(
         description="Enhanced Crew Assistant - Modular AI orchestration platform",
@@ -45,8 +46,8 @@ Examples:
 
     # Direct crew execution
     if args.crew:
-        provider = args.provider or os.getenv("AI_PROVIDER")
-        model = args.model or os.getenv("OPENAI_API_MODEL")
+        provider = args.provider or os.getenv("AI_PROVIDER") or ""
+        model = args.model or os.getenv("OPENAI_API_MODEL") or ""
 
         if not provider or not model:
             print("❌ Provider and model must be configured.")
@@ -72,8 +73,8 @@ Examples:
         return
 
     # Default to enhanced UX shell - auto-run setup if not configured
-    provider = args.provider or os.getenv("AI_PROVIDER")
-    model = args.model or os.getenv("OPENAI_API_MODEL")
+    provider = args.provider or os.getenv("AI_PROVIDER") or ""
+    model = args.model or os.getenv("OPENAI_API_MODEL") or ""
 
     if not provider or not model:
         print("🚀 Enhanced Crew Assistant - First Time Setup")

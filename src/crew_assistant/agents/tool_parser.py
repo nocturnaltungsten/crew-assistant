@@ -22,7 +22,7 @@ class ParseResult:
 class ToolCallParser:
     """Extremely robust parser for tool calls in LLM responses."""
 
-    def __init__(self, registry: ToolRegistry = None):
+    def __init__(self, registry: ToolRegistry | None = None):
         self.registry = registry or default_registry
 
         # Common patterns for tool calls
@@ -332,8 +332,8 @@ class ToolCallParser:
 
     def _parse_natural_language(self, text: str) -> tuple[list[ToolCall], list[str], float]:
         """Parse natural language descriptions of tool calls - CONSERVATIVE approach."""
-        tool_calls = []
-        errors = []
+        tool_calls: list[ToolCall] = []
+        errors: list[str] = []
         confidence = 0.4
 
         # Only parse natural language if no structured formats were found
@@ -497,7 +497,7 @@ class ToolCallParser:
             # Look for "content": "..." patterns and escape internal quotes
             pattern = r'"content":\s*"([^"]*(?:\\"[^"]*)*)"'
 
-            def escape_content(match):
+            def escape_content(match: Any) -> str:
                 content = match.group(1)
                 # Escape any unescaped quotes
                 content = content.replace('\\"', "___TEMP_QUOTE___")  # Preserve already escaped
@@ -541,7 +541,7 @@ class ToolCallParser:
 
     def _parse_function_parameters(self, params_str: str) -> dict[str, Any]:
         """Parse function call parameters."""
-        params = {}
+        params: dict[str, Any] = {}
 
         if not params_str.strip():
             return params
@@ -549,7 +549,8 @@ class ToolCallParser:
         # Try parsing as JSON first
         try:
             if params_str.strip().startswith("{"):
-                return json.loads(params_str)
+                result: dict[str, Any] = json.loads(params_str)
+                return result
         except:
             pass
 

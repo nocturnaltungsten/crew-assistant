@@ -170,7 +170,7 @@ def get_gpu_info() -> dict | None:
         return None
 
 
-def print_gpu_status():
+def print_gpu_status() -> None:
     """Print current GPU status for monitoring."""
     gpu_info = get_gpu_info()
 

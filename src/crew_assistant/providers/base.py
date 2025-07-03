@@ -4,7 +4,7 @@
 import asyncio
 import time
 from abc import ABC, abstractmethod
-from collections.abc import AsyncIterator
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -132,18 +132,18 @@ class BaseProvider(ABC):
         )
 
     @abstractmethod
-    def chat(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
+    def chat(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
         """Send chat messages and get response."""
         pass
 
-    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
+    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
         """Async version of chat (default implementation runs sync in thread)."""
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.chat, messages, model, **kwargs)
 
     def chat_streaming(
-        self, messages: list[ChatMessage], model: str, **kwargs
-    ) -> AsyncIterator[ChatChunk]:
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> Iterator[ChatChunk]:
         """Stream chat response in chunks (override for native streaming)."""
         # Default implementation: convert regular response to single chunk
         response = self.chat(messages, model, **kwargs)
@@ -156,7 +156,7 @@ class BaseProvider(ABC):
             is_final=True,
         )
 
-    def chat_with_retry(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
+    def chat_with_retry(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
         """Chat with automatic retry logic and circuit breaker."""
         if self._is_circuit_breaker_open():
             raise ConnectionError(f"Circuit breaker open for {self.name} provider")
@@ -171,7 +171,7 @@ class BaseProvider(ABC):
                 if self.enable_caching and cache_key in self._response_cache:
                     cached_data = self._response_cache[cache_key]
                     if time.time() - cached_data["timestamp"] < self._cache_ttl:
-                        response = cached_data["response"]
+                        response: ChatResponse = cached_data["response"]
                         response.cached = True
                         response.response_time = time.time() - start_time
                         self._update_metrics(True, response.response_time)
@@ -276,7 +276,25 @@ class BaseProvider(ABC):
     ) -> list[ChatResponse]:
         """Async batch processing with concurrency."""
         tasks = [self.chat_async(messages, model, **kwargs) for messages, model, kwargs in requests]
-        return await asyncio.gather(*tasks, return_exceptions=True)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Convert exceptions to error responses
+        responses: list[ChatResponse] = []
+        for result in results:
+            if isinstance(result, BaseException):
+                responses.append(
+                    ChatResponse(
+                        content="",
+                        model="unknown",
+                        provider=self.name,
+                        error=str(result),
+                        tokens_used=0,
+                        response_time=0.0,
+                    )
+                )
+            else:
+                responses.append(result)
+        return responses
 
     @property
     def display_name(self) -> str:

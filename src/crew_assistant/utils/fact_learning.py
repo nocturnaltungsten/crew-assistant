@@ -3,7 +3,7 @@
 
 import re
 
-from core.context_engine.fact_store import FactStore
+from crew_assistant.core.context_engine.fact_store import FactStore
 
 
 def learn_fact_if_possible(text, fact_store=None):

@@ -53,7 +53,7 @@ class SummaryQueue:
         if len(self.queue) >= self.flush_limit:
             self.flush()
 
-    def flush(self):
+    def flush(self) -> None:
         """
         Flush the queue to disk and optionally to an external callback.
 

@@ -2,12 +2,14 @@
 # Modern shell interface for the new crew system
 
 import os
+from typing import Any
 
 from ..core import create_crew_engine
+from ..workflows.base import WorkflowResult
 from .setup import interactive_provider_setup
 
 
-def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
+def run_enhanced_ux_shell(provider: str | None = None, model: str | None = None) -> None:
     """Run the enhanced UX shell with the new crew system."""
 
     # Check if provider is configured, if not, prompt for setup
@@ -107,7 +109,7 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
             continue
 
 
-def _show_help():
+def _show_help() -> None:
     """Show help commands."""
     print("""
 🤖 Enhanced Crew Commands:
@@ -127,7 +129,7 @@ def _show_help():
 """)
 
 
-def _show_stats(engine):
+def _show_stats(engine: Any) -> None:
     """Show engine statistics."""
     stats = engine.stats
     print(f"""
@@ -143,7 +145,7 @@ def _show_stats(engine):
         print(f"  {role}: {agent_stats['executions']} executions")
 
 
-def _show_session_stats(engine):
+def _show_session_stats(engine: Any) -> None:
     """Show session summary."""
     stats = engine.stats
     print(f"""
@@ -155,7 +157,7 @@ def _show_session_stats(engine):
 """)
 
 
-def _handle_model_switch(engine, user_input):
+def _handle_model_switch(engine: Any, user_input: str) -> None:
     """Handle model switching."""
     parts = user_input.split(" ", 1)
     if len(parts) < 2:

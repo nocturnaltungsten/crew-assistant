@@ -2,6 +2,7 @@
 # Basic file read/write tools with safety checks
 
 import pathlib
+from typing import Any
 
 # Register tools with default registry
 from .tools import BaseTool, ToolCallStatus, ToolParameter, ToolResult, default_registry
@@ -43,10 +44,12 @@ class ReadFileTool(BaseTool):
             ),
         ]
 
-    def execute(
-        self, file_path: str, encoding: str = "utf-8", max_size_mb: float = 10
-    ) -> ToolResult:
+    def execute(self, **kwargs: Any) -> ToolResult:
         """Execute file read operation."""
+        file_path = kwargs.get("file_path", "")
+        encoding = kwargs.get("encoding", "utf-8")
+        max_size_mb = kwargs.get("max_size_mb", 10)
+        
         try:
             # Resolve path
             path = pathlib.Path(file_path).resolve()
@@ -146,10 +149,13 @@ class WriteFileTool(BaseTool):
             ),
         ]
 
-    def execute(
-        self, file_path: str, content: str, encoding: str = "utf-8", create_dirs: bool = False
-    ) -> ToolResult:
+    def execute(self, **kwargs: Any) -> ToolResult:
         """Execute file write operation."""
+        file_path = kwargs.get("file_path", "")
+        content = kwargs.get("content", "")
+        encoding = kwargs.get("encoding", "utf-8")
+        create_dirs = kwargs.get("create_dirs", False)
+        
         try:
             # Resolve path
             path = pathlib.Path(file_path).resolve()
@@ -243,10 +249,11 @@ class ListDirectoryTool(BaseTool):
             ),
         ]
 
-    def execute(
-        self, dir_path: str = ".", show_hidden: bool = False, show_details: bool = False
-    ) -> ToolResult:
+    def execute(self, **kwargs: Any) -> ToolResult:
         """Execute directory listing operation."""
+        dir_path = kwargs.get("dir_path", ".")
+        show_hidden = kwargs.get("show_hidden", False)
+        show_details = kwargs.get("show_details", False)
         try:
             # Resolve path
             path = pathlib.Path(dir_path).resolve()
@@ -319,7 +326,7 @@ class ListDirectoryTool(BaseTool):
             )
 
 
-def register_file_tools():
+def register_file_tools() -> None:
     """Register all file tools with the default registry."""
     default_registry.register(ReadFileTool())
     default_registry.register(WriteFileTool())
