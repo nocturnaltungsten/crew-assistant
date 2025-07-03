@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 
 from loguru import logger
-from pydantic import ConfigDict, Field, field_validator, model_validator
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -62,20 +62,20 @@ class Settings(BaseSettings):
         return v.upper()
 
     @model_validator(mode="after")
-    def resolve_paths(self):
+    def resolve_paths(self) -> "Settings":
         """Resolve relative paths against base_dir."""
         path_fields = ["memory_dir", "facts_dir", "snapshots_dir", "crew_runs_dir"]
-        
+
         for field_name in path_fields:
             path = getattr(self, field_name)
             if not isinstance(path, Path):
                 path = Path(path)
-            
+
             if not path.is_absolute():
                 path = self.base_dir / path
-                
+
             object.__setattr__(self, field_name, path)
-            
+
         return self
 
     def create_directories(self) -> None:
@@ -95,7 +95,7 @@ class Settings(BaseSettings):
                 logger.error(f"Failed to create directory {directory}: {e}")
                 raise
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
@@ -130,7 +130,7 @@ def get_settings() -> Settings:
         )
 
         logger.info(f"Crew Assistant v{os.getenv('CREW_ASSISTANT_VERSION', '0.2.0')} initialized")
-        logger.debug(f"Configuration: {_settings.dict(exclude={'openai_api_key'})}")
+        logger.debug(f"Configuration: {_settings.model_dump(exclude={'openai_api_key'})}")
 
     return _settings
 

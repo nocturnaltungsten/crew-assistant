@@ -3,7 +3,7 @@
 
 import os
 
-from ..providers import get_provider, list_all_models
+from ..providers import get_provider
 
 
 def interactive_provider_setup() -> tuple[str, str, str] | None:
@@ -110,7 +110,7 @@ def setup_assigned_tier_mode() -> tuple[str, str, str] | None:
             provider_config = _get_provider_config(last_provider)
             api_base = provider_config.get("base_url", "Unknown")
 
-            print(f"\n🎉 Assigned Tier Setup Complete!")
+            print("\n🎉 Assigned Tier Setup Complete!")
             print(f"Provider: {last_provider.title()}")
             print(f"Model: {last_model} (all tiers)")
             print(f"API Base: {api_base}")
@@ -208,6 +208,9 @@ def select_model_from_provider(provider_name: str) -> tuple[str, str] | None:
 
     # Get provider instance
     provider = get_provider(provider_name)
+    if not provider:
+        print(f"❌ Failed to get provider: {provider_name}")
+        return None
 
     try:
         models = provider.list_models()
@@ -254,7 +257,10 @@ def select_model_from_provider(provider_name: str) -> tuple[str, str] | None:
             print(f"\n🧪 Testing model '{model_id}'...")
 
             # Test the model
-            is_compatible, message = provider.test_model(model_id)
+            if provider:
+                is_compatible, message = provider.test_model(model_id)
+            else:
+                is_compatible, message = False, "Provider not available"
 
             if is_compatible:
                 print(f"✅ {message}")

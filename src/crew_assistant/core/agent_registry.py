@@ -7,7 +7,7 @@ from pathlib import Path
 AGENT_DIR = Path(__file__).parent.parent / "agents"
 
 
-def discover_agents():
+def discover_agents() -> dict:
     agents = {}
     for py_file in AGENT_DIR.glob("*.py"):
         if py_file.name.startswith("__") or py_file.name == "__init__.py":

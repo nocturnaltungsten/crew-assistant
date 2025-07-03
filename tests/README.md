@@ -21,6 +21,7 @@ Fast, isolated tests for individual components:
 - `test_config.py` - Configuration and settings validation
 - `test_context_router.py` - Context routing logic
 - `test_enhanced_providers.py` - Provider base functionality
+- `test_agents.py` - Agent base functionality
 
 ### Integration Tests (`integration/`)
 Tests for component interactions:
@@ -37,6 +38,14 @@ End-to-end application tests:
 Extended performance and reliability tests:
 - `long_duration_crew_test.py` - 139 tasks across 9 complexity levels
 - `long_duration_test.py` - Extended workflow scenarios
+
+### Tool Calling Tests
+Comprehensive testing for the tool calling system:
+- `test_tool_calling.py` - Tool registration, parsing, and execution tests
+  - Tests 8+ parsing formats (JSON, XML, function calls, natural language)
+  - Validates file operations safety
+  - Tests malformed input recovery
+  - Verifies agent integration
 
 ## Running Tests
 

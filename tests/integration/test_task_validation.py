@@ -2,7 +2,9 @@
 """Integration test for the task validation feature."""
 
 import os
+
 import pytest
+
 from crew_assistant.core import create_crew_engine
 
 

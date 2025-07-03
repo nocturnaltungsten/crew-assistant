@@ -120,7 +120,7 @@ class BaseWorkflow(ABC):
                 print(f"🔄 Workflow iteration {iteration}")
 
                 # Execute all steps
-                step_results = []
+                step_results: list[AgentResult] = []
                 for step in steps:
                     result = self._execute_step(step, step_results, user_request)
                     step.result = result

@@ -3,4 +3,5 @@
 
 if __name__ == "__main__":
     from src.crew_assistant.__main__ import main
+
     main()

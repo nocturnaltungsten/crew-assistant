@@ -2,22 +2,23 @@
 # Modern shell interface for the new crew system
 
 import os
+from typing import Any
 
-from ..core import create_crew_engine
-
+from ..core import CrewEngine, create_crew_engine
+from ..workflows.base import WorkflowResult
 from .setup import interactive_provider_setup
 
 
-def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
+def run_enhanced_ux_shell(provider: str | None = None, model: str | None = None) -> None:
     """Run the enhanced UX shell with the new crew system."""
 
     # Check if provider is configured, if not, prompt for setup
     if not provider or not model:
         if not os.getenv("AI_PROVIDER") or not os.getenv("OPENAI_API_MODEL"):
             print("🔧 No AI provider configured. Let's set one up!")
-            result = interactive_provider_setup()
-            if result:
-                model, provider, api_base = result
+            setup_result = interactive_provider_setup()
+            if setup_result:
+                model, provider, api_base = setup_result
                 # Set environment variables for current session
                 os.environ["OPENAI_API_MODEL"] = model
                 os.environ["OPENAI_API_BASE"] = api_base
@@ -32,7 +33,7 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
 
     # Create crew engine
     try:
-        engine = create_crew_engine(
+        engine: CrewEngine = create_crew_engine(
             provider=provider, model=model, verbose=True, save_sessions=True, memory_enabled=True
         )
     except Exception as e:
@@ -71,7 +72,7 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
 
             # Execute task with crew
             print("\n🚀 Deploying 4-agent crew...")
-            result = engine.execute_task(user_input)
+            result: WorkflowResult = engine.execute_task(user_input)
 
             if result.success:
                 print("\n✅ Task completed successfully!")
@@ -108,27 +109,27 @@ def run_enhanced_ux_shell(provider: str = None, model: str = None) -> None:
             continue
 
 
-def _show_help():
+def _show_help() -> None:
     """Show help commands."""
     print("""
 🤖 Enhanced Crew Commands:
 ─────────────────────────────
   help         Show this help
-  stats        Show crew statistics  
+  stats        Show crew statistics
   switch MODEL Switch to different model
   exit/quit/q  Exit the shell
 
 🧠 How it works:
   1. Researcher analyzes your request
-  2. Planner creates implementation roadmap  
+  2. Planner creates implementation roadmap
   3. Developer builds the solution
   4. Reviewer validates & may reject for revision
-  
+
   The crew will iterate up to 3 times until quality standards are met!
 """)
 
 
-def _show_stats(engine):
+def _show_stats(engine: Any) -> None:
     """Show engine statistics."""
     stats = engine.stats
     print(f"""
@@ -137,14 +138,14 @@ def _show_stats(engine):
   Session ID: {stats["session_id"][:8]}...
   Tasks Executed: {stats["tasks_executed"]}
   Success Rate: {stats["success_rate"]:.1%}
-  
+
 🤖 Agent Stats:
 """)
     for role, agent_stats in stats["crew_stats"].items():
         print(f"  {role}: {agent_stats['executions']} executions")
 
 
-def _show_session_stats(engine):
+def _show_session_stats(engine: Any) -> None:
     """Show session summary."""
     stats = engine.stats
     print(f"""
@@ -156,7 +157,7 @@ def _show_session_stats(engine):
 """)
 
 
-def _handle_model_switch(engine, user_input):
+def _handle_model_switch(engine: Any, user_input: str) -> None:
     """Handle model switching."""
     parts = user_input.split(" ", 1)
     if len(parts) < 2:

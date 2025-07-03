@@ -1,10 +1,10 @@
 # Commander Agent Implementation
 # Executive agent for review and evaluation
 
-from typing import Any, Dict
 
-from ..providers.base import BaseProvider, ChatMessage, ChatResponse
+from typing import Any
 
+from ..providers.base import BaseProvider, ChatMessage
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 
 
@@ -12,8 +12,8 @@ class CommanderAgent(BaseAgent):
     """Executive agent responsible for review, evaluation, and next steps."""
 
     def __init__(
-        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
-    ):
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs: Any
+    ) -> None:
         """Initialize CommanderAgent with default configuration."""
         if config is None:
             config = AgentConfig(

@@ -1,8 +1,9 @@
 # Reviewer Agent Implementation
 # Quality validation and deliverable review specialist
 
-from ..providers.base import BaseProvider, ChatMessage
+from typing import Any
 
+from ..providers.base import BaseProvider, ChatMessage
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 
 
@@ -10,8 +11,8 @@ class ReviewerAgent(BaseAgent):
     """Reviewer agent providing comprehensive quality assessment with numeric ratings (1-10 scale) across 5 criteria."""
 
     def __init__(
-        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
-    ):
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs: Any
+    ) -> None:
         """Initialize ReviewerAgent with default configuration."""
         if config is None:
             config = AgentConfig(

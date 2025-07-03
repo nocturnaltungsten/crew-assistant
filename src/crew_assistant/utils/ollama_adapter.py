@@ -13,7 +13,7 @@ class OllamaAdapter:
     def __init__(self, base_url: str = "http://localhost:11434"):
         self.base_url = base_url.rstrip("/")
 
-    def chat_completion(self, **kwargs) -> dict[str, Any]:
+    def chat_completion(self, **kwargs: Any) -> dict[str, Any]:
         """Convert OpenAI chat completion format to Ollama format."""
 
         # Extract OpenAI format parameters
@@ -65,7 +65,7 @@ class OllamaAdapter:
             raise Exception(f"Ollama API error: {e}")
 
 
-def setup_ollama_for_crewai():
+def setup_ollama_for_crewai() -> bool:
     """Set up environment to use Ollama with CrewAI."""
     provider = os.getenv("AI_PROVIDER", "").lower()
 
@@ -77,9 +77,8 @@ def setup_ollama_for_crewai():
         adapter = OllamaAdapter(os.getenv("OPENAI_API_BASE", "http://localhost:11434"))
 
         # Patch the chat completion method
-        original_create = openai.ChatCompletion.create
 
-        def ollama_create(*args, **kwargs):
+        def ollama_create(*args: Any, **kwargs: Any) -> dict[str, Any]:
             return adapter.chat_completion(**kwargs)
 
         openai.ChatCompletion.create = ollama_create

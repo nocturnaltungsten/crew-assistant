@@ -1,16 +1,16 @@
 # Testing Configuration Utilities
 # Optimize settings for testing with 8-14GB models
 
-from typing import Dict, Any, Optional
+from typing import Any
 
 try:
-    from .compute_throttling import set_gpu_power_limit, print_gpu_status
+    from .compute_throttling import print_gpu_status, set_gpu_power_limit
 except ImportError:
     # For standalone execution
-    from compute_throttling import set_gpu_power_limit, print_gpu_status
+    from crew_assistant.utils.compute_throttling import print_gpu_status, set_gpu_power_limit
 
 
-def get_testing_provider_config(provider_type: str = "lmstudio") -> Dict[str, Any]:
+def get_testing_provider_config(provider_type: str = "lmstudio") -> dict[str, Any]:
     """
     Get optimized provider configuration for testing.
 
@@ -51,7 +51,7 @@ def get_testing_provider_config(provider_type: str = "lmstudio") -> Dict[str, An
         raise ValueError(f"Unknown provider type: {provider_type}")
 
 
-def get_testing_model_requirements() -> Dict[str, Any]:
+def get_testing_model_requirements() -> dict[str, Any]:
     """
     Get model requirements optimized for testing.
 
@@ -66,7 +66,7 @@ def get_testing_model_requirements() -> Dict[str, Any]:
     }
 
 
-def get_testing_inference_params() -> Dict[str, Any]:
+def get_testing_inference_params() -> dict[str, Any]:
     """
     Get inference parameters optimized for testing.
 
@@ -82,7 +82,7 @@ def get_testing_inference_params() -> Dict[str, Any]:
     }
 
 
-def setup_testing_environment(gpu_throttle: bool = True, gpu_limit: int = 80) -> Dict[str, Any]:
+def setup_testing_environment(gpu_throttle: bool = True, gpu_limit: int = 80) -> dict[str, Any]:
     """
     Set up optimal testing environment.
 
@@ -169,7 +169,9 @@ def is_model_suitable_for_testing(model_id: str) -> bool:
     return True
 
 
-def print_testing_summary(model_used: str, response_time: float, tokens_used: Optional[int] = None):
+def print_testing_summary(
+    model_used: str, response_time: float, tokens_used: int | None = None
+) -> None:
     """
     Print a summary of testing results.
 

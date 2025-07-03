@@ -32,7 +32,7 @@ class SummaryQueue:
         self.flush_limit = flush_limit
         self.on_flush = on_flush
 
-    def add(self, content: str, source: str, metadata: dict | None = None):
+    def add(self, content: str, source: str, metadata: dict | None = None) -> None:
         """
         Add a content entry to the queue.
 
@@ -53,7 +53,7 @@ class SummaryQueue:
         if len(self.queue) >= self.flush_limit:
             self.flush()
 
-    def flush(self):
+    def flush(self) -> None:
         """
         Flush the queue to disk and optionally to an external callback.
 

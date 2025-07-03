@@ -10,11 +10,13 @@ import requests
 class SimpleOllamaChat:
     """Direct Ollama chat interface."""
 
-    def __init__(self, model="mistral:latest", base_url="http://localhost:11434"):
+    def __init__(
+        self, model: str = "mistral:latest", base_url: str = "http://localhost:11434"
+    ) -> None:
         self.model = model
         self.base_url = base_url.rstrip("/")
 
-    def chat(self, message: str, system_prompt: str = None) -> str:
+    def chat(self, message: str, system_prompt: str | None = None) -> str:
         """Send a chat message to Ollama and get response."""
 
         messages = []
@@ -38,19 +40,19 @@ class SimpleOllamaChat:
             response.raise_for_status()
 
             result = response.json()
-            return result.get("message", {}).get("content", "No response")
+            return str(result.get("message", {}).get("content", "No response"))
 
         except Exception as e:
             return f"Error: {e}"
 
 
-def run_simple_ollama_ux():
+def run_simple_ollama_ux() -> None:
     """Simple UX shell using direct Ollama integration."""
     import datetime
     import uuid
 
-    from core.context_engine.memory_store import MemoryStore
-    from utils.fact_learning import build_memory_context, learn_fact_if_possible
+    from crew_assistant.core.context_engine.memory_store import MemoryStore
+    from crew_assistant.utils.fact_learning import build_memory_context, learn_fact_if_possible
 
     memory = MemoryStore()
     session_id = str(uuid.uuid4())
@@ -72,7 +74,7 @@ When the user asks for complex tasks that require planning, development, or eval
 
 Examples of tasks to delegate:
 - Building applications or scripts
-- Project planning and implementation  
+- Project planning and implementation
 - Code review and evaluation
 - Multi-step technical workflows
 
@@ -86,12 +88,13 @@ For simple questions and conversations, respond normally as a helpful assistant.
                 break
 
             # Build context from memory
+            memory_context = "No recent context available"
             try:
-                memory_context = build_memory_context()
-                if not isinstance(memory_context, str):
-                    memory_context = "No recent context available"
+                context_result = build_memory_context()
+                if isinstance(context_result, str):
+                    memory_context = context_result
             except Exception:
-                memory_context = "No recent context available"
+                pass  # Keep default memory_context
 
             # Create full prompt with context
             full_message = f"""User said: '{user_input}'
@@ -127,7 +130,7 @@ Respond helpfully to the user's request."""
 
             # Store in memory
             try:
-                memory.store("UX", user_input, response)
+                memory.save("UX", user_input, response)
             except Exception:
                 # Skip memory storage if it fails
                 pass

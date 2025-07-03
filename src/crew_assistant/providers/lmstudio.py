@@ -4,8 +4,8 @@
 import asyncio
 import json
 import time
-from typing import Any, AsyncIterator, Dict, List, Optional
-from urllib.parse import urljoin
+from collections.abc import Iterator
+from typing import Any
 
 import httpx
 import requests
@@ -58,11 +58,11 @@ class LMStudioProvider(BaseProvider):
         self._sync_client.mount("https://", adapter)
 
         # Async client for streaming and async operations
-        self._async_client: Optional[httpx.AsyncClient] = None
+        self._async_client: httpx.AsyncClient | None = None
 
         logger.info(f"LM Studio provider initialized with pool size {self.connection_pool_size}")
 
-    def chat(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
+    def chat(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
         """Send chat messages to LM Studio with enhanced error handling."""
         start_time = time.time()
 
@@ -126,7 +126,7 @@ class LMStudioProvider(BaseProvider):
         except requests.exceptions.ConnectionError as e:
             logger.error(f"[{request_id}] LM Studio connection error: {e}")
             raise ConnectionError(f"Cannot connect to LM Studio at {self.base_url}: {e}")
-        except requests.exceptions.Timeout as e:
+        except requests.exceptions.Timeout:
             logger.error(f"[{request_id}] LM Studio timeout after {self.timeout}s")
             raise ProviderTimeoutError(f"LM Studio request timed out after {self.timeout}s")
         except requests.exceptions.HTTPError as e:
@@ -136,7 +136,7 @@ class LMStudioProvider(BaseProvider):
             if e.response and e.response.status_code == 404:
                 raise ModelNotFoundError(f"Model '{model}' not found in LM Studio")
             elif e.response and e.response.status_code == 429:
-                raise ConnectionError(f"LM Studio rate limit exceeded")
+                raise ConnectionError("LM Studio rate limit exceeded")
             raise ConnectionError(f"LM Studio HTTP error: {e}")
         except json.JSONDecodeError as e:
             logger.error(f"[{request_id}] Invalid JSON response from LM Studio: {e}")
@@ -145,7 +145,9 @@ class LMStudioProvider(BaseProvider):
             logger.error(f"[{request_id}] Unexpected LM Studio error: {e}")
             raise ConnectionError(f"LM Studio error: {e}")
 
-    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs) -> ChatResponse:
+    async def chat_async(
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> ChatResponse:
         """Async chat with LM Studio using connection pooling."""
         if not self._async_client:
             self._async_client = httpx.AsyncClient(
@@ -220,76 +222,20 @@ class LMStudioProvider(BaseProvider):
         except Exception as e:
             raise ConnectionError(f"LM Studio async error: {e}")
 
-    async def chat_streaming(
-        self, messages: list[ChatMessage], model: str, **kwargs
-    ) -> AsyncIterator[ChatChunk]:
-        """Stream chat response from LM Studio."""
-        if not self._async_client:
-            self._async_client = httpx.AsyncClient(
-                timeout=httpx.Timeout(self.stream_timeout),
-                limits=httpx.Limits(
-                    max_keepalive_connections=self.connection_pool_size,
-                    max_connections=self.connection_pool_size * 2,
-                ),
-            )
-
-        openai_messages = [{"role": msg.role, "content": msg.content} for msg in messages]
-
-        payload = {
-            "model": model,
-            "messages": openai_messages,
-            "max_tokens": kwargs.get("max_tokens", 500),
-            "temperature": kwargs.get("temperature", 0.7),
-            "top_p": kwargs.get("top_p", 0.9),
-            "stream": True,
-        }
-
-        request_id = f"lms_stream_{int(time.time() * 1000)}"
-        logger.debug(f"[{request_id}] Starting streaming request")
-
-        try:
-            async with self._async_client.stream(
-                "POST",
-                f"{self.base_url}/chat/completions",
-                json=payload,
-                headers={"Authorization": f"Bearer {self.api_key}"},
-            ) as response:
-                response.raise_for_status()
-
-                async for line in response.aiter_lines():
-                    if line.startswith("data: "):
-                        data = line[6:].strip()
-
-                        if data == "[DONE]":
-                            yield ChatChunk(
-                                content="",
-                                model=model,
-                                provider="lmstudio",
-                                finish_reason="completed",
-                                is_final=True,
-                            )
-                            break
-
-                        try:
-                            chunk_data = json.loads(data)
-                            choice = chunk_data.get("choices", [{}])[0]
-                            delta = choice.get("delta", {})
-                            content = delta.get("content", "")
-
-                            if content:
-                                yield ChatChunk(
-                                    content=content,
-                                    model=model,
-                                    provider="lmstudio",
-                                    finish_reason=choice.get("finish_reason"),
-                                    is_final=False,
-                                )
-                        except json.JSONDecodeError:
-                            continue  # Skip malformed chunks
-
-        except Exception as e:
-            logger.error(f"[{request_id}] Streaming error: {e}")
-            raise ConnectionError(f"LM Studio streaming error: {e}")
+    def chat_streaming(
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> Iterator[ChatChunk]:
+        """Stream chat response from LM Studio (fallback to non-streaming)."""
+        # For sync compatibility, use non-streaming response
+        response = self.chat(messages, model, **kwargs)
+        yield ChatChunk(
+            content=response.content,
+            model=response.model,
+            provider=response.provider,
+            finish_reason=response.finish_reason,
+            tokens_used=response.tokens_used,
+            is_final=True,
+        )
 
     def list_models(self) -> list[ModelInfo]:
         """Get available models from LM Studio with enhanced metadata."""
@@ -370,7 +316,7 @@ class LMStudioProvider(BaseProvider):
             logger.error(f"LM Studio health check error: {e}")
             return False
 
-    def batch_chat(self, requests: List[tuple[list[ChatMessage], str, dict]]) -> List[ChatResponse]:
+    def batch_chat(self, requests: list[tuple[list[ChatMessage], str, dict]]) -> list[ChatResponse]:
         """Optimized batch processing for LM Studio."""
         logger.info(f"Processing batch of {len(requests)} requests")
         start_time = time.time()
@@ -397,8 +343,8 @@ class LMStudioProvider(BaseProvider):
         return responses
 
     async def batch_chat_async(
-        self, requests: List[tuple[list[ChatMessage], str, dict]]
-    ) -> List[ChatResponse]:
+        self, requests: list[tuple[list[ChatMessage], str, dict]]
+    ) -> list[ChatResponse]:
         """Async batch processing with concurrency control."""
         logger.info(f"Processing async batch of {len(requests)} requests")
 
@@ -424,7 +370,7 @@ class LMStudioProvider(BaseProvider):
 
         return await asyncio.gather(*tasks)
 
-    def get_model_info(self, model_id: str) -> Optional[ModelInfo]:
+    def get_model_info(self, model_id: str) -> ModelInfo | None:
         """Get detailed information about a specific model."""
         try:
             models = self.list_models()
@@ -436,7 +382,7 @@ class LMStudioProvider(BaseProvider):
             logger.error(f"Failed to get model info for {model_id}: {e}")
             return None
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         """Get LM Studio server information."""
         try:
             # Try to get server status
@@ -469,7 +415,7 @@ class LMStudioProvider(BaseProvider):
         if self._async_client:
             asyncio.create_task(self._async_client.aclose())
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Cleanup on destruction."""
         self.close()
 

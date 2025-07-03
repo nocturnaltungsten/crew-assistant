@@ -5,11 +5,12 @@ import argparse
 import os
 import sys
 
-from .core import create_crew_engine
+from .core import CrewEngine, create_crew_engine
 from .ui import interactive_provider_setup, run_enhanced_ux_shell
+from .workflows.base import WorkflowResult
 
 
-def main():
+def main() -> None:
     """Main entry point with argument parsing."""
     parser = argparse.ArgumentParser(
         description="Enhanced Crew Assistant - Modular AI orchestration platform",
@@ -32,9 +33,9 @@ Examples:
 
     # Provider and model setup
     if args.setup:
-        result = interactive_provider_setup()
-        if result:
-            model_id, provider, api_base = result
+        setup_result = interactive_provider_setup()
+        if setup_result:
+            model_id, provider, api_base = setup_result
             # Set environment variables for current session
             os.environ["OPENAI_API_MODEL"] = model_id
             os.environ["OPENAI_API_BASE"] = api_base
@@ -45,8 +46,8 @@ Examples:
 
     # Direct crew execution
     if args.crew:
-        provider = args.provider or os.getenv("AI_PROVIDER")
-        model = args.model or os.getenv("OPENAI_API_MODEL")
+        provider = args.provider or os.getenv("AI_PROVIDER") or ""
+        model = args.model or os.getenv("OPENAI_API_MODEL") or ""
 
         if not provider or not model:
             print("❌ Provider and model must be configured.")
@@ -54,10 +55,12 @@ Examples:
             return
 
         try:
-            engine = create_crew_engine(provider=provider, model=model, verbose=args.verbose)
+            engine: CrewEngine = create_crew_engine(
+                provider=provider, model=model, verbose=args.verbose
+            )
 
             print(f"🚀 Executing task with {provider}/{model}...")
-            result = engine.execute_task(args.crew)
+            result: WorkflowResult = engine.execute_task(args.crew)
 
             if result.success:
                 print("\n✅ Task completed successfully!")
@@ -72,8 +75,8 @@ Examples:
         return
 
     # Default to enhanced UX shell - auto-run setup if not configured
-    provider = args.provider or os.getenv("AI_PROVIDER")
-    model = args.model or os.getenv("OPENAI_API_MODEL")
+    provider = args.provider or os.getenv("AI_PROVIDER") or ""
+    model = args.model or os.getenv("OPENAI_API_MODEL") or ""
 
     if not provider or not model:
         print("🚀 Enhanced Crew Assistant - First Time Setup")
@@ -81,9 +84,9 @@ Examples:
         print("No AI provider configured. Let's set that up!")
         print()
 
-        result = interactive_provider_setup()
-        if result:
-            model_id, provider_name, api_base = result
+        setup_result = interactive_provider_setup()
+        if setup_result:
+            model_id, provider_name, api_base = setup_result
             # Set environment variables for current session
             os.environ["OPENAI_API_MODEL"] = model_id
             os.environ["OPENAI_API_BASE"] = api_base

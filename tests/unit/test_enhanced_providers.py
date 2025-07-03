@@ -1,28 +1,22 @@
 # Enhanced Provider Tests
 # Comprehensive testing for production-grade provider system
 
-import asyncio
-import json
 import time
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
-from typing import Any, Dict, List
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 import requests
-import httpx
 
 from crew_assistant.providers.base import (
     BaseProvider,
-    ChatChunk,
     ChatMessage,
     ChatResponse,
-    ModelInfo,
-    ProviderHealth,
-    ProviderMetrics,
     ConnectionError,
-    ModelNotFoundError,
+    ModelInfo,
     ProviderTimeoutError,
 )
+from crew_assistant.providers.registry import ModelRequirements, ProviderStatus
+
 # from src.crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
 # from src.crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
 # from src.crew_assistant.providers.registry_enhanced import (  # TODO: Create enhanced providers
@@ -721,7 +715,7 @@ class MockTestEnhancedProviderRegistry:
                 return True
 
         registry.register_provider("test", MockProvider, {})
-        provider = registry.get_provider("test")
+        registry.get_provider("test")
 
         # Simulate some requests
         registry._request_counts["test"] = 5

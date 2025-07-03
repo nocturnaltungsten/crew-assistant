@@ -14,16 +14,16 @@ class FactStore:
         self.facts: dict[str, str] = {}
         self._load()
 
-    def _load(self):
+    def _load(self) -> None:
         if os.path.isfile(FACT_FILE):
             with open(FACT_FILE) as f:
                 self.facts = json.load(f)
 
-    def save(self):
+    def save(self) -> None:
         with open(FACT_FILE, "w") as f:
             json.dump(self.facts, f, indent=2)
 
-    def set(self, key: str, value: str):
+    def set(self, key: str, value: str) -> None:
         self.facts[key] = value
         self.save()
 

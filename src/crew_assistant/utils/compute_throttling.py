@@ -3,7 +3,6 @@
 
 import subprocess
 import sys
-from typing import Optional
 
 
 def set_gpu_power_limit(limit_percent: int = 80) -> bool:
@@ -45,7 +44,7 @@ def set_gpu_power_limit(limit_percent: int = 80) -> bool:
 
             # Set power limit for each GPU
             success_count = 0
-            for i, (gpu_name, max_power) in enumerate(zip(gpu_names, current_limits)):
+            for i, (gpu_name, max_power) in enumerate(zip(gpu_names, current_limits, strict=False)):
                 target_power = max_power * (limit_percent / 100.0)
 
                 try:
@@ -126,7 +125,7 @@ def reset_gpu_power_limit() -> bool:
         return False
 
 
-def get_gpu_info() -> Optional[dict]:
+def get_gpu_info() -> dict | None:
     """
     Get current GPU information and power usage.
 
@@ -171,7 +170,7 @@ def get_gpu_info() -> Optional[dict]:
         return None
 
 
-def print_gpu_status():
+def print_gpu_status() -> None:
     """Print current GPU status for monitoring."""
     gpu_info = get_gpu_info()
 

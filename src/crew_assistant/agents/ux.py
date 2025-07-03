@@ -1,11 +1,9 @@
 # UX Agent Implementation
 # User experience and interaction specialist
 
-import os
-from typing import Any, Dict
+from typing import Any
 
-from ..providers.base import BaseProvider, ChatMessage, ChatResponse
-
+from ..providers.base import BaseProvider, ChatMessage
 from .base import AgentConfig, AgentResult, BaseAgent, TaskContext
 
 
@@ -13,8 +11,8 @@ class UXAgent(BaseAgent):
     """UX agent for handling user interactions and experience."""
 
     def __init__(
-        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs
-    ):
+        self, provider: BaseProvider, model: str, config: AgentConfig | None = None, **kwargs: Any
+    ) -> None:
         """Initialize UXAgent with default configuration."""
         if config is None:
             config = AgentConfig(
@@ -54,12 +52,12 @@ Guidelines:
 - For simple questions and chat, handle directly
 - Always be helpful and resourceful
 
-When you need to delegate complex tasks to the crew (Planner → Developer → Commander), 
+When you need to delegate complex tasks to the crew (Planner → Developer → Commander),
 start your response with "DELEGATE:" followed by your response.
 
 Examples of tasks to delegate:
 - Building applications or scripts
-- Project planning and implementation  
+- Project planning and implementation
 - Code review and evaluation
 - Multi-step technical workflows
 - Complex analysis or research

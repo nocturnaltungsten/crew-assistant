@@ -2,15 +2,14 @@
 # These tests connect to ACTUAL LM Studio and Ollama servers
 # MOCK TESTS ARE A MOCKERY! These tests are THE REAL DEAL!
 
-import asyncio
+
 import pytest
 import requests
-from typing import List, Optional
 
-# from crew_assistant.providers.lmstudio_enhanced import LMStudioEnhancedProvider  # TODO: Create enhanced providers
-# from crew_assistant.providers.ollama_enhanced import OllamaEnhancedProvider  # TODO: Create enhanced providers
-# from crew_assistant.providers.registry_enhanced import get_registry, ModelRequirements  # TODO: Create enhanced providers
 from crew_assistant.providers.base import ChatMessage, ChatResponse, ModelInfo
+from crew_assistant.providers.lmstudio import LMStudioProvider
+from crew_assistant.providers.ollama import OllamaProvider
+from crew_assistant.providers.registry import ModelRequirements, get_registry
 
 
 def check_server_running(url: str) -> bool:
@@ -22,7 +21,7 @@ def check_server_running(url: str) -> bool:
         return False
 
 
-def get_available_model(provider, exclude_embedding=True) -> Optional[str]:
+def get_available_model(provider, exclude_embedding=True) -> str | None:
     """Get the best available model for testing (prefer 8-14GB tool-trained models)."""
     try:
         models = provider.list_models()
@@ -93,7 +92,7 @@ class TestRealLMStudioIntegration:
             "enable_streaming": True,
             "enable_caching": True,
         }
-        return LMStudioEnhancedProvider(config)
+        return LMStudioProvider(config)
 
     @pytest.fixture(scope="class")
     def available_model(self, lmstudio_provider):
@@ -271,7 +270,7 @@ class TestRealLMStudioIntegration:
 
         # Make a real request
         messages = [ChatMessage(role="user", content="Test metrics")]
-        response = lmstudio_provider.chat(messages, available_model, max_tokens=10)
+        lmstudio_provider.chat(messages, available_model, max_tokens=10)
 
         # Check metrics were updated
         metrics = lmstudio_provider.get_metrics()
@@ -298,7 +297,7 @@ class TestRealOllamaIntegration:
             "enable_streaming": True,
             "enable_caching": True,
         }
-        return OllamaEnhancedProvider(config)
+        return OllamaProvider(config)
 
     @pytest.fixture(scope="class")
     def ollama_model(self, ollama_provider):
