@@ -136,7 +136,9 @@ class BaseProvider(ABC):
         """Send chat messages and get response."""
         pass
 
-    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
+    async def chat_async(
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> ChatResponse:
         """Async version of chat (default implementation runs sync in thread)."""
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.chat, messages, model, **kwargs)
@@ -156,7 +158,9 @@ class BaseProvider(ABC):
             is_final=True,
         )
 
-    def chat_with_retry(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
+    def chat_with_retry(
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> ChatResponse:
         """Chat with automatic retry logic and circuit breaker."""
         if self._is_circuit_breaker_open():
             raise ConnectionError(f"Circuit breaker open for {self.name} provider")

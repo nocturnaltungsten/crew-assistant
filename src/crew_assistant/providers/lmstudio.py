@@ -145,7 +145,9 @@ class LMStudioProvider(BaseProvider):
             logger.error(f"[{request_id}] Unexpected LM Studio error: {e}")
             raise ConnectionError(f"LM Studio error: {e}")
 
-    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
+    async def chat_async(
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> ChatResponse:
         """Async chat with LM Studio using connection pooling."""
         if not self._async_client:
             self._async_client = httpx.AsyncClient(

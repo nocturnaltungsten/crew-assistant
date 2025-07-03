@@ -10,7 +10,9 @@ import requests
 class SimpleOllamaChat:
     """Direct Ollama chat interface."""
 
-    def __init__(self, model: str = "mistral:latest", base_url: str = "http://localhost:11434") -> None:
+    def __init__(
+        self, model: str = "mistral:latest", base_url: str = "http://localhost:11434"
+    ) -> None:
         self.model = model
         self.base_url = base_url.rstrip("/")
 

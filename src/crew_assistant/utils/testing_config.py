@@ -169,7 +169,9 @@ def is_model_suitable_for_testing(model_id: str) -> bool:
     return True
 
 
-def print_testing_summary(model_used: str, response_time: float, tokens_used: int | None = None) -> None:
+def print_testing_summary(
+    model_used: str, response_time: float, tokens_used: int | None = None
+) -> None:
     """
     Print a summary of testing results.
 

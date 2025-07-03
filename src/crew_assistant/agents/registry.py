@@ -23,7 +23,9 @@ class AgentRegistry:
         cls._agents[role] = agent_class
 
     @classmethod
-    def create_agent(cls, role: str, provider: BaseProvider, model: str, **kwargs: Any) -> BaseAgent:
+    def create_agent(
+        cls, role: str, provider: BaseProvider, model: str, **kwargs: Any
+    ) -> BaseAgent:
         """Create agent instance."""
         if role not in cls._agents:
             raise ValueError(f"Unknown agent role: {role}")

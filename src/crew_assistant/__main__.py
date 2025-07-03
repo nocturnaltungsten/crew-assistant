@@ -55,7 +55,9 @@ Examples:
             return
 
         try:
-            engine: CrewEngine = create_crew_engine(provider=provider, model=model, verbose=args.verbose)
+            engine: CrewEngine = create_crew_engine(
+                provider=provider, model=model, verbose=args.verbose
+            )
 
             print(f"🚀 Executing task with {provider}/{model}...")
             result: WorkflowResult = engine.execute_task(args.crew)

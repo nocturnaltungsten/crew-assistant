@@ -159,7 +159,9 @@ class OllamaProvider(BaseProvider):
             logger.error(f"[{request_id}] Unexpected Ollama error: {e}")
             raise ConnectionError(f"Ollama error: {e}")
 
-    async def chat_async(self, messages: list[ChatMessage], model: str, **kwargs: Any) -> ChatResponse:
+    async def chat_async(
+        self, messages: list[ChatMessage], model: str, **kwargs: Any
+    ) -> ChatResponse:
         """Async chat with Ollama using connection pooling."""
         if not self._async_client:
             self._async_client = httpx.AsyncClient(

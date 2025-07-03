@@ -5,7 +5,9 @@ from .memory_store import MemoryStore
 
 
 class ContextInjector:
-    def __init__(self, memory: MemoryStore | None = None, factstore: FactStore | None = None) -> None:
+    def __init__(
+        self, memory: MemoryStore | None = None, factstore: FactStore | None = None
+    ) -> None:
         self.memory = memory or MemoryStore()
         self.facts = factstore or FactStore()
 
