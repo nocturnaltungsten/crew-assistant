@@ -4,7 +4,7 @@
 import os
 from typing import Any
 
-from ..core import create_crew_engine
+from ..core import create_crew_engine, CrewEngine
 from ..workflows.base import WorkflowResult
 from .setup import interactive_provider_setup
 
@@ -16,9 +16,9 @@ def run_enhanced_ux_shell(provider: str | None = None, model: str | None = None)
     if not provider or not model:
         if not os.getenv("AI_PROVIDER") or not os.getenv("OPENAI_API_MODEL"):
             print("🔧 No AI provider configured. Let's set one up!")
-            result = interactive_provider_setup()
-            if result:
-                model, provider, api_base = result
+            setup_result = interactive_provider_setup()
+            if setup_result:
+                model, provider, api_base = setup_result
                 # Set environment variables for current session
                 os.environ["OPENAI_API_MODEL"] = model
                 os.environ["OPENAI_API_BASE"] = api_base
@@ -33,7 +33,7 @@ def run_enhanced_ux_shell(provider: str | None = None, model: str | None = None)
 
     # Create crew engine
     try:
-        engine = create_crew_engine(
+        engine: CrewEngine = create_crew_engine(
             provider=provider, model=model, verbose=True, save_sessions=True, memory_enabled=True
         )
     except Exception as e:
@@ -72,7 +72,7 @@ def run_enhanced_ux_shell(provider: str | None = None, model: str | None = None)
 
             # Execute task with crew
             print("\n🚀 Deploying 4-agent crew...")
-            result = engine.execute_task(user_input)
+            result: WorkflowResult = engine.execute_task(user_input)
 
             if result.success:
                 print("\n✅ Task completed successfully!")

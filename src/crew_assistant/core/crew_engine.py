@@ -38,6 +38,8 @@ class CrewEngine:
 
         # Initialize provider
         self.provider = get_provider(config.provider)
+        if not self.provider:
+            raise ValueError(f"Provider '{config.provider}' not found")
 
         # Initialize crew
         self.crew = create_crew(provider=self.provider, model=config.model, verbose=config.verbose)
@@ -49,7 +51,7 @@ class CrewEngine:
         self.memory = MemoryStore() if config.memory_enabled else None
 
         # Session tracking
-        self.session_history = []
+        self.session_history: list[dict] = []
 
         if config.verbose:
             print("🚀 Crew Engine initialized")
@@ -126,13 +128,14 @@ class CrewEngine:
         """Build context from recent memory entries."""
         try:
             # Use existing memory context building from fact_learning
-            from utils.fact_learning import build_memory_context
+            from crew_assistant.utils.fact_learning import build_memory_context
 
-            return build_memory_context(limit=limit)
+            context: str = build_memory_context(limit=limit)
+            return context
         except Exception:
             return ""
 
-    def _save_session(self, user_request: str, result: WorkflowResult):
+    def _save_session(self, user_request: str, result: WorkflowResult) -> None:
         """Save session data to file."""
         try:
             # Create session directory
@@ -215,11 +218,13 @@ class CrewEngine:
         """Get list of available providers."""
         return get_registry().list_providers()
 
-    def switch_model(self, new_model: str):
+    def switch_model(self, new_model: str) -> None:
         """Switch to a different model (recreates crew)."""
         self.config.model = new_model
 
         # Recreate crew with new model
+        if not self.provider:
+            raise ValueError("No provider available")
         self.crew = create_crew(
             provider=self.provider, model=new_model, verbose=self.config.verbose
         )
@@ -233,7 +238,7 @@ class CrewEngine:
             print(f"🔄 Switched to model: {new_model}")
 
 
-def create_crew_engine(provider: str, model: str, **kwargs) -> CrewEngine:
+def create_crew_engine(provider: str, model: str, **kwargs: Any) -> CrewEngine:
     """Convenience function to create crew engine."""
     config = CrewConfig(provider=provider, model=model, **kwargs)
     return CrewEngine(config)

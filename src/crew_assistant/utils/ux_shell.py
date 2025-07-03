@@ -9,14 +9,17 @@ import uuid
 from crew_assistant.core.context_engine.memory_store import MemoryStore
 from crewai import Crew, Task
 from crew_assistant.utils.fact_learning import build_memory_context, learn_fact_if_possible
+from typing import Any
 
 
 # Import UX agent creation function
-def get_ux_agent():
+def get_ux_agent() -> Any:
     """Get UX agent with current configuration."""
+    # This is a legacy CrewAI-based UX shell
+    # For now, just create a basic agent
     try:
-        from crew_assistant.agents.ux import get_llm
         from crewai import Agent
+        from crewai.agent import LLM
 
         return Agent(
             role="Chat interface",
@@ -27,16 +30,15 @@ def get_ux_agent():
             ),
             allow_delegation=False,
             use_system_prompt=False,
-            llm=get_llm(),
             verbose=True,
         )
     except ImportError as e:
-        print(f"❌ Could not import UX agent: {e}")
-        print("💡 Make sure agents/ux.py exists and defines 'get_llm' function")
+        print(f"❌ Could not import CrewAI agent: {e}")
+        print("💡 This is a legacy UX shell that requires CrewAI")
         raise
 
 
-def run_ux_shell(raw_mode=False):
+def run_ux_shell(raw_mode: bool = False) -> None:
     """
     Interactive UX shell with memory and fact learning.
 
@@ -59,11 +61,11 @@ def run_ux_shell(raw_mode=False):
             print("❌ Setup cancelled. Using defaults.")
             return
 
-    provider = os.getenv("AI_PROVIDER", "lm_studio")
+    provider_str = os.getenv("AI_PROVIDER", "lm_studio")
     model = os.getenv("OPENAI_API_MODEL", "unknown")
 
     # Use direct Ollama integration for Ollama provider
-    if provider == "ollama":
+    if provider_str == "ollama":
         print("🔄 Using direct Ollama integration (bypassing CrewAI)...")
         from crew_assistant.utils.simple_ollama_chat import run_simple_ollama_ux
 
@@ -77,7 +79,7 @@ def run_ux_shell(raw_mode=False):
     snapshot_dir = "crew_runs"
     os.makedirs(snapshot_dir, exist_ok=True)
 
-    print(f"\n🧠 UX Shell online using {provider} with {model}")
+    print(f"\n🧠 UX Shell online using {provider_str} with {model}")
     print("Type 'exit' to disengage.\n")
 
     # Create UX agent with current configuration

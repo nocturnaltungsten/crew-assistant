@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 
-from .core import create_crew_engine
+from .core import create_crew_engine, CrewEngine
 from .workflows.base import WorkflowResult
 from .ui import interactive_provider_setup, run_enhanced_ux_shell
 
@@ -33,9 +33,9 @@ Examples:
 
     # Provider and model setup
     if args.setup:
-        result = interactive_provider_setup()
-        if result:
-            model_id, provider, api_base = result
+        setup_result = interactive_provider_setup()
+        if setup_result:
+            model_id, provider, api_base = setup_result
             # Set environment variables for current session
             os.environ["OPENAI_API_MODEL"] = model_id
             os.environ["OPENAI_API_BASE"] = api_base
@@ -55,10 +55,10 @@ Examples:
             return
 
         try:
-            engine = create_crew_engine(provider=provider, model=model, verbose=args.verbose)
+            engine: CrewEngine = create_crew_engine(provider=provider, model=model, verbose=args.verbose)
 
             print(f"🚀 Executing task with {provider}/{model}...")
-            result = engine.execute_task(args.crew)
+            result: WorkflowResult = engine.execute_task(args.crew)
 
             if result.success:
                 print("\n✅ Task completed successfully!")
