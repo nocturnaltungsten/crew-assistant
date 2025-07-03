@@ -73,8 +73,8 @@ class ToolCall:
 
     def __post_init__(self) -> None:
         """Validate tool call after initialization."""
-        if self.parameters is None:
-            self.parameters = {}
+        # Ensure parameters is never None
+        self.parameters = self.parameters or {}
         if not self.tool_name:
             raise ValueError("Tool name cannot be empty")
 

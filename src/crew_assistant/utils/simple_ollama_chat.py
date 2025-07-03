@@ -86,12 +86,13 @@ For simple questions and conversations, respond normally as a helpful assistant.
                 break
 
             # Build context from memory
+            memory_context = "No recent context available"
             try:
-                memory_context = build_memory_context()
-                if not isinstance(memory_context, str):
-                    memory_context = "No recent context available"
+                context_result = build_memory_context()
+                if isinstance(context_result, str):
+                    memory_context = context_result
             except Exception:
-                memory_context = "No recent context available"
+                pass  # Keep default memory_context
 
             # Create full prompt with context
             full_message = f"""User said: '{user_input}'
