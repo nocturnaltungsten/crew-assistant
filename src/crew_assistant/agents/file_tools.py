@@ -49,7 +49,7 @@ class ReadFileTool(BaseTool):
         file_path = kwargs.get("file_path", "")
         encoding = kwargs.get("encoding", "utf-8")
         max_size_mb = kwargs.get("max_size_mb", 10)
-        
+
         try:
             # Resolve path
             path = pathlib.Path(file_path).resolve()
@@ -155,7 +155,7 @@ class WriteFileTool(BaseTool):
         content = kwargs.get("content", "")
         encoding = kwargs.get("encoding", "utf-8")
         create_dirs = kwargs.get("create_dirs", False)
-        
+
         try:
             # Resolve path
             path = pathlib.Path(file_path).resolve()

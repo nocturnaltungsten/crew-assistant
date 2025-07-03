@@ -4,7 +4,7 @@
 import os
 from typing import Any
 
-from ..core import create_crew_engine, CrewEngine
+from ..core import CrewEngine, create_crew_engine
 from ..workflows.base import WorkflowResult
 from .setup import interactive_provider_setup
 

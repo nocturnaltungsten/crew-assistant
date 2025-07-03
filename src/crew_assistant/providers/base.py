@@ -277,7 +277,7 @@ class BaseProvider(ABC):
         """Async batch processing with concurrency."""
         tasks = [self.chat_async(messages, model, **kwargs) for messages, model, kwargs in requests]
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Convert exceptions to error responses
         responses: list[ChatResponse] = []
         for result in results:

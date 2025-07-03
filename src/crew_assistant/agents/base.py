@@ -3,12 +3,12 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..providers import BaseProvider, ChatMessage
 
 if TYPE_CHECKING:
-    from .tools import ToolResult
+    pass
 
 
 @dataclass

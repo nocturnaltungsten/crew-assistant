@@ -371,9 +371,9 @@ class ProviderRegistry:
         """Cleanup all providers and stop monitoring."""
         self.stop_health_monitoring()
 
-        for provider in self._provider_instances.values():
+        for _provider in self._provider_instances.values():
             try:
-                # provider.close()  # TODO: BaseProvider doesn't have close method
+                # _provider.close()  # TODO: BaseProvider doesn't have close method
                 pass
             except Exception as e:
                 logger.error(f"Error closing provider: {e}")
