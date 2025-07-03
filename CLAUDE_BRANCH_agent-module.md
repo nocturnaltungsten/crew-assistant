@@ -131,13 +131,46 @@ User: "create a python script"
 - ✅ Chat memory enables multi-turn conversations
 - ✅ Complex multiline content working
 
+### **Current Phase: CI/CD Pipeline Fixes** (2025-07-03)
+
+#### **Active Work: MyPy Type Annotation Fixes**
+**Status**: 42 errors remaining (down from 139)
+
+**Progress Summary**:
+- Started with 139 MyPy type errors blocking CI/CD
+- Fixed 97 errors (70% complete) across 25+ files
+- Main issues: missing type annotations, import paths, signature incompatibilities
+
+**Key Fixes Applied**:
+1. Added return type annotations to all methods
+2. Fixed import paths from old structure to crew_assistant.*
+3. Added argument type annotations with Any where needed
+4. Fixed signature incompatibilities in file_tools.py
+5. Converted AsyncIterator to Iterator for sync compatibility
+6. Renamed conflicting variables (result → setup_result)
+
+**Remaining Work** (42 errors):
+- `utils/simple_ollama_chat.py` (4 errors)
+- `providers/registry.py` (4 errors) 
+- `__main__.py` (4 errors)
+- `utils/ollama_adapter.py` (3 errors)
+- `config.py` (3 errors)
+- `agents/base.py` (3 errors)
+- Plus 14 other files with 1-2 errors each
+
+**Next Session TODO**:
+1. Run `uv run mypy src/crew_assistant/ --ignore-missing-imports` to see current errors
+2. Fix remaining 42 errors focusing on high-count files first
+3. Verify CI/CD passes all checks
+4. Create PR for main branch (NO SIGNATURES)
+
 ### **Next Phase: Production Readiness**
 
-#### **Immediate Tasks:**
-1. **Integration Testing** - Test with actual crew workflows
+#### **After CI/CD Fixed:**
+1. **Integration Testing** - Test tool calling with actual crew workflows
 2. **Error Handling** - More specific exception types and recovery
 3. **Performance** - Profile tool execution times
-4. **Documentation** - Complete API documentation
+4. **Documentation** - Update README.md and ARCHITECTURE.md for v0.3.1
 
 #### **Future Enhancements:**
 1. **More Tools** - HTTP requests, database operations, shell commands
